@@ -32,11 +32,23 @@ workspace:
   size: "10Gi"
   access: "rwo"
 defaults:
-  image: "golang:1.26"
+  image: "golang:1.26@sha256:6c2a5538f964f1c82f97ad14988bf05de100d922d159d0e398b54c7b0ca0c6c9"
   timeout: "30m"
   network: "egress-https"
+  # Steps run unprivileged with a read-only root file system, so every cache and scratch directory is in the
+  # shared workspace.
   env:
     GOTOOLCHAIN: "local"
+    GOMAXPROCS: "2"
+    GOPATH: "/workspace/.ci-cache/go"
+    GOCACHE: "/workspace/.ci-cache/go-build"
+    GOTMPDIR: "/workspace/.ci-tmp"
+    GOLANGCI_LINT_CACHE: "/workspace/.ci-cache/golangci-lint"
+    XDG_CACHE_HOME: "/workspace/.ci-cache/xdg"
+    XDG_CONFIG_HOME: "/workspace/.ci-tmp/config"
+    HELM_CACHE_HOME: "/workspace/.ci-cache/helm"
+    HELM_CONFIG_HOME: "/workspace/.ci-tmp/helm-config"
+    HELM_DATA_HOME: "/workspace/.ci-cache/helm-data"
 permissions:
   contents: "read"
 secrets:
@@ -53,49 +65,65 @@ stages:
       - "checkout"
     run: |-
       set -eu
+      mkdir -p "${GOTMPDIR}"
       test -z "$(gofmt -l cmd internal tools)"
       make vet
       make test
     cache:
       - key: "go-${{ hashFiles('go.sum') }}"
         paths:
-          - "/go/pkg/mod"
-          - "/root/.cache/go-build"
+          - "/workspace/.ci-cache/go"
+          - "/workspace/.ci-cache/go-build"
+    resources:
+      cpu: "2"
+      memory: "4Gi"
 
   - name: "lint"
     kind: "run"
-    image: "golangci/golangci-lint:v2.13.2"
+    image: "golangci/golangci-lint:v2.13.2@sha256:ba07dffad130794ae79ebaa0056809d18c0168f3f846480ffd3eb6c04578b83d"
     needs:
       - "checkout"
-    run: "make lint"
+    run: |-
+      mkdir -p "${GOTMPDIR}"
+      make lint
     cache:
       - key: "go-lint-${{ hashFiles('go.sum') }}"
         paths:
-          - "/go/pkg/mod"
-          - "/root/.cache/go-build"
-          - "/root/.cache/golangci-lint"
+          - "/workspace/.ci-cache/go"
+          - "/workspace/.ci-cache/go-build"
+          - "/workspace/.ci-cache/golangci-lint"
 
   # Reported, not blocking: a finding with no released fix upstream would otherwise stop every release.
+    resources:
+      cpu: "2"
+      memory: "4Gi"
+
   - name: "vulnerabilities"
     kind: "run"
     needs:
       - "checkout"
     allow_failure: true
-    run: "go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 ./..."
+    run: |-
+      mkdir -p "${GOTMPDIR}"
+      go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 ./...
     cache:
       - key: "go-${{ hashFiles('go.sum') }}"
         paths:
-          - "/go/pkg/mod"
-          - "/root/.cache/go-build"
+          - "/workspace/.ci-cache/go"
+          - "/workspace/.ci-cache/go-build"
+    resources:
+      cpu: "2"
+      memory: "4Gi"
 
   - name: "helm"
     kind: "run"
-    image: "alpine/helm:3.19.0"
     needs:
       - "checkout"
     run: |-
       set -eu
-      apk add --no-cache make diffutils >/dev/null
+      mkdir -p "${GOTMPDIR}" "${HELM_CONFIG_HOME}"
+      PATH="$(./hack/ci-helm.sh):${PATH}"
+      export PATH
       make helm-lint
 
   - name: "image-check"
@@ -109,13 +137,18 @@ stages:
         - "pull_request"
     run: |-
       set -eu
+      mkdir -p "${GOTMPDIR}"
+      TMPDIR="${GOTMPDIR}"
+      export TMPDIR
       go install github.com/google/ko@v0.19.1
+      PATH="${GOPATH}/bin:${PATH}"
+      export PATH
       IMAGE=share.ankra.cloud/library/ankra-cloud-ccm TAGS="sha-$(printf '%s' "${ANKRA_HEAD_SHA}" | cut -c1-7)" PUSH=false ./hack/image.sh
     cache:
       - key: "go-image-${{ hashFiles('go.sum') }}"
         paths:
-          - "/go/pkg/mod"
-          - "/root/.cache/go-build"
+          - "/workspace/.ci-cache/go"
+          - "/workspace/.ci-cache/go-build"
     resources:
       cpu: "2"
       memory: "4Gi"
@@ -134,8 +167,13 @@ stages:
       - "share_login"
     run: |-
       set -eu
+      mkdir -p "${GOTMPDIR}"
+      TMPDIR="${GOTMPDIR}"
+      export TMPDIR
       go install github.com/google/ko@v0.19.1
       go install github.com/google/go-containerregistry/cmd/crane@v0.22.1
+      PATH="${GOPATH}/bin:${PATH}"
+      export PATH
       DOCKER_CONFIG="$(mktemp -d)"
       export DOCKER_CONFIG
       cp /run/agent-secrets/share_login "${DOCKER_CONFIG}/config.json"
@@ -148,8 +186,8 @@ stages:
     cache:
       - key: "go-image-${{ hashFiles('go.sum') }}"
         paths:
-          - "/go/pkg/mod"
-          - "/root/.cache/go-build"
+          - "/workspace/.ci-cache/go"
+          - "/workspace/.ci-cache/go-build"
     resources:
       cpu: "2"
       memory: "4Gi"
@@ -159,7 +197,6 @@ stages:
   # updated by a pull request to github.com/ankraio/ankra-charts.
   - name: "chart"
     kind: "run"
-    image: "alpine/helm:3.19.0"
     needs:
       - "image"
     when:
@@ -169,13 +206,16 @@ stages:
       - "share_login"
     run: |-
       set -eu
+      mkdir -p "${GOTMPDIR}" "${HELM_CONFIG_HOME}"
+      PATH="$(./hack/ci-helm.sh):${PATH}"
+      export PATH
       tag="${ANKRA_REF#refs/tags/}"
       app_version="$(sed -n 's/^appVersion: *"\{0,1\}\([^"]*\)"\{0,1\}$/\1/p' charts/ankra-cloud-ccm/Chart.yaml)"
       if [ "${app_version}" != "${tag}" ]; then
         echo "chart: charts/ankra-cloud-ccm/Chart.yaml has appVersion ${app_version}, the tag is ${tag}" >&2
         exit 1
       fi
-      package_directory="$(mktemp -d)"
+      package_directory="$(mktemp -d "${GOTMPDIR}/chart.XXXXXX")"
       helm package charts/ankra-cloud-ccm --destination "${package_directory}"
       helm push "${package_directory}"/ankra-cloud-ccm-*.tgz oci://share.ankra.cloud/charts \
         --registry-config /run/agent-secrets/share_login

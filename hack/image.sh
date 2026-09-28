@@ -42,7 +42,7 @@ if [ "${PUSH}" = "true" ]; then
 		--image-refs "${work_directory}/image-refs"
 	echo "image: $(tail -n 1 "${work_directory}/image-refs")"
 else
-	KO_DOCKER_REPO="ko.local" \
+	KO_DOCKER_REPO="${IMAGE}" \
 		ko build ./cmd/ankra-cloud-ccm --bare --platform="${platforms}" --tags="${ko_tags}" --push=false
 	echo "built ${IMAGE}:${first_tag} without pushing"
 fi

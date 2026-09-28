@@ -36,8 +36,8 @@ helm-lint:
 	helm lint --strict $(CHART) --set api.existingSecret=ankra-cloud-ccm
 	@rendered="$$(mktemp)"; \
 	{ $(MAKE) --no-print-directory -s render; } > "$$rendered"; \
-	if ! diff -u $(MANIFESTS) "$$rendered" >/dev/null; then \
-		echo "helm-lint: $(MANIFESTS) is stale; run make manifests" >&2; diff -u $(MANIFESTS) "$$rendered" >&2; rm -f "$$rendered"; exit 1; \
+	if ! diff -uB $(MANIFESTS) "$$rendered" >/dev/null; then \
+		echo "helm-lint: $(MANIFESTS) is stale; run make manifests" >&2; diff -uB $(MANIFESTS) "$$rendered" >&2; rm -f "$$rendered"; exit 1; \
 	fi; \
 	rm -f "$$rendered"
 
