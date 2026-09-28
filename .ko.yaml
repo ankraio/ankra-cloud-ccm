@@ -1,0 +1,10 @@
+defaultBaseImage: gcr.io/distroless/static-debian12:nonroot
+builds:
+  - id: ankra-cloud-ccm
+    main: ./cmd/ankra-cloud-ccm
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{.Env.VERSION}}

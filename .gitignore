@@ -1,0 +1,4 @@
+/bin/
+*.tgz
+api/openapi.yaml.download
+sbom-*.spdx.json

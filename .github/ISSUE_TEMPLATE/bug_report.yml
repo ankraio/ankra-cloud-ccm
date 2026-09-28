@@ -1,0 +1,44 @@
+name: Bug report
+description: Something in the Ankra Cloud cloud controller manager does not work as documented.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Remove API tokens and other credentials from anything you paste. Security problems go to security@ankra.io, not here.
+  - type: input
+    id: version
+    attributes:
+      label: Chart and image version
+      placeholder: "chart 0.1.0, image v0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: kubernetes
+    attributes:
+      label: Kubernetes version and distribution
+      placeholder: "v1.33.4, k3s"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How to reproduce
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: kubectl -n kube-system logs for the relevant pod and container.
+      render: text

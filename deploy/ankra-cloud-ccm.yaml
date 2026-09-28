@@ -1,0 +1,247 @@
+# Rendered from charts/ankra-cloud-ccm by make manifests; do not edit. Create the Secret kube-system/ankra-cloud-ccm
+# with the key token (an Ankra Cloud API token) first. Kubelets must run with --cloud-provider=external.
+---
+# Source: ankra-cloud-ccm/templates/rbac.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ankra-cloud-ccm
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: ankra-cloud-ccm
+    app.kubernetes.io/instance: ankra-cloud-ccm
+    app.kubernetes.io/version: "v0.1.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: cloud-controller-manager
+    helm.sh/chart: ankra-cloud-ccm-0.1.0
+
+---
+# Source: ankra-cloud-ccm/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: system:ankra-cloud-ccm
+  labels:
+    app.kubernetes.io/name: ankra-cloud-ccm
+    app.kubernetes.io/instance: ankra-cloud-ccm
+    app.kubernetes.io/version: "v0.1.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: cloud-controller-manager
+    helm.sh/chart: ankra-cloud-ccm-0.1.0
+rules:
+  - apiGroups: [""]
+    resources: [events]
+    verbs: [create, patch, update]
+  - apiGroups: ["events.k8s.io"]
+    resources: [events]
+    verbs: [create, patch, update]
+  - apiGroups: [""]
+    resources: [nodes]
+    verbs: [get, list, watch, update, patch, delete]
+  - apiGroups: [""]
+    resources: [nodes/status]
+    verbs: [patch, update]
+  - apiGroups: [""]
+    resources: [services]
+    verbs: [get, list, watch, patch, update]
+  - apiGroups: [""]
+    resources: [services/status]
+    verbs: [patch, update]
+  - apiGroups: [""]
+    resources: [serviceaccounts]
+    verbs: [create, get]
+  - apiGroups: [""]
+    resources: [serviceaccounts/token]
+    verbs: [create]
+  - apiGroups: [""]
+    resources: [configmaps]
+    verbs: [get, list, watch]
+  - apiGroups: ["coordination.k8s.io"]
+    resources: [leases]
+    verbs: [create, get, list, watch, update]
+
+---
+# Source: ankra-cloud-ccm/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: system:ankra-cloud-ccm
+  labels:
+    app.kubernetes.io/name: ankra-cloud-ccm
+    app.kubernetes.io/instance: ankra-cloud-ccm
+    app.kubernetes.io/version: "v0.1.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: cloud-controller-manager
+    helm.sh/chart: ankra-cloud-ccm-0.1.0
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:ankra-cloud-ccm
+subjects:
+  - kind: ServiceAccount
+    name: ankra-cloud-ccm
+    namespace: kube-system
+
+---
+# Source: ankra-cloud-ccm/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: system:ankra-cloud-ccm:auth-delegator
+  labels:
+    app.kubernetes.io/name: ankra-cloud-ccm
+    app.kubernetes.io/instance: ankra-cloud-ccm
+    app.kubernetes.io/version: "v0.1.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: cloud-controller-manager
+    helm.sh/chart: ankra-cloud-ccm-0.1.0
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:auth-delegator
+subjects:
+  - kind: ServiceAccount
+    name: ankra-cloud-ccm
+    namespace: kube-system
+
+---
+# Source: ankra-cloud-ccm/templates/rbac.yaml
+# Delegated authentication of the secure port reads kube-system/extension-apiserver-authentication.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ankra-cloud-ccm:extension-apiserver-authentication-reader
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: ankra-cloud-ccm
+    app.kubernetes.io/instance: ankra-cloud-ccm
+    app.kubernetes.io/version: "v0.1.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: cloud-controller-manager
+    helm.sh/chart: ankra-cloud-ccm-0.1.0
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: extension-apiserver-authentication-reader
+subjects:
+  - kind: ServiceAccount
+    name: ankra-cloud-ccm
+    namespace: kube-system
+
+---
+# Source: ankra-cloud-ccm/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ankra-cloud-ccm
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: ankra-cloud-ccm
+    app.kubernetes.io/instance: ankra-cloud-ccm
+    app.kubernetes.io/version: "v0.1.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: cloud-controller-manager
+    helm.sh/chart: ankra-cloud-ccm-0.1.0
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ankra-cloud-ccm
+      app.kubernetes.io/instance: ankra-cloud-ccm
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ankra-cloud-ccm
+        app.kubernetes.io/instance: ankra-cloud-ccm
+      annotations:
+    spec:
+      serviceAccountName: ankra-cloud-ccm
+      priorityClassName: system-cluster-critical
+      hostNetwork: true
+      dnsPolicy: Default
+      securityContext:
+        runAsGroup: 65532
+        runAsNonRoot: true
+        runAsUser: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: ankra-cloud-ccm
+          image: "share.ankra.cloud/library/ankra-cloud-ccm:v0.1.0"
+          imagePullPolicy: IfNotPresent
+          args:
+            - --cloud-provider=ankracloud
+            - --cluster-name=kubernetes
+            - --leader-elect=true
+            - --leader-elect-resource-name=ankra-cloud-ccm
+            - --leader-elect-resource-namespace=kube-system
+            - --configure-cloud-routes=false
+            - --allocate-node-cidrs=false
+            - --secure-port=10258
+            - --v=2
+          env:
+            - name: ANKRA_CLOUD_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: ankra-cloud-ccm
+                  key: token
+            - name: ANKRA_CLOUD_API_URL
+              value: "https://cloud.ankra.app"
+            - name: ANKRA_CLOUD_NETWORK_ID
+              value: ""
+            - name: ANKRA_CLOUD_ZONE
+              value: ""
+            - name: ANKRA_CLOUD_LOAD_BALANCER_HIGH_AVAILABILITY
+              value: "auto"
+          ports:
+            - name: https
+              containerPort: 10258
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 10258
+              scheme: HTTPS
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            limits:
+              memory: 256Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - preference:
+              matchExpressions:
+              - key: node-role.kubernetes.io/control-plane
+                operator: Exists
+            weight: 100
+      tolerations:
+        - effect: NoSchedule
+          key: node.cloudprovider.kubernetes.io/uninitialized
+          value: "true"
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/control-plane
+          operator: Exists
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master
+          operator: Exists
+        - effect: NoSchedule
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+        - key: CriticalAddonsOnly
+          operator: Exists

@@ -1,0 +1,181 @@
+# ankra-cloud-ccm on Ankra Pipelines.
+#
+# Every push and pull request: go vet, the unit tests, golangci-lint, govulncheck and the chart gates. A pull request
+# also builds the multi-arch image and throws it away. A push to main publishes the image as sha-<7>; a v* tag
+# publishes it as v<semver> and pushes the chart to oci://share.ankra.cloud/charts. Images are built without a
+# daemon: ko cross-compiles the controller onto distroless for linux/amd64 and linux/arm64 and attaches an SPDX SBOM
+# (hack/image.sh).
+#
+# share_login is the Docker config for share.ankra.cloud, from the organisation's connected registry
+# share-ankra-cloud. It is a protected section: the image and chart stages publish only once an administrator has
+# approved this definition.
+apiVersion: ankra.io/v1
+kind: Pipeline
+metadata:
+  name: "ankra-cloud-ccm"
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+    branches:
+      - "main"
+    fork_policy: "read_only"
+  tag:
+    patterns:
+      - "v*"
+  manual: {}
+concurrency:
+  group: "ankra-cloud-ccm-${{ ankra.ref }}"
+  cancel_in_progress: true
+workspace:
+  size: "10Gi"
+  access: "rwo"
+defaults:
+  image: "golang:1.26"
+  timeout: "30m"
+  network: "egress-https"
+  env:
+    GOTOOLCHAIN: "local"
+permissions:
+  contents: "read"
+secrets:
+  - name: "share_login"
+    from: "registry"
+    key: "share-ankra-cloud"
+stages:
+  - name: "checkout"
+    kind: "checkout"
+
+  - name: "test"
+    kind: "run"
+    needs:
+      - "checkout"
+    run: |-
+      set -eu
+      test -z "$(gofmt -l cmd internal tools)"
+      make vet
+      make test
+    cache:
+      - key: "go-${{ hashFiles('go.sum') }}"
+        paths:
+          - "/go/pkg/mod"
+          - "/root/.cache/go-build"
+
+  - name: "lint"
+    kind: "run"
+    image: "golangci/golangci-lint:v2.13.2"
+    needs:
+      - "checkout"
+    run: "make lint"
+    cache:
+      - key: "go-lint-${{ hashFiles('go.sum') }}"
+        paths:
+          - "/go/pkg/mod"
+          - "/root/.cache/go-build"
+          - "/root/.cache/golangci-lint"
+
+  # Reported, not blocking: a finding with no released fix upstream would otherwise stop every release.
+  - name: "vulnerabilities"
+    kind: "run"
+    needs:
+      - "checkout"
+    allow_failure: true
+    run: "go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 ./..."
+    cache:
+      - key: "go-${{ hashFiles('go.sum') }}"
+        paths:
+          - "/go/pkg/mod"
+          - "/root/.cache/go-build"
+
+  - name: "helm"
+    kind: "run"
+    image: "alpine/helm:3.19.0"
+    needs:
+      - "checkout"
+    run: |-
+      set -eu
+      apk add --no-cache make diffutils >/dev/null
+      make helm-lint
+
+  - name: "image-check"
+    kind: "run"
+    needs:
+      - "test"
+      - "lint"
+      - "helm"
+    when:
+      events:
+        - "pull_request"
+    run: |-
+      set -eu
+      go install github.com/google/ko@v0.19.1
+      IMAGE=share.ankra.cloud/library/ankra-cloud-ccm TAGS="sha-$(printf '%s' "${ANKRA_HEAD_SHA}" | cut -c1-7)" PUSH=false ./hack/image.sh
+    cache:
+      - key: "go-image-${{ hashFiles('go.sum') }}"
+        paths:
+          - "/go/pkg/mod"
+          - "/root/.cache/go-build"
+    resources:
+      cpu: "2"
+      memory: "4Gi"
+
+  - name: "image"
+    kind: "run"
+    needs:
+      - "test"
+      - "lint"
+      - "helm"
+    when:
+      events:
+        - "push"
+        - "tag"
+    secrets:
+      - "share_login"
+    run: |-
+      set -eu
+      go install github.com/google/ko@v0.19.1
+      go install github.com/google/go-containerregistry/cmd/crane@v0.22.1
+      DOCKER_CONFIG="$(mktemp -d)"
+      export DOCKER_CONFIG
+      cp /run/agent-secrets/share_login "${DOCKER_CONFIG}/config.json"
+      case "${ANKRA_REF}" in
+        refs/tags/v*|v*) tags="${ANKRA_REF#refs/tags/}" ;;
+        refs/heads/main|main) tags="sha-$(printf '%s' "${ANKRA_HEAD_SHA}" | cut -c1-7)" ;;
+        *) echo "image: nothing to publish for ${ANKRA_REF}"; exit 0 ;;
+      esac
+      IMAGE=share.ankra.cloud/library/ankra-cloud-ccm TAGS="${tags}" PUSH=true ./hack/image.sh
+    cache:
+      - key: "go-image-${{ hashFiles('go.sum') }}"
+        paths:
+          - "/go/pkg/mod"
+          - "/root/.cache/go-build"
+    resources:
+      cpu: "2"
+      memory: "4Gi"
+
+  # A release tag also publishes the chart as an OCI artifact. The chart's appVersion has to be the tag, so the
+  # chart installs the image this run just pushed. The helm repository (https://ankraio.github.io/ankra-charts) is
+  # updated by a pull request to github.com/ankraio/ankra-charts.
+  - name: "chart"
+    kind: "run"
+    image: "alpine/helm:3.19.0"
+    needs:
+      - "image"
+    when:
+      events:
+        - "tag"
+    secrets:
+      - "share_login"
+    run: |-
+      set -eu
+      tag="${ANKRA_REF#refs/tags/}"
+      app_version="$(sed -n 's/^appVersion: *"\{0,1\}\([^"]*\)"\{0,1\}$/\1/p' charts/ankra-cloud-ccm/Chart.yaml)"
+      if [ "${app_version}" != "${tag}" ]; then
+        echo "chart: charts/ankra-cloud-ccm/Chart.yaml has appVersion ${app_version}, the tag is ${tag}" >&2
+        exit 1
+      fi
+      package_directory="$(mktemp -d)"
+      helm package charts/ankra-cloud-ccm --destination "${package_directory}"
+      helm push "${package_directory}"/ankra-cloud-ccm-*.tgz oci://share.ankra.cloud/charts \
+        --registry-config /run/agent-secrets/share_login

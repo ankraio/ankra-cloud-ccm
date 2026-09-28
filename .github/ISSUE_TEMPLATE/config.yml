@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: mailto:security@ankra.io
+    about: Please report security problems privately to security@ankra.io.
+  - name: Documentation
+    url: https://cloud.ankra.app/docs/kubernetes-ccm
+    about: Installation, configuration and how the Ankra Cloud cloud controller manager maps to Ankra Cloud.
