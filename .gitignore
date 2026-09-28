@@ -2,3 +2,6 @@
 *.tgz
 api/openapi.yaml.download
 sbom-*.spdx.json
+.ci-cache/
+.ci-tmp/
+.ci-tools/
