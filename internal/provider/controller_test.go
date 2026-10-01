@@ -93,7 +93,9 @@ func TestControllersInitialiseNodesAndServeServices(t *testing.T) {
 			return false, nil
 		}
 		initialised = current
-		return current.Spec.ProviderID != "" && len(current.Spec.Taints) == 0, nil
+		// The controller writes the addresses in a status update of its own after initialising the node, so the
+		// poll waits for them too; reading the node between the two updates is what made this test flaky.
+		return current.Spec.ProviderID != "" && len(current.Spec.Taints) == 0 && len(current.Status.Addresses) > 0, nil
 	})
 	if pollError != nil {
 		t.Fatalf("node not initialised: %+v", initialised)

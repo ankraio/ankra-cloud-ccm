@@ -161,13 +161,13 @@ today's API accepts.
 
 Images are multi-arch (linux/amd64, linux/arm64), distroless and non-root, and published to the public registry
 `share.ankra.cloud`, pullable without credentials: `share.ankra.cloud/library/ankra-cloud-ccm:v<semver>` for each
-release tag and `:sha-<commit>` for each commit on main. Tags are immutable; there is no `latest`. Each image carries
+release and `:sha-<commit>` for each commit on main. Tags are immutable; there is no `latest`. Each image carries
 an SPDX SBOM in the registry. The chart is published to the Helm repository `https://ankraio.github.io/ankra-charts`
 and to `oci://share.ankra.cloud/charts`.
 
 CI runs on [Ankra Pipelines](.ankra/pipeline.yaml): go vet, the unit tests, golangci-lint, govulncheck and the chart
-gates on every push and pull request; the image build on every pull request; publishing on main and on `v*` tags. See
-[CHANGELOG.md](CHANGELOG.md) for what each release changed.
+gates on every push and pull request; the image build on every pull request; publishing on main, where a commit that
+sets a new `appVersion` in the chart is the release. See [CHANGELOG.md](CHANGELOG.md) for what each release changed.
 
 ## Develop
 

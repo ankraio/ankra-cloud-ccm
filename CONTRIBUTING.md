@@ -33,9 +33,10 @@ By contributing you agree that your contribution is licensed under the Apache Li
 
 ## Releases
 
-Maintainers release by moving the `Unreleased` entries in CHANGELOG.md under the new version, setting `version` and
-`appVersion` in the chart, and pushing a `v<semver>` tag. The pipeline publishes the image with that tag and the chart
-to `oci://share.ankra.cloud/charts`; the Helm repository is updated by a pull request to
-[ankraio/ankra-charts](https://github.com/ankraio/ankra-charts).
+Maintainers release by moving the `Unreleased` entries in CHANGELOG.md under the new version and setting `version` and
+`appVersion` in the chart, in a pull request. Merging it is the release: the pipeline's run on main sees an
+`appVersion` the registry does not have, publishes the image as `v<semver>` and pushes the chart to
+`oci://share.ankra.cloud/charts`. Nobody pushes a tag, and a run that is repeated publishes nothing twice. The Helm
+repository is updated by a pull request to [ankraio/ankra-charts](https://github.com/ankraio/ankra-charts).
 
 Documentation: <https://cloud.ankra.app/docs/kubernetes-ccm>
