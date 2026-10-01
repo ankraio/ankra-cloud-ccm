@@ -36,7 +36,8 @@ defaults:
   timeout: "30m"
   network: "egress-https"
   # Steps run unprivileged with a read-only root file system, so every cache and scratch directory is in the
-  # shared workspace.
+  # shared workspace. TMPDIR and XDG_CACHE_HOME are names Ankra reserves, so a run that declared one here is refused
+  # before checkout; a stage that needs one exports it in its script.
   env:
     GOTOOLCHAIN: "local"
     GOMAXPROCS: "2"
@@ -44,7 +45,6 @@ defaults:
     GOCACHE: "/workspace/.ci-cache/go-build"
     GOTMPDIR: "/workspace/.ci-tmp"
     GOLANGCI_LINT_CACHE: "/workspace/.ci-cache/golangci-lint"
-    XDG_CACHE_HOME: "/workspace/.ci-cache/xdg"
     XDG_CONFIG_HOME: "/workspace/.ci-tmp/config"
     HELM_CACHE_HOME: "/workspace/.ci-cache/helm"
     HELM_CONFIG_HOME: "/workspace/.ci-tmp/helm-config"
