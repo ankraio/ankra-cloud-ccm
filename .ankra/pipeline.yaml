@@ -39,6 +39,8 @@ defaults:
   # shared workspace. TMPDIR and XDG_CACHE_HOME are names Ankra reserves, so a run that declared one here is refused
   # before checkout; a stage that needs one exports it in its script.
   env:
+    # The workspace root belongs to another user, so git refuses VCS stamping and go build fails; no binary reads it.
+    GOFLAGS: "-buildvcs=false"
     GOTOOLCHAIN: "local"
     GOMAXPROCS: "2"
     GOPATH: "/workspace/.ci-cache/go"
