@@ -3,8 +3,9 @@
 # Every push and pull request: go vet, the unit tests, golangci-lint, govulncheck and the chart gates. A pull request
 # also builds the multi-arch image and throws it away. A push to main publishes the image as sha-<7> and is also
 # the release: when the chart's appVersion is not published yet, the same run publishes the image as v<semver> and
-# pushes the chart to oci://share.ankra.cloud/charts. Nobody pushes a tag. Images are built without a daemon: ko
-# cross-compiles the controller onto distroless for linux/amd64 and linux/arm64 and attaches an SPDX SBOM
+# pushes the chart to oci://share.ankra.cloud/charts. Nobody pushes a tag; a release the registry failed is repeated
+# with 'ankra pipeline run --ref main', which publishes only what is still missing. Images are built without a
+# daemon: ko cross-compiles the controller onto distroless for linux/amd64 and linux/arm64 and attaches an SPDX SBOM
 # (hack/image.sh).
 #
 # share_login is the Docker config for share.ankra.cloud, from the organisation's connected registry
@@ -162,6 +163,7 @@ stages:
     when:
       events:
         - "push"
+        - "manual"
     secrets:
       - "share_login"
     run: |-
@@ -208,6 +210,7 @@ stages:
     when:
       events:
         - "push"
+        - "manual"
     secrets:
       - "share_login"
     run: |-
