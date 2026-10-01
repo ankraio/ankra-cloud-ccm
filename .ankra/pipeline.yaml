@@ -1,9 +1,10 @@
 # ankra-cloud-ccm on Ankra Pipelines.
 #
 # Every push and pull request: go vet, the unit tests, golangci-lint, govulncheck and the chart gates. A pull request
-# also builds the multi-arch image and throws it away. A push to main publishes the image as sha-<7>; a v* tag
-# publishes it as v<semver> and pushes the chart to oci://share.ankra.cloud/charts. Images are built without a
-# daemon: ko cross-compiles the controller onto distroless for linux/amd64 and linux/arm64 and attaches an SPDX SBOM
+# also builds the multi-arch image and throws it away. A push to main publishes the image as sha-<7> and is also
+# the release: when the chart's appVersion is not published yet, the same run publishes the image as v<semver> and
+# pushes the chart to oci://share.ankra.cloud/charts. Nobody pushes a tag. Images are built without a daemon: ko
+# cross-compiles the controller onto distroless for linux/amd64 and linux/arm64 and attaches an SPDX SBOM
 # (hack/image.sh).
 #
 # share_login is the Docker config for share.ankra.cloud, from the organisation's connected registry
@@ -21,9 +22,6 @@ on:
     branches:
       - "main"
     fork_policy: "read_only"
-  tag:
-    patterns:
-      - "v*"
   manual: {}
 concurrency:
   group: "ankra-cloud-ccm-${{ ankra.ref }}"
@@ -48,9 +46,9 @@ defaults:
     GOTMPDIR: "/workspace/.ci-tmp"
     GOLANGCI_LINT_CACHE: "/workspace/.ci-cache/golangci-lint"
     XDG_CONFIG_HOME: "/workspace/.ci-tmp/config"
-    HELM_CACHE_HOME: "/workspace/.ci-cache/helm"
+    HELM_CACHE_HOME: "/workspace/.ci-tmp/helm-cache"
     HELM_CONFIG_HOME: "/workspace/.ci-tmp/helm-config"
-    HELM_DATA_HOME: "/workspace/.ci-cache/helm-data"
+    HELM_DATA_HOME: "/workspace/.ci-tmp/helm-data"
 permissions:
   contents: "read"
 secrets:
@@ -164,7 +162,6 @@ stages:
     when:
       events:
         - "push"
-        - "tag"
     secrets:
       - "share_login"
     run: |-
@@ -179,11 +176,18 @@ stages:
       DOCKER_CONFIG="$(mktemp -d)"
       export DOCKER_CONFIG
       cp /run/agent-secrets/share_login "${DOCKER_CONFIG}/config.json"
-      case "${ANKRA_REF}" in
-        refs/tags/v*|v*) tags="${ANKRA_REF#refs/tags/}" ;;
-        refs/heads/main|main) tags="sha-$(printf '%s' "${ANKRA_HEAD_SHA}" | cut -c1-7)" ;;
-        *) echo "image: nothing to publish for ${ANKRA_REF}"; exit 0 ;;
+      version="$(sed -n 's/^appVersion: *"\{0,1\}\([^"]*\)"\{0,1\}$/\1/p' charts/ankra-cloud-ccm/Chart.yaml)"
+      case "${version}" in
+        v[0-9]*) ;;
+        *) echo "image: charts/ankra-cloud-ccm/Chart.yaml has appVersion '${version}', not v<semver>" >&2; exit 1 ;;
       esac
+      commit_tag="sha-$(printf '%s' "${ANKRA_HEAD_SHA}" | cut -c1-7)"
+      # The version comes first so the released binary reports it; a commit that is not a release reports its commit.
+      tags="$(./hack/unpublished-tags.sh share.ankra.cloud/library/ankra-cloud-ccm "${version}" "${commit_tag}")"
+      if [ -z "${tags}" ]; then
+        echo "image: ${version} and ${commit_tag} are already published"
+        exit 0
+      fi
       IMAGE=share.ankra.cloud/library/ankra-cloud-ccm TAGS="${tags}" PUSH=true ./hack/image.sh
     cache:
       - key: "go-image-${{ hashFiles('go.sum') }}"
@@ -194,16 +198,16 @@ stages:
       cpu: "2"
       memory: "4Gi"
 
-  # A release tag also publishes the chart as an OCI artifact. The chart's appVersion has to be the tag, so the
-  # chart installs the image this run just pushed. The helm repository (https://ankraio.github.io/ankra-charts) is
-  # updated by a pull request to github.com/ankraio/ankra-charts.
+  # A release also publishes the chart as an OCI artifact: once per chart version, after the image stage has made
+  # sure the image its appVersion names is published. The helm repository (https://ankraio.github.io/ankra-charts)
+  # is updated by a pull request to github.com/ankraio/ankra-charts.
   - name: "chart"
     kind: "run"
     needs:
       - "image"
     when:
       events:
-        - "tag"
+        - "push"
     secrets:
       - "share_login"
     run: |-
@@ -211,12 +215,17 @@ stages:
       mkdir -p "${GOTMPDIR}" "${HELM_CONFIG_HOME}"
       PATH="$(./hack/ci-helm.sh):${PATH}"
       export PATH
-      tag="${ANKRA_REF#refs/tags/}"
-      app_version="$(sed -n 's/^appVersion: *"\{0,1\}\([^"]*\)"\{0,1\}$/\1/p' charts/ankra-cloud-ccm/Chart.yaml)"
-      if [ "${app_version}" != "${tag}" ]; then
-        echo "chart: charts/ankra-cloud-ccm/Chart.yaml has appVersion ${app_version}, the tag is ${tag}" >&2
-        exit 1
+      chart_version="$(sed -n 's/^version: *"\{0,1\}\([^"]*\)"\{0,1\}$/\1/p' charts/ankra-cloud-ccm/Chart.yaml)"
+      # Anything but "not found" is an error: pushing after a failed lookup would replace a published chart.
+      if answer="$(helm show chart oci://share.ankra.cloud/charts/ankra-cloud-ccm --version "${chart_version}" \
+        --registry-config /run/agent-secrets/share_login 2>&1 >/dev/null)"; then
+        echo "chart: ankra-cloud-ccm ${chart_version} is already published"
+        exit 0
       fi
+      case "${answer}" in
+        *"not found"*) ;;
+        *) echo "chart: could not look up ankra-cloud-ccm ${chart_version}: ${answer}" >&2; exit 1 ;;
+      esac
       package_directory="$(mktemp -d "${GOTMPDIR}/chart.XXXXXX")"
       helm package charts/ankra-cloud-ccm --destination "${package_directory}"
       helm push "${package_directory}"/ankra-cloud-ccm-*.tgz oci://share.ankra.cloud/charts \
