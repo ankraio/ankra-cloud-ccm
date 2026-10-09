@@ -2,8 +2,8 @@ apiVersion: v2
 name: ankra-cloud-ccm
 description: Kubernetes cloud controller manager for Ankra Cloud (node initialisation and Services of type LoadBalancer).
 type: application
-version: 0.1.0
-appVersion: "v0.1.0"
+version: 0.1.1
+appVersion: "v0.1.1"
 kubeVersion: ">=1.29.0-0"
 icon: https://ankra.io/images/apple-touch-icon.png
 home: https://github.com/ankraio/ankra-cloud-ccm
@@ -26,7 +26,7 @@ annotations:
   artifacthub.io/category: networking
   artifacthub.io/prerelease: "false"
   artifacthub.io/operator: "false"
-  artifacthub.io/containsSecurityUpdates: "false"
+  artifacthub.io/containsSecurityUpdates: "true"
   artifacthub.io/maintainers: |
     - name: Ankra AB
       email: admin@ankra.io
@@ -41,12 +41,12 @@ annotations:
     - url: https://artifacthub.io/packages/helm/ankra-charts/ankra-cloud-csi
   artifacthub.io/images: |
     - name: ankra-cloud-ccm
-      image: share.ankra.cloud/library/ankra-cloud-ccm:v0.1.0
+      image: share.ankra.cloud/library/ankra-cloud-ccm:v0.1.1
       platforms:
         - linux/amd64
         - linux/arm64
   artifacthub.io/changes: |
-    - kind: added
-      description: "First public release: node initialisation (providerID, addresses, instance type, zone and region) and one Ankra load balancer per Service of type LoadBalancer, or members on a combined edge."
-    - kind: added
-      description: "Multi-arch controller image (linux/amd64, linux/arm64) on share.ankra.cloud, distroless and non-root, with an SPDX SBOM."
+    - kind: security
+      description: "The controller is built with Go 1.26.9 and golang.org/x/net v0.60.0, which fix the net/http and HTTP/2 vulnerabilities govulncheck found linked into v0.1.0 (GO-2026-6599, 6600, 6603, 6605, 6607, 6608, 6610, 6611, 6612, 6613, 6617)."
+    - kind: security
+      description: "OpenTelemetry modules move to v1.45.0, which fixes GO-2026-6505 in the SDK and OTLP trace exporters."

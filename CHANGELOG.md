@@ -5,6 +5,15 @@ All notable changes to this project are documented here. The format follows
 
 ## Unreleased
 
+## v0.1.1
+
+### Security
+
+- The controller is built with Go 1.26.9 and `golang.org/x/net` v0.60.0, which fix the `net/http` and HTTP/2
+  vulnerabilities govulncheck found linked into v0.1.0: GO-2026-6599, GO-2026-6600, GO-2026-6603, GO-2026-6605,
+  GO-2026-6607, GO-2026-6608, GO-2026-6610, GO-2026-6611, GO-2026-6612, GO-2026-6613 and GO-2026-6617.
+- The OpenTelemetry modules move to v1.45.0, which fixes GO-2026-6505 in the SDK and the OTLP trace exporters.
+
 ## v0.1.0
 
 First public release.

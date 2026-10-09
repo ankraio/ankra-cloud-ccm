@@ -10,10 +10,10 @@ metadata:
   labels:
     app.kubernetes.io/name: ankra-cloud-ccm
     app.kubernetes.io/instance: ankra-cloud-ccm
-    app.kubernetes.io/version: "v0.1.0"
+    app.kubernetes.io/version: "v0.1.1"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: cloud-controller-manager
-    helm.sh/chart: ankra-cloud-ccm-0.1.0
+    helm.sh/chart: ankra-cloud-ccm-0.1.1
 
 ---
 # Source: ankra-cloud-ccm/templates/rbac.yaml
@@ -24,10 +24,10 @@ metadata:
   labels:
     app.kubernetes.io/name: ankra-cloud-ccm
     app.kubernetes.io/instance: ankra-cloud-ccm
-    app.kubernetes.io/version: "v0.1.0"
+    app.kubernetes.io/version: "v0.1.1"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: cloud-controller-manager
-    helm.sh/chart: ankra-cloud-ccm-0.1.0
+    helm.sh/chart: ankra-cloud-ccm-0.1.1
 rules:
   - apiGroups: [""]
     resources: [events]
@@ -69,10 +69,10 @@ metadata:
   labels:
     app.kubernetes.io/name: ankra-cloud-ccm
     app.kubernetes.io/instance: ankra-cloud-ccm
-    app.kubernetes.io/version: "v0.1.0"
+    app.kubernetes.io/version: "v0.1.1"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: cloud-controller-manager
-    helm.sh/chart: ankra-cloud-ccm-0.1.0
+    helm.sh/chart: ankra-cloud-ccm-0.1.1
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -91,10 +91,10 @@ metadata:
   labels:
     app.kubernetes.io/name: ankra-cloud-ccm
     app.kubernetes.io/instance: ankra-cloud-ccm
-    app.kubernetes.io/version: "v0.1.0"
+    app.kubernetes.io/version: "v0.1.1"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: cloud-controller-manager
-    helm.sh/chart: ankra-cloud-ccm-0.1.0
+    helm.sh/chart: ankra-cloud-ccm-0.1.1
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -115,10 +115,10 @@ metadata:
   labels:
     app.kubernetes.io/name: ankra-cloud-ccm
     app.kubernetes.io/instance: ankra-cloud-ccm
-    app.kubernetes.io/version: "v0.1.0"
+    app.kubernetes.io/version: "v0.1.1"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: cloud-controller-manager
-    helm.sh/chart: ankra-cloud-ccm-0.1.0
+    helm.sh/chart: ankra-cloud-ccm-0.1.1
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -138,10 +138,10 @@ metadata:
   labels:
     app.kubernetes.io/name: ankra-cloud-ccm
     app.kubernetes.io/instance: ankra-cloud-ccm
-    app.kubernetes.io/version: "v0.1.0"
+    app.kubernetes.io/version: "v0.1.1"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: cloud-controller-manager
-    helm.sh/chart: ankra-cloud-ccm-0.1.0
+    helm.sh/chart: ankra-cloud-ccm-0.1.1
 spec:
   replicas: 1
   revisionHistoryLimit: 3
@@ -173,7 +173,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: ankra-cloud-ccm
-          image: "share.ankra.cloud/library/ankra-cloud-ccm:v0.1.0"
+          image: "share.ankra.cloud/library/ankra-cloud-ccm:v0.1.1"
           imagePullPolicy: IfNotPresent
           args:
             - --cloud-provider=ankracloud
