@@ -50,7 +50,7 @@ func TestControllersInitialiseNodesAndServeServices(t *testing.T) {
 	api := newFakeAPI()
 	api.servers["server-1"] = testServer()
 	api.interfaces["server-1"] = []cloudapi.ServerInterface{{NetworkID: "network-1", Address: "10.0.0.5", Address6: "fd12::5"}}
-	api.capabilities["de-fsn1"] = cloudapi.ZoneCapabilities{IsKnown: true, Stage: "single", LoadBalancerHA: false}
+	api.capabilities["de-fsn1"] = cloudapi.ZoneCapabilities{IsKnown: true, Stage: 1, LoadBalancerHA: false}
 
 	node := &v1.Node{
 		ObjectMeta: metav1.ObjectMeta{Name: "worker-1"},

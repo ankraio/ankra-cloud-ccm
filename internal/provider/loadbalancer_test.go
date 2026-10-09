@@ -356,7 +356,7 @@ func TestAPortWithoutANodePortIsRefused(t *testing.T) {
 
 func TestASingleComputeNodeZoneGetsASingleVMLoadBalancer(t *testing.T) {
 	api := newFakeAPI()
-	api.capabilities["de-fsn1"] = cloudapi.ZoneCapabilities{IsKnown: true, Stage: "single", LoadBalancerHA: false, ComputeNodeCount: 1}
+	api.capabilities["de-fsn1"] = cloudapi.ZoneCapabilities{IsKnown: true, Stage: 1, LoadBalancerHA: false, ComputeNodeCount: 1}
 	balancers, recorder := newTestLoadBalancers(api, Options{})
 	service := loadBalancerService(nil, nil)
 	if _, ensureError := balancers.EnsureLoadBalancer(context.Background(), testCluster, service, twoNodes()); ensureError != nil {

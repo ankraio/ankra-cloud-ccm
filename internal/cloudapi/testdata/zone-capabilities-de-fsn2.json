@@ -1,0 +1,50 @@
+{
+  "stage": 3,
+  "servers": 3,
+  "gateways": 2,
+  "compute_nodes": 3,
+  "storage_backends": [
+    "ankra-local",
+    "ceph"
+  ],
+  "features": {
+    "compute": true,
+    "live_migration": true,
+    "ha_restart": true,
+    "load_balancer_ha": true,
+    "separate_edges": true
+  },
+  "reasons": {},
+  "underlay": "fabric",
+  "datacenters": [],
+  "latency_budget": [],
+  "storage_durability": "replicated",
+  "storage_durability_reason": null,
+  "storage_copies": "3 copies, one per host",
+  "default_storage_tier": "standard",
+  "ceph_tiers_offered": true,
+  "ceph_tiers_unavailable_reason": null,
+  "cpu_pools": [],
+  "backup_targets": [
+    "ceph"
+  ],
+  "local_storage": {
+    "accepts_new_volumes": true,
+    "reason": null
+  },
+  "warnings": [],
+  "recovery": "restart",
+  "recovery_reason": null,
+  "gateway_redundancy": "redundant",
+  "gateway_redundancy_reason": null,
+  "uplink_redundancy": "unknown",
+  "uplink_redundancy_reason": "no gateway uplink is recorded for the zone",
+  "object_storage_durability": "replicated",
+  "offsite_backups": false,
+  "offsite_backups_reason": "backups of the zone's volumes stay in its own Ankra Storage cluster",
+  "default_backup": null,
+  "public_ipv4": {
+    "total": 0,
+    "free": 0
+  }
+}

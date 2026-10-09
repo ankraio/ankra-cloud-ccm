@@ -1,0 +1,55 @@
+{
+  "stage": 1,
+  "servers": 1,
+  "gateways": 1,
+  "compute_nodes": 1,
+  "storage_backends": [
+    "ankra-local"
+  ],
+  "features": {
+    "compute": true,
+    "live_migration": false,
+    "ha_restart": false,
+    "load_balancer_ha": false,
+    "separate_edges": false
+  },
+  "reasons": {
+    "ha_restart": "the zone has 1 compute node(s); it needs 2",
+    "live_migration": "the zone has 1 compute node(s); it needs 2",
+    "load_balancer_ha": "the zone has 1 compute node(s); it needs 2",
+    "separate_edges": "the zone has 1 server(s); edges on separate VMs start at 3"
+  },
+  "underlay": "fabric",
+  "datacenters": [],
+  "latency_budget": [],
+  "storage_durability": "single_copy",
+  "storage_durability_reason": "the zone keeps one copy of every volume (Ankra Local on its node); Ankra Storage starts at 3 storage hosts; back volumes up to an off-host vault",
+  "storage_copies": "1 copy",
+  "default_storage_tier": "local-nvme",
+  "ceph_tiers_offered": false,
+  "ceph_tiers_unavailable_reason": "Ankra Storage is not active in the zone yet",
+  "cpu_pools": [],
+  "backup_targets": [],
+  "local_storage": {
+    "accepts_new_volumes": true,
+    "reason": null
+  },
+  "warnings": [
+    "local volumes have no backup target; configure a backup vault for region ",
+    "volumes are single copies without a backup outside the zone: region  has no backup vault"
+  ],
+  "recovery": "none",
+  "recovery_reason": "volumes live on one host and region  has no backup vault: a lost host's servers return only with the host",
+  "gateway_redundancy": "single",
+  "gateway_redundancy_reason": "the zone has one gateway: its public networking stops while that host is down",
+  "uplink_redundancy": "unknown",
+  "uplink_redundancy_reason": "no gateway uplink is recorded for the zone",
+  "object_storage_durability": "none",
+  "offsite_backups": false,
+  "offsite_backups_reason": "region  has no backup vault",
+  "default_backup": null,
+  "public_ipv4": {
+    "total": 0,
+    "free": 0
+  }
+}

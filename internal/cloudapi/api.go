@@ -44,10 +44,12 @@ type Zone struct {
 }
 
 // ZoneCapabilities is what a zone's growth stage allows. IsKnown is false when the API cannot say (an older API
-// without GET /v1/zones/{zone}/capabilities), in which case the controller assumes a highly available zone.
+// without GET /v1/zones/{zone}/capabilities), in which case the controller assumes a highly available zone. Stage is
+// 1 for a zone of one server, 2 for two and 3 from three on (0 before any server registered); ComputeNodeCount is the
+// zone's compute nodes, or its servers on an API that does not report compute nodes.
 type ZoneCapabilities struct {
 	IsKnown          bool
-	Stage            string
+	Stage            int
 	LoadBalancerHA   bool
 	ComputeNodeCount int
 }
