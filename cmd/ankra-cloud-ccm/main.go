@@ -33,6 +33,7 @@ func main() {
 	}
 	command := app.NewCloudControllerManagerCommand(controllerManagerOptions, initialiseCloud, app.DefaultInitFuncConstructors,
 		names.CCMControllerAliases(), cliflag.NamedFlagSets{}, wait.NeverStop)
+	reportVersion(command, os.Stdout)
 	os.Exit(cli.Run(command))
 }
 
