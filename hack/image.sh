@@ -6,6 +6,8 @@
 #   TAGS     space-separated immutable tags, for example "v0.1.0" or "sha-1a2b3c4"
 #   VERSION  the version the binary reports (default: the first tag)
 #   PUSH     true to publish; anything else builds the image and discards it
+#   JOBS     how many architectures ko builds at once (default 1). Each go build keeps a work directory of about
+#            1.8 GB under GOTMPDIR, so building both at once does not fit a pipeline workspace whose caches missed.
 #
 # Registry credentials come from the Docker config ($DOCKER_CONFIG/config.json or ~/.docker/config.json).
 set -eu
@@ -26,6 +28,7 @@ done
 work_directory="$(mktemp -d)"
 trap 'rm -rf "${work_directory}"' EXIT
 platforms="linux/amd64,linux/arm64"
+jobs="${JOBS:-1}"
 ko_tags="$(printf '%s' "${TAGS}" | tr ' ' ',')"
 
 if [ "${PUSH}" = "true" ]; then
@@ -38,11 +41,11 @@ if [ "${PUSH}" = "true" ]; then
 		done
 	fi
 	KO_DOCKER_REPO="${IMAGE}" \
-		ko build ./cmd/ankra-cloud-ccm --bare --platform="${platforms}" --tags="${ko_tags}" --sbom=spdx \
+		ko build ./cmd/ankra-cloud-ccm --bare --platform="${platforms}" --jobs="${jobs}" --tags="${ko_tags}" --sbom=spdx \
 		--image-refs "${work_directory}/image-refs"
 	echo "image: $(tail -n 1 "${work_directory}/image-refs")"
 else
 	KO_DOCKER_REPO="${IMAGE}" \
-		ko build ./cmd/ankra-cloud-ccm --bare --platform="${platforms}" --tags="${ko_tags}" --push=false
+		ko build ./cmd/ankra-cloud-ccm --bare --platform="${platforms}" --jobs="${jobs}" --tags="${ko_tags}" --push=false
 	echo "built ${IMAGE}:${first_tag} without pushing"
 fi
