@@ -5,6 +5,11 @@ All notable changes to this project are documented here. The format follows
 
 ## Unreleased
 
+### Fixed
+
+- `--version` prints `ankra-cloud-ccm <release>` and `--version=raw` adds the embedded k8s.io/cloud-provider version,
+  instead of the Kubernetes placeholder `v0.0.0-master+$Format:%H$`.
+
 ## v0.1.0
 
 First public release.
