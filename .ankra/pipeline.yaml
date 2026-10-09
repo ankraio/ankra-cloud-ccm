@@ -6,7 +6,8 @@
 # pushes the chart to oci://share.ankra.cloud/charts. Nobody pushes a tag; a release the registry failed is repeated
 # with 'ankra pipeline run --ref main', which publishes only what is still missing. Images are built without a
 # daemon: ko cross-compiles the controller onto distroless for linux/amd64 and linux/arm64 and attaches an SPDX SBOM
-# (hack/image.sh).
+# (hack/image.sh). ko and crane are pinned, checksum-verified release binaries (hack/ci-image-tools.sh), not built from
+# source: their module tree filled the shared workspace on a run whose caches all missed.
 #
 # share_login is the Docker config for share.ankra.cloud, from the organisation's connected registry
 # share-ankra-cloud. It is a protected section: the image and chart stages publish only once an administrator has
@@ -141,8 +142,7 @@ stages:
       mkdir -p "${GOTMPDIR}"
       TMPDIR="${GOTMPDIR}"
       export TMPDIR
-      go install github.com/google/ko@v0.19.1
-      PATH="${GOPATH}/bin:${PATH}"
+      PATH="$(./hack/ci-image-tools.sh):${PATH}"
       export PATH
       IMAGE=share.ankra.cloud/library/ankra-cloud-ccm TAGS="sha-$(printf '%s' "${ANKRA_HEAD_SHA}" | cut -c1-7)" PUSH=false ./hack/image.sh
     cache:
@@ -171,9 +171,7 @@ stages:
       mkdir -p "${GOTMPDIR}"
       TMPDIR="${GOTMPDIR}"
       export TMPDIR
-      go install github.com/google/ko@v0.19.1
-      go install github.com/google/go-containerregistry/cmd/crane@v0.22.1
-      PATH="${GOPATH}/bin:${PATH}"
+      PATH="$(./hack/ci-image-tools.sh):${PATH}"
       export PATH
       DOCKER_CONFIG="$(mktemp -d)"
       export DOCKER_CONFIG
