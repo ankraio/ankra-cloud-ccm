@@ -99,7 +99,9 @@ stages:
 
   # Reported, not blocking: a finding with no released fix upstream would otherwise stop every release. The scan
   # reads the built controller, not the source: analysing the source of the cloud-provider dependency tree needs
-  # more memory and time than this stage has, and was killed or cancelled before it reported anything.
+  # more memory and time than this stage has, and was killed or cancelled before it reported anything. What the scan
+  # builds for itself goes to a scratch directory and is removed: a run without caches fills the workspace to within
+  # a few hundred megabytes.
   - name: "vulnerabilities"
     kind: "run"
     needs:
@@ -107,6 +109,8 @@ stages:
     allow_failure: true
     run: |-
       mkdir -p "${GOTMPDIR}"
+      TMPDIR="${GOTMPDIR}"
+      export TMPDIR
       make vulnerabilities
     cache:
       - key: "go-${{ hashFiles('go.sum') }}"

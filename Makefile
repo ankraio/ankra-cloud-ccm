@@ -33,9 +33,13 @@ lint:
 
 # govulncheck over the built controller: the vulnerable symbols that are linked into the binary, with the Go
 # toolchain that built it. Reading the binary takes seconds; analysing the source of the cloud-provider dependency
-# tree takes several gigabytes of memory.
-vulnerabilities: build
-	go run golang.org/x/vuln/cmd/govulncheck@$(GOVULNCHECK_VERSION) -mode=binary bin/ankra-cloud-ccm
+# tree takes several gigabytes of memory. The binary and govulncheck's own build live in a scratch directory that is
+# removed afterwards, so the scan leaves nothing behind but the controller's build cache.
+vulnerabilities:
+	@set -e; scratch="$$(mktemp -d)"; trap 'rm -rf "$$scratch"' EXIT; \
+	CGO_ENABLED=0 go build -trimpath -o "$$scratch/ankra-cloud-ccm" ./cmd/ankra-cloud-ccm; \
+	GOFLAGS="$${GOFLAGS:+$$GOFLAGS }-modcacherw" GOCACHE="$$scratch/build-cache" GOMODCACHE="$$scratch/modules" \
+		go run golang.org/x/vuln/cmd/govulncheck@$(GOVULNCHECK_VERSION) -mode=binary "$$scratch/ankra-cloud-ccm"
 
 # helm lint, a render, and a check that deploy/ matches the chart.
 helm-lint:
