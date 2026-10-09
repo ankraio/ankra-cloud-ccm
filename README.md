@@ -174,6 +174,7 @@ sets a new `appVersion` in the chart is the release. See [CHANGELOG.md](CHANGELO
 ```bash
 make vet test        # go vet, unit tests (fake API), a controller test on client-go fakes, and the API client check
 make lint            # golangci-lint v2
+make vulnerabilities # govulncheck over the built controller
 make helm-lint       # helm lint, helm template, and a check that deploy/ matches the chart
 make manifests       # re-render deploy/
 make sync-client     # refresh api/openapi.yaml from https://cloud.ankra.app/docs/openapi.yaml and regenerate the client

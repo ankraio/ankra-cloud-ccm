@@ -21,6 +21,7 @@ Security problems are not reported in issues: see [SECURITY.md](SECURITY.md).
    make vet test
    make lint        # golangci-lint v2
    make helm-lint   # when you touched the chart; run `make manifests` to re-render deploy/
+   make vulnerabilities   # govulncheck over the built controller; reported in CI, not blocking
    ```
 
 4. Add a line under `Unreleased` in [CHANGELOG.md](CHANGELOG.md) for anything a user would notice.

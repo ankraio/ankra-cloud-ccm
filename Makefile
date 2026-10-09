@@ -6,13 +6,14 @@ RENDER := helm template ankra-cloud-ccm $(CHART) --namespace kube-system --set a
 IMAGE ?= share.ankra.cloud/library/ankra-cloud-ccm
 TAGS ?= sha-$(shell git rev-parse --short=7 HEAD 2>/dev/null || echo dev)
 GOLANGCI_LINT ?= golangci-lint
+GOVULNCHECK_VERSION ?= v1.8.0
 
 # Where `make sync-client` reads the Ankra Cloud OpenAPI document from. OPENAPI_SPEC, a local file (for example a
 # checkout of the Ankra Cloud monorepo's docs/openapi.yaml), wins over OPENAPI_URL.
 OPENAPI_URL ?= https://cloud.ankra.app/docs/openapi.yaml
 OPENAPI_SPEC ?=
 
-.PHONY: build test vet lint helm-lint render manifests client client-check sync-client image image-push check
+.PHONY: build test vet lint vulnerabilities helm-lint render manifests client client-check sync-client image image-push check
 
 build:
 	CGO_ENABLED=0 go build -trimpath -o bin/ankra-cloud-ccm ./cmd/ankra-cloud-ccm
@@ -29,6 +30,12 @@ vet:
 
 lint:
 	$(GOLANGCI_LINT) run ./...
+
+# govulncheck over the built controller: the vulnerable symbols that are linked into the binary, with the Go
+# toolchain that built it. Reading the binary takes seconds; analysing the source of the cloud-provider dependency
+# tree takes several gigabytes of memory.
+vulnerabilities: build
+	go run golang.org/x/vuln/cmd/govulncheck@$(GOVULNCHECK_VERSION) -mode=binary bin/ankra-cloud-ccm
 
 # helm lint, a render, and a check that deploy/ matches the chart.
 helm-lint:

@@ -93,12 +93,13 @@ stages:
           - "/workspace/.ci-cache/go"
           - "/workspace/.ci-cache/go-build"
           - "/workspace/.ci-cache/golangci-lint"
-
-  # Reported, not blocking: a finding with no released fix upstream would otherwise stop every release.
     resources:
       cpu: "2"
       memory: "4Gi"
 
+  # Reported, not blocking: a finding with no released fix upstream would otherwise stop every release. The scan
+  # reads the built controller, not the source: analysing the source of the cloud-provider dependency tree needs
+  # more memory and time than this stage has, and was killed or cancelled before it reported anything.
   - name: "vulnerabilities"
     kind: "run"
     needs:
@@ -106,7 +107,7 @@ stages:
     allow_failure: true
     run: |-
       mkdir -p "${GOTMPDIR}"
-      go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 ./...
+      make vulnerabilities
     cache:
       - key: "go-${{ hashFiles('go.sum') }}"
         paths:
