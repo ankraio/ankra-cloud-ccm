@@ -28,7 +28,9 @@ concurrency:
   group: "ankra-cloud-ccm-${{ ankra.ref }}"
   cancel_in_progress: true
 workspace:
-  size: "10Gi"
+  # Every stage shares it. A run whose cache keys all miss (a go.sum or toolchain change) builds everything cold:
+  # ko's two-architecture build alone filled 10Gi.
+  size: "20Gi"
   access: "rwo"
 defaults:
   # The released binary is built with this toolchain (ko runs in it), so its patch release is the one that ships.
