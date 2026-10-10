@@ -2,7 +2,6 @@ package cloudapi
 
 import (
 	"context"
-	"encoding/json"
 	"encoding/pem"
 	"errors"
 	"io"
@@ -113,11 +112,11 @@ func TestNotFoundIsErrNotFound(t *testing.T) {
 	}
 }
 
-func TestCreateLoadBalancerSendsOnlyNonDefaultFieldsThenLabels(t *testing.T) {
-	answer := jsonAnswer(http.StatusAccepted, `{"load_balancer":`+loadBalancerJSON+`,"operation":{"id":"operation-1","kind":"load_balancer.create","status":"pending","step":"","step_count":0,"step_index":0,"error":"","created_at":"2026-09-28T10:00:00Z","deadline_at":"2026-09-28T11:00:00Z","started_at":null,"finished_at":null,"server_id":null,"router_id":null,"storage_id":null,"floating_ip_id":null,"template_id":null,"backup_id":null}}`)
+const createOperationJSON = `{"id":"operation-1","kind":"load_balancer.create","status":"pending","step":"","step_count":0,"step_index":0,"error":"","created_at":"2026-09-28T10:00:00Z","deadline_at":"2026-09-28T11:00:00Z","started_at":null,"finished_at":null,"server_id":null,"router_id":null,"storage_id":null,"floating_ip_id":null,"template_id":null,"backup_id":null}`
+
+func TestCreateLoadBalancerSendsTheLabelsAndAlwaysTheIPv4Choice(t *testing.T) {
 	client, server := newTestClient(t, map[string]func(http.ResponseWriter){
-		"POST /v1/load-balancers":       answer,
-		"PATCH /v1/load-balancers/lb-1": jsonAnswer(http.StatusOK, `{"load_balancer":`+loadBalancerJSON+`}`),
+		"POST /v1/load-balancers": jsonAnswer(http.StatusAccepted, `{"load_balancer":`+loadBalancerJSON+`,"operation":`+createOperationJSON+`}`),
 	})
 	labels := map[string]string{"ccm.ankra.cloud/service": "shop/web"}
 	if _, createError := client.CreateLoadBalancer(context.Background(), CreateLoadBalancerInput{
@@ -126,25 +125,62 @@ func TestCreateLoadBalancerSendsOnlyNonDefaultFieldsThenLabels(t *testing.T) {
 		t.Fatal(createError)
 	}
 	if _, createError := client.CreateLoadBalancer(context.Background(), CreateLoadBalancerInput{
-		Name: "k8s-production-shop-web", Zone: "de-fsn1", HighAvailability: false, PublicIPv4: true,
+		Name: "k8s-production-shop-web", Zone: "de-fsn1", NetworkID: "network-1", Labels: labels, HighAvailability: false, PublicIPv4: true,
 	}); createError != nil {
 		t.Fatal(createError)
 	}
-	if len(server.requests) != 3 {
-		t.Fatalf("requests %+v", server.requests)
+	if len(server.requests) != 2 {
+		t.Fatalf("an answer that carries the labels needs no update_load_balancer: %+v", server.requests)
 	}
-	var first map[string]any
-	if decodeError := json.Unmarshal([]byte(server.requests[0].body), &first); decodeError != nil {
-		t.Fatal(decodeError)
-	}
-	if len(first) != 3 || first["network_id"] != "network-1" {
+	if server.requests[0].body != `{"zone":"de-fsn1","name":"k8s-production-shop-web","network_id":"network-1","labels":{"ccm.ankra.cloud/service":"shop/web"},"public_ipv4":false}` {
 		t.Fatalf("default create body %s", server.requests[0].body)
 	}
-	if server.requests[1].method != http.MethodPatch || server.requests[1].body != `{"labels":{"ccm.ankra.cloud/service":"shop/web"}}` {
-		t.Fatalf("labelling request %+v", server.requests[1])
+	if server.requests[1].body != `{"zone":"de-fsn1","name":"k8s-production-shop-web","network_id":"network-1","labels":{"ccm.ankra.cloud/service":"shop/web"},"high_availability":false,"public_ipv4":true}` {
+		t.Fatalf("single-node IPv4 create body %s", server.requests[1].body)
 	}
-	if server.requests[2].body != `{"zone":"de-fsn1","name":"k8s-production-shop-web","high_availability":false,"public_ipv4":true}` {
-		t.Fatalf("single-node IPv4 create body %s", server.requests[2].body)
+}
+
+func TestCreateLoadBalancerLabelsWhatTheAnswerLacks(t *testing.T) {
+	unlabelled := strings.Replace(loadBalancerJSON, `"labels":{"ccm.ankra.cloud/service":"shop/web"}`, `"labels":{}`, 1)
+	client, server := newTestClient(t, map[string]func(http.ResponseWriter){
+		"POST /v1/load-balancers":       jsonAnswer(http.StatusAccepted, `{"load_balancer":`+unlabelled+`,"operation":`+createOperationJSON+`}`),
+		"PATCH /v1/load-balancers/lb-1": jsonAnswer(http.StatusOK, `{"load_balancer":`+loadBalancerJSON+`}`),
+	})
+	labels := map[string]string{"ccm.ankra.cloud/service": "shop/web"}
+	balancer, createError := client.CreateLoadBalancer(context.Background(), CreateLoadBalancerInput{
+		Name: "k8s-production-shop-web", Zone: "de-fsn1", NetworkID: "network-1", Labels: labels, HighAvailability: true,
+	})
+	if createError != nil || balancer.Labels["ccm.ankra.cloud/service"] != "shop/web" {
+		t.Fatalf("balancer %+v, %v", balancer, createError)
+	}
+	if len(server.requests) != 2 || server.requests[1].method != http.MethodPatch || server.requests[1].body != `{"labels":{"ccm.ankra.cloud/service":"shop/web"}}` {
+		t.Fatalf("labelling request %+v", server.requests)
+	}
+}
+
+func TestListLoadBalancersFollowsTheCursor(t *testing.T) {
+	pages := map[string]string{
+		"":       `{"items":[` + loadBalancerJSON + `],"next_cursor":"page-2"}`,
+		"page-2": `{"items":[` + strings.Replace(loadBalancerJSON, `"id":"lb-1"`, `"id":"lb-2"`, 1) + `],"next_cursor":null}`,
+	}
+	var cursors []string
+	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		cursor := request.URL.Query().Get("cursor")
+		cursors = append(cursors, cursor+"/"+request.URL.Query().Get("limit"))
+		writer.Header().Set("Content-Type", "application/json")
+		_, _ = writer.Write([]byte(pages[cursor]))
+	}))
+	t.Cleanup(server.Close)
+	client, clientError := NewClient(server.URL, "act_test", server.Client(), "ankra-cloud-ccm/test")
+	if clientError != nil {
+		t.Fatal(clientError)
+	}
+	balancers, listError := client.ListLoadBalancers(context.Background())
+	if listError != nil || len(balancers) != 2 || balancers[0].ID != "lb-1" || balancers[1].ID != "lb-2" {
+		t.Fatalf("balancers %+v, %v", balancers, listError)
+	}
+	if strings.Join(cursors, ",") != "/100,page-2/100" {
+		t.Fatalf("pages asked for %v", cursors)
 	}
 }
 
@@ -186,20 +222,38 @@ func TestFindServersByHostnameAsksForAnExactMatch(t *testing.T) {
 	}
 }
 
-func TestZoneCapabilities(t *testing.T) {
+func readTestdata(t *testing.T, name string) string {
+	t.Helper()
+	content, readError := os.ReadFile(filepath.Join("testdata", name))
+	if readError != nil {
+		t.Fatal(readError)
+	}
+	return string(content)
+}
+
+// The testdata answers are what the Ankra Cloud API's get_zone_capabilities handler encodes for a zone of one server
+// (de-fsn1) and a zone of three (de-fsn2): `stage` is a number.
+func TestZoneCapabilitiesDecodeTheAPIAnswer(t *testing.T) {
 	client, _ := newTestClient(t, map[string]func(http.ResponseWriter){
-		"GET /v1/zones/de-fsn1/capabilities": jsonAnswer(http.StatusOK, `{"stage":"single","servers":1,"gateways":1,"storage_backends":["ankra-local"],"features":{"live_migration":false,"ha_restart":false,"load_balancer_ha":false,"separate_edges":false}}`),
+		"GET /v1/zones/de-fsn1/capabilities": jsonAnswer(http.StatusOK, readTestdata(t, "zone-capabilities-de-fsn1.json")),
+		"GET /v1/zones/de-fsn2/capabilities": jsonAnswer(http.StatusOK, readTestdata(t, "zone-capabilities-de-fsn2.json")),
+		"GET /v1/zones/de-fsn4/capabilities": jsonAnswer(http.StatusOK, `{"stage":2,"servers":2,"features":{"load_balancer_ha":false}}`),
 		"GET /v1/zones/de-fsn9/capabilities": jsonAnswer(http.StatusForbidden, `{"title":"Forbidden"}`),
 		"GET /v1/zones/de-fsn3/capabilities": jsonAnswer(http.StatusInternalServerError, `{"title":"Internal Server Error"}`),
 	})
-	single, singleError := client.GetZoneCapabilities(context.Background(), "de-fsn1")
-	if singleError != nil || !single.IsKnown || single.LoadBalancerHA || single.Stage != "single" || single.ComputeNodeCount != 1 {
-		t.Fatalf("capabilities %+v, %v", single, singleError)
-	}
-	for _, zone := range []string{"de-fsn2", "de-fsn9"} {
-		unknown, unknownError := client.GetZoneCapabilities(context.Background(), zone)
-		if unknownError != nil || unknown.IsKnown {
-			t.Fatalf("%s: capabilities %+v, %v", zone, unknown, unknownError)
+	for _, testCase := range []struct {
+		zone     string
+		expected ZoneCapabilities
+	}{
+		{zone: "de-fsn1", expected: ZoneCapabilities{IsKnown: true, Stage: 1, LoadBalancerHA: false, ComputeNodeCount: 1}},
+		{zone: "de-fsn2", expected: ZoneCapabilities{IsKnown: true, Stage: 3, LoadBalancerHA: true, ComputeNodeCount: 3}},
+		{zone: "de-fsn4", expected: ZoneCapabilities{IsKnown: true, Stage: 2, LoadBalancerHA: false, ComputeNodeCount: 2}},
+		{zone: "de-fsn5", expected: ZoneCapabilities{}},
+		{zone: "de-fsn9", expected: ZoneCapabilities{}},
+	} {
+		capabilities, capabilitiesError := client.GetZoneCapabilities(context.Background(), testCase.zone)
+		if capabilitiesError != nil || capabilities != testCase.expected {
+			t.Fatalf("%s: capabilities %+v, %v, expected %+v", testCase.zone, capabilities, capabilitiesError, testCase.expected)
 		}
 	}
 	if _, failure := client.GetZoneCapabilities(context.Background(), "de-fsn3"); failure == nil {

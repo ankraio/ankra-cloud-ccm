@@ -5,6 +5,23 @@ All notable changes to this project are documented here. The format follows
 
 ## Unreleased
 
+## v0.1.1
+
+### Fixed
+
+- Services of type LoadBalancer no longer stay pending with "get_zone_capabilities: decode the answer: json: cannot
+  unmarshal number into Go struct field zoneCapabilitiesDocument.stage of type string": the zone's `stage` is read
+  as the number the API sends, and the compute node count comes from `compute_nodes`.
+- A load balancer created without `load-balancer.ankra.cloud/ipv4` no longer gets the priced IPv4 address: the
+  controller now always sends `public_ipv4`, which the API defaults to true.
+- Load balancers past the first page of `list_load_balancers` are found again: the controller follows `next_cursor`.
+- Labels are sent with `create_load_balancer`, so a new load balancer carries them from the start.
+
+### Changed
+
+- `api/openapi.yaml` and the generated client are synced with the current Ankra Cloud OpenAPI document;
+  `update_load_balancer`, `replace_load_balancer_members` and `get_zone_capabilities` go through the generated client.
+
 ## v0.1.0
 
 First public release.

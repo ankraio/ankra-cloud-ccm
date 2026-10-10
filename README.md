@@ -32,7 +32,7 @@ helm install ankra-cloud-ccm ankra/ankra-cloud-ccm -n kube-system \
 The chart is also published as an OCI artifact:
 
 ```bash
-helm install ankra-cloud-ccm oci://share.ankra.cloud/charts/ankra-cloud-ccm --version 0.1.0 -n kube-system \
+helm install ankra-cloud-ccm oci://share.ankra.cloud/charts/ankra-cloud-ccm --version 0.1.1 -n kube-system \
   --set api.existingSecret=ankra-cloud-ccm
 ```
 
@@ -136,9 +136,16 @@ The provider depends on the narrow interface `internal/cloudapi.API`. The implem
 - `get_server`
 - `list_server_interfaces`
 - `list_zones`
-- `list_load_balancers` and `get_load_balancer`, through `Call`, so the IPv6-first fields `public_ipv6`, `public_ipv4`,
-  `labels` and `high_availability` decode next to today's `address`
-- `create_load_balancer`
+- `list_load_balancers` (every page, following `next_cursor`) and `get_load_balancer`, through `Call`, so the
+  IPv6-first fields `public_ipv6`, `public_ipv4`, `labels` and `high_availability` decode next to the older `address`
+- `create_load_balancer`, which always sends `public_ipv4` (the API adds the priced IPv4 address when it is left out),
+  sends `high_availability` only when it is false, and carries the labels; a label the answer lacks is set with
+  `update_load_balancer`. The API requires `network_id`, so set `loadBalancer.networkID` or the
+  `load-balancer.ankra.cloud/network-id` annotation.
+- `update_load_balancer` (`PATCH /v1/load-balancers/{id}`)
+- `replace_load_balancer_members` (`PUT /v1/load-balancers/{id}/backends/{backend}/members`)
+- `get_zone_capabilities`, of which the controller reads `stage` (a number), `servers`, `compute_nodes` and
+  `features.load_balancer_ha`. A 404, 405, 401 or 403 answer means "assume HA".
 - `delete_load_balancer`
 - the backend and frontend operations
 - `get_edge` and `update_edge`
@@ -146,16 +153,9 @@ The provider depends on the narrow interface `internal/cloudapi.API`. The implem
 `list_servers?hostname=` goes through `Call`, which passes any query parameter. The client-side exact match stays in
 place as well.
 
-Some operations are not in the published OpenAPI document yet:
-
-- `update_load_balancer`: `PATCH /v1/load-balancers/{id}` with `{name?, labels?}`
-- `replace_load_balancer_members`: `PUT /v1/load-balancers/{id}/backends/{backend}/members` with `{members: [{name, address, port}]}`
-- `get_zone_capabilities`: `GET /v1/zones/{zone}/capabilities`. A 404, 405, 401 or 403 answer means "assume HA".
-
-Until they are there, these calls are thin HTTP requests with the same token. Once `make sync-client` generates their
-operationIds, they go through the generated client's `Call` automatically. `create_load_balancer` sends
-`high_availability` only when it is false and `public_ipv4` only when it is true, so the default body stays the one
-today's API accepts.
+The documents `internal/cloudapi` decodes and the bodies it sends by hand are checked against the generated schema
+types by `TestHandWrittenDocumentsMatchTheOpenAPISchemas`, and `internal/cloudapi/testdata` holds real
+`get_zone_capabilities` answers. After the Ankra Cloud OpenAPI document changes, run `make sync-client` and `make test`.
 
 ## Images and releases
 

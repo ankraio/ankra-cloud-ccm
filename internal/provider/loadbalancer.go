@@ -323,7 +323,7 @@ func (balancers *LoadBalancers) highAvailabilityFor(ctx context.Context, zone st
 	if !capabilities.IsKnown || capabilities.LoadBalancerHA {
 		return true, "", nil
 	}
-	return false, fmt.Sprintf("zone %s is at the %q stage and cannot place a load balancer pair on different compute nodes", zone, capabilities.Stage), nil
+	return false, fmt.Sprintf("zone %s is at growth stage %d with %d compute node(s) and cannot place a load balancer pair on different compute nodes", zone, capabilities.Stage, capabilities.ComputeNodeCount), nil
 }
 
 func (balancers *LoadBalancers) create(ctx context.Context, clusterName string, service *v1.Service, nodes []*v1.Node, settings serviceSettings) (cloudapi.LoadBalancer, error) {

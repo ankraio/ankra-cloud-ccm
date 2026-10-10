@@ -1,12 +1,10 @@
 package cloudapi
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"net/netip"
 	"net/url"
@@ -15,34 +13,9 @@ import (
 	"github.com/ankraio/ankra-cloud-ccm/internal/ankraapi"
 )
 
-// pendingOperation is an operation the controller calls before the generated client knows it. Once the Ankra Cloud
-// OpenAPI document declares the operationId and `make sync-client` regenerates the client, the call goes through the
-// generated client's Call instead; until then it is a thin HTTP request with the same credential.
-type pendingOperation struct {
-	operationID string
-	method      string
-	path        string
-}
-
-var (
-	updateLoadBalancerOperation = pendingOperation{
-		operationID: "update_load_balancer", method: http.MethodPatch, path: "/v1/load-balancers/{id}",
-	}
-	replaceLoadBalancerMembersOperation = pendingOperation{
-		operationID: "replace_load_balancer_members", method: http.MethodPut, path: "/v1/load-balancers/{id}/backends/{backend}/members",
-	}
-	getZoneCapabilitiesOperation = pendingOperation{
-		operationID: "get_zone_capabilities", method: http.MethodGet, path: "/v1/zones/{zone}/capabilities",
-	}
-)
-
 // Client implements API on the generated OpenAPI client.
 type Client struct {
-	generated  *ankraapi.Client
-	endpoint   *url.URL
-	token      string
-	httpClient *http.Client
-	userAgent  string
+	generated *ankraapi.Client
 }
 
 // NewClient builds a client for the API at endpoint with an API token. httpClient carries the TLS configuration
@@ -55,11 +28,7 @@ func NewClient(endpoint string, token string, httpClient *http.Client, userAgent
 	if clientError != nil {
 		return nil, clientError
 	}
-	parsed, parseError := url.Parse(strings.TrimRight(endpoint, "/"))
-	if parseError != nil {
-		return nil, fmt.Errorf("parse endpoint: %w", parseError)
-	}
-	return &Client{generated: generated, endpoint: parsed, token: token, httpClient: httpClient, userAgent: userAgent}, nil
+	return &Client{generated: generated}, nil
 }
 
 func translateError(callError error) error {
@@ -76,68 +45,6 @@ func statusCodeOf(callError error) int {
 		return apiError.StatusCode
 	}
 	return 0
-}
-
-// callPending runs a pending operation: through the generated client when it already knows the operationId,
-// otherwise as a direct HTTP request. It returns the undecoded answer body.
-func (client *Client) callPending(ctx context.Context, operation pendingOperation, pathParameters map[string]string, body any) ([]byte, error) {
-	var encoded []byte
-	if body != nil {
-		marshalled, marshalError := json.Marshal(body)
-		if marshalError != nil {
-			return nil, fmt.Errorf("%s: encode the body: %w", operation.operationID, marshalError)
-		}
-		encoded = marshalled
-	}
-	if _, isKnown := ankraapi.Operations[operation.operationID]; isKnown {
-		answer, callError := client.generated.Call(ctx, operation.operationID, pathParameters, nil, encoded)
-		if callError != nil {
-			return nil, translateError(callError)
-		}
-		return answer.Body, nil
-	}
-	path := operation.path
-	for name, value := range pathParameters {
-		path = strings.ReplaceAll(path, "{"+name+"}", url.PathEscape(value))
-	}
-	var payload io.Reader
-	if encoded != nil {
-		payload = bytes.NewReader(encoded)
-	}
-	request, requestError := http.NewRequestWithContext(ctx, operation.method, client.endpoint.JoinPath(path).String(), payload)
-	if requestError != nil {
-		return nil, fmt.Errorf("%s: build the request: %w", operation.operationID, requestError)
-	}
-	if encoded != nil {
-		request.Header.Set("Content-Type", "application/json")
-	}
-	request.Header.Set("Accept", "application/json")
-	request.Header.Set("User-Agent", client.userAgent)
-	request.Header.Set("Authorization", "Bearer "+client.token)
-	response, sendError := client.httpClient.Do(request)
-	if sendError != nil {
-		return nil, fmt.Errorf("%s: %w", operation.operationID, sendError)
-	}
-	defer func() { _ = response.Body.Close() }()
-	content, readError := io.ReadAll(io.LimitReader(response.Body, 16<<20))
-	if readError != nil {
-		return nil, fmt.Errorf("%s: read the answer: %w", operation.operationID, readError)
-	}
-	if response.StatusCode >= 400 {
-		apiError := &ankraapi.Error{StatusCode: response.StatusCode, Title: http.StatusText(response.StatusCode), Body: content}
-		var problem struct {
-			Title  string `json:"title"`
-			Detail string `json:"detail"`
-		}
-		if json.Unmarshal(content, &problem) == nil {
-			if problem.Title != "" {
-				apiError.Title = problem.Title
-			}
-			apiError.Detail = problem.Detail
-		}
-		return nil, translateError(fmt.Errorf("%s: %w", operation.operationID, apiError))
-	}
-	return content, nil
 }
 
 func stringValue(value *string) string {
@@ -211,10 +118,13 @@ func (client *Client) ListZones(ctx context.Context) ([]Zone, error) {
 	return zones, nil
 }
 
+// zoneCapabilitiesDocument is the part of ZoneCapabilities (get_zone_capabilities) the controller reads. It decodes
+// only these fields so that a change elsewhere in the document cannot stop load balancers from being created.
 type zoneCapabilitiesDocument struct {
-	Stage    string `json:"stage"`
-	Servers  int    `json:"servers"`
-	Features struct {
+	Stage        int  `json:"stage"`
+	Servers      int  `json:"servers"`
+	ComputeNodes *int `json:"compute_nodes"`
+	Features     struct {
 		LoadBalancerHA bool `json:"load_balancer_ha"`
 	} `json:"features"`
 }
@@ -222,19 +132,25 @@ type zoneCapabilitiesDocument struct {
 // GetZoneCapabilities calls get_zone_capabilities. An API without it (404, 405) or one that keeps it
 // from API tokens (401, 403) answers IsKnown false rather than an error.
 func (client *Client) GetZoneCapabilities(ctx context.Context, zone string) (ZoneCapabilities, error) {
-	content, callError := client.callPending(ctx, getZoneCapabilitiesOperation, map[string]string{"zone": zone}, nil)
+	answer, callError := client.generated.Call(ctx, "get_zone_capabilities", map[string]string{"zone": zone}, nil, nil)
 	if callError != nil {
 		switch statusCodeOf(callError) {
 		case http.StatusNotFound, http.StatusMethodNotAllowed, http.StatusUnauthorized, http.StatusForbidden:
 			return ZoneCapabilities{}, nil
 		}
-		return ZoneCapabilities{}, callError
+		return ZoneCapabilities{}, translateError(callError)
 	}
 	var document zoneCapabilitiesDocument
-	if decodeError := json.Unmarshal(content, &document); decodeError != nil {
+	if decodeError := json.Unmarshal(answer.Body, &document); decodeError != nil {
 		return ZoneCapabilities{}, fmt.Errorf("get_zone_capabilities: decode the answer: %w", decodeError)
 	}
-	return ZoneCapabilities{IsKnown: true, Stage: document.Stage, LoadBalancerHA: document.Features.LoadBalancerHA, ComputeNodeCount: document.Servers}, nil
+	capabilities := ZoneCapabilities{
+		IsKnown: true, Stage: document.Stage, LoadBalancerHA: document.Features.LoadBalancerHA, ComputeNodeCount: document.Servers,
+	}
+	if document.ComputeNodes != nil {
+		capabilities.ComputeNodeCount = *document.ComputeNodes
+	}
+	return capabilities, nil
 }
 
 // loadBalancerDocument decodes a load balancer with the fields the IPv6-first model adds (`public_ipv6`,
@@ -291,23 +207,38 @@ func (document loadBalancerDocument) toLoadBalancer() LoadBalancer {
 	return balancer
 }
 
-// ListLoadBalancers calls list_load_balancers (without frontends and backends).
+// listLoadBalancersPageSize is the largest page list_load_balancers serves.
+const listLoadBalancersPageSize = "100"
+
+// ListLoadBalancers calls list_load_balancers (without frontends and backends) and follows `next_cursor` to the last
+// page.
 func (client *Client) ListLoadBalancers(ctx context.Context) ([]LoadBalancer, error) {
-	answer, callError := client.generated.Call(ctx, "list_load_balancers", nil, nil, nil)
-	if callError != nil {
-		return nil, translateError(callError)
+	var balancers []LoadBalancer
+	cursor := ""
+	for {
+		query := url.Values{"limit": []string{listLoadBalancersPageSize}}
+		if cursor != "" {
+			query.Set("cursor", cursor)
+		}
+		answer, callError := client.generated.Call(ctx, "list_load_balancers", nil, query, nil)
+		if callError != nil {
+			return nil, translateError(callError)
+		}
+		var page struct {
+			Items      []loadBalancerDocument `json:"items"`
+			NextCursor *string                `json:"next_cursor"`
+		}
+		if decodeError := json.Unmarshal(answer.Body, &page); decodeError != nil {
+			return nil, fmt.Errorf("list_load_balancers: decode the answer: %w", decodeError)
+		}
+		for _, item := range page.Items {
+			balancers = append(balancers, item.toLoadBalancer())
+		}
+		if page.NextCursor == nil || *page.NextCursor == "" || *page.NextCursor == cursor {
+			return balancers, nil
+		}
+		cursor = *page.NextCursor
 	}
-	var list struct {
-		Items []loadBalancerDocument `json:"items"`
-	}
-	if decodeError := json.Unmarshal(answer.Body, &list); decodeError != nil {
-		return nil, fmt.Errorf("list_load_balancers: decode the answer: %w", decodeError)
-	}
-	balancers := make([]LoadBalancer, 0, len(list.Items))
-	for _, item := range list.Items {
-		balancers = append(balancers, item.toLoadBalancer())
-	}
-	return balancers, nil
 }
 
 func decodeLoadBalancerEnvelope(operationID string, content []byte) (LoadBalancer, error) {
@@ -330,25 +261,24 @@ func (client *Client) GetLoadBalancer(ctx context.Context, loadBalancerID string
 }
 
 type createLoadBalancerBody struct {
-	Zone             string `json:"zone"`
-	Name             string `json:"name"`
-	NetworkID        string `json:"network_id,omitempty"`
-	HighAvailability *bool  `json:"high_availability,omitempty"`
-	PublicIPv4       *bool  `json:"public_ipv4,omitempty"`
+	Zone             string            `json:"zone"`
+	Name             string            `json:"name"`
+	NetworkID        string            `json:"network_id"`
+	Labels           map[string]string `json:"labels,omitempty"`
+	HighAvailability *bool             `json:"high_availability,omitempty"`
+	PublicIPv4       bool              `json:"public_ipv4"`
 }
 
-// CreateLoadBalancer calls create_load_balancer, then update_load_balancer for the labels (create takes none).
-// A crash between the two leaves a load balancer with the controller's deterministic name and no labels, which
-// the provider adopts by name on its next pass.
+// CreateLoadBalancer calls create_load_balancer with the labels, and then update_load_balancer for any label the
+// answer does not carry (an API whose create took none). public_ipv4 is always sent: the API adds the priced IPv4
+// address when it is left out. high_availability is sent only when false, so the API keeps choosing the pair where
+// the zone has two compute nodes. A crash between the two calls leaves a load balancer with the controller's
+// deterministic name, which the provider adopts by name on its next pass.
 func (client *Client) CreateLoadBalancer(ctx context.Context, input CreateLoadBalancerInput) (LoadBalancer, error) {
-	body := createLoadBalancerBody{Zone: input.Zone, Name: input.Name, NetworkID: input.NetworkID}
+	body := createLoadBalancerBody{Zone: input.Zone, Name: input.Name, NetworkID: input.NetworkID, Labels: input.Labels, PublicIPv4: input.PublicIPv4}
 	if !input.HighAvailability {
 		isHighlyAvailable := false
 		body.HighAvailability = &isHighlyAvailable
-	}
-	if input.PublicIPv4 {
-		hasPublicIPv4 := true
-		body.PublicIPv4 = &hasPublicIPv4
 	}
 	encoded, encodeError := json.Marshal(body)
 	if encodeError != nil {
@@ -362,13 +292,24 @@ func (client *Client) CreateLoadBalancer(ctx context.Context, input CreateLoadBa
 	if decodeError != nil {
 		return LoadBalancer{}, decodeError
 	}
-	if len(input.Labels) > 0 {
+	if !carriesLabels(balancer.Labels, input.Labels) {
 		if updateError := client.UpdateLoadBalancer(ctx, balancer.ID, UpdateLoadBalancerInput{Labels: input.Labels}); updateError != nil {
 			return balancer, fmt.Errorf("label load balancer %s: %w", balancer.ID, updateError)
 		}
+	}
+	if len(input.Labels) > 0 {
 		balancer.Labels = input.Labels
 	}
 	return balancer, nil
+}
+
+func carriesLabels(actual map[string]string, expected map[string]string) bool {
+	for key, value := range expected {
+		if actualValue, isSet := actual[key]; !isSet || actualValue != value {
+			return false
+		}
+	}
+	return true
 }
 
 type updateLoadBalancerBody struct {
@@ -378,9 +319,12 @@ type updateLoadBalancerBody struct {
 
 // UpdateLoadBalancer calls update_load_balancer (PATCH /v1/load-balancers/{id}).
 func (client *Client) UpdateLoadBalancer(ctx context.Context, loadBalancerID string, input UpdateLoadBalancerInput) error {
-	_, callError := client.callPending(ctx, updateLoadBalancerOperation, map[string]string{"id": loadBalancerID},
-		updateLoadBalancerBody(input))
-	return callError
+	encoded, encodeError := json.Marshal(updateLoadBalancerBody(input))
+	if encodeError != nil {
+		return fmt.Errorf("update_load_balancer: encode the body: %w", encodeError)
+	}
+	_, callError := client.generated.Call(ctx, "update_load_balancer", map[string]string{"id": loadBalancerID}, nil, encoded)
+	return translateError(callError)
 }
 
 // DeleteLoadBalancer calls delete_load_balancer.
@@ -475,8 +419,12 @@ func (client *Client) ReplaceMembers(ctx context.Context, loadBalancerID string,
 	for _, member := range members {
 		body.Members = append(body.Members, memberBody(member))
 	}
-	_, callError := client.callPending(ctx, replaceLoadBalancerMembersOperation, map[string]string{"id": loadBalancerID, "backend": backendID}, body)
-	return callError
+	encoded, encodeError := json.Marshal(body)
+	if encodeError != nil {
+		return fmt.Errorf("replace_load_balancer_members: encode the body: %w", encodeError)
+	}
+	_, callError := client.generated.Call(ctx, "replace_load_balancer_members", map[string]string{"id": loadBalancerID, "backend": backendID}, nil, encoded)
+	return translateError(callError)
 }
 
 func edgeFromAPI(edge ankraapi.Edge) Edge {

@@ -18,200 +18,437 @@ var (
 
 // Operations describes every operation of the API by operationId.
 var Operations = map[string]OperationSpec{
-	"accept_invitation":                {ID: "accept_invitation", Method: "POST", Path: "/v1/auth/accept-invitation", Tag: "auth", Summary: "Accept an invitation, create the user and sign them in.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"allocate_floating_ip":             {ID: "allocate_floating_ip", Method: "POST", Path: "/v1/floating-ips", Tag: "network", Summary: "Allocate a floating IP, optionally assigning it at once.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"assign_floating_ip":               {ID: "assign_floating_ip", Method: "POST", Path: "/v1/floating-ips/{id}/assign", Tag: "network", Summary: "Move a floating IP to a server, or unassign it.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"attach_router_network":            {ID: "attach_router_network", Method: "POST", Path: "/v1/routers/{id}/networks", Tag: "network", Summary: "Attach a private network to a router.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"attach_server_network":            {ID: "attach_server_network", Method: "POST", Path: "/v1/servers/{id}/networks", Tag: "network", Summary: "Attach a stopped server to a private network.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"attach_storage":                   {ID: "attach_storage", Method: "POST", Path: "/v1/storages/{id}/attach", Tag: "storage", Summary: "Attach a storage to a stopped server in the same zone.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"back_up_storage":                  {ID: "back_up_storage", Method: "POST", Path: "/v1/storages/{id}/backups", Tag: "storage", Summary: "Take a crash-consistent backup, also of a running server.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"change_member_role":               {ID: "change_member_role", Method: "PATCH", Path: "/v1/members/{id}", Tag: "governance", Summary: "Change a member's role.", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "members.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"change_server_plan":               {ID: "change_server_plan", Method: "POST", Path: "/v1/servers/{id}/plan", Tag: "server", Summary: "Change the plan of a stopped server.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"check_liveness":                   {ID: "check_liveness", Method: "GET", Path: "/healthz", Tag: "health", Summary: "Liveness probe.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"check_readiness":                  {ID: "check_readiness", Method: "GET", Path: "/readyz", Tag: "health", Summary: "Readiness probe.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"copy_custom_image":                {ID: "copy_custom_image", Method: "POST", Path: "/v1/custom-images/{id}/copy", Tag: "storage", Summary: "Copy a custom image to another zone.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"cordon_zone_node":                 {ID: "cordon_zone_node", Method: "POST", Path: "/v1/zones/{zone}/nodes/{id}/cordon", Tag: "maintenance", Summary: "Stop a compute node from taking new servers (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"id", "zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "maintenance", StaffRole: "", IsCredentialRead: false},
-	"create_api_token":                 {ID: "create_api_token", Method: "POST", Path: "/v1/api-tokens", Tag: "governance", Summary: "Create an API token.", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "tokens.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"create_coupon":                    {ID: "create_coupon", Method: "POST", Path: "/admin/v1/coupons", Tag: "coupon", Summary: "Create a coupon code (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
-	"create_database":                  {ID: "create_database", Method: "POST", Path: "/v1/databases", Tag: "database", Summary: "Create a managed PostgreSQL 17 database on a private network.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"create_edge":                      {ID: "create_edge", Method: "POST", Path: "/v1/edges", Tag: "edge", Summary: "Attach a bastion, NAT gateway or load balancer to a private network.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"create_init_script":               {ID: "create_init_script", Method: "POST", Path: "/v1/init-scripts", Tag: "library", Summary: "Add an init script.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"create_load_balancer":             {ID: "create_load_balancer", Method: "POST", Path: "/v1/load-balancers", Tag: "load_balancer", Summary: "Create a load balancer on a private network.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"create_load_balancer_backend":     {ID: "create_load_balancer_backend", Method: "POST", Path: "/v1/load-balancers/{id}/backends", Tag: "load_balancer", Summary: "Add a backend.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"create_load_balancer_certificate": {ID: "create_load_balancer_certificate", Method: "POST", Path: "/v1/load-balancers/certificates", Tag: "load_balancer", Summary: "Upload a certificate chain and its private key.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"create_load_balancer_frontend":    {ID: "create_load_balancer_frontend", Method: "POST", Path: "/v1/load-balancers/{id}/frontends", Tag: "load_balancer", Summary: "Listen on a port and forward to a backend.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"create_load_balancer_member":      {ID: "create_load_balancer_member", Method: "POST", Path: "/v1/load-balancers/{id}/backends/{backend}/members", Tag: "load_balancer", Summary: "Add a member to a backend.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"backend", "id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"create_network":                   {ID: "create_network", Method: "POST", Path: "/v1/networks", Tag: "network", Summary: "Create a private network.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"create_payment_setup_session":     {ID: "create_payment_setup_session", Method: "POST", Path: "/v1/account/billing/setup-session", Tag: "payment", Summary: "Start Stripe's hosted page for saving a payment method.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "billing.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"create_router":                    {ID: "create_router", Method: "POST", Path: "/v1/routers", Tag: "network", Summary: "Create a router, optionally a NAT gateway.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"create_server":                    {ID: "create_server", Method: "POST", Path: "/v1/servers", Tag: "server", Summary: "Create a server.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"create_server_group":              {ID: "create_server_group", Method: "POST", Path: "/v1/server-groups", Tag: "library", Summary: "Add a server group.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"create_ssh_key":                   {ID: "create_ssh_key", Method: "POST", Path: "/v1/ssh-keys", Tag: "library", Summary: "Add an SSH key.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"create_staff":                     {ID: "create_staff", Method: "POST", Path: "/admin/v1/staff", Tag: "admin", Summary: "Add a staff member (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
-	"create_storage":                   {ID: "create_storage", Method: "POST", Path: "/v1/storages", Tag: "storage", Summary: "Create an empty storage, clone a storage, or restore a backup as a new storage.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"create_support_consent":           {ID: "create_support_consent", Method: "POST", Path: "/v1/account/support-consents", Tag: "support", Summary: "Create a single-use consent code for one elevated support session.", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "members.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"deactivate_coupon":                {ID: "deactivate_coupon", Method: "POST", Path: "/admin/v1/coupons/{code}/deactivate", Tag: "coupon", Summary: "Stop a coupon code from being redeemed (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"code"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
-	"delete_backup":                    {ID: "delete_backup", Method: "DELETE", Path: "/v1/backups/{id}", Tag: "storage", Summary: "Delete a backup.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"delete_custom_image":              {ID: "delete_custom_image", Method: "DELETE", Path: "/v1/custom-images/{id}", Tag: "storage", Summary: "Delete a custom image.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"delete_database":                  {ID: "delete_database", Method: "DELETE", Path: "/v1/databases/{id}", Tag: "database", Summary: "Delete a database with its VM and data disk.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"delete_edge":                      {ID: "delete_edge", Method: "DELETE", Path: "/v1/edges/{id}", Tag: "edge", Summary: "Delete an edge, its VMs and (separate placement) its load balancer.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"delete_init_script":               {ID: "delete_init_script", Method: "DELETE", Path: "/v1/init-scripts/{id}", Tag: "library", Summary: "Delete an init script.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"delete_load_balancer":             {ID: "delete_load_balancer", Method: "DELETE", Path: "/v1/load-balancers/{id}", Tag: "load_balancer", Summary: "Delete a load balancer, its VMs and its address.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"delete_load_balancer_backend":     {ID: "delete_load_balancer_backend", Method: "DELETE", Path: "/v1/load-balancers/{id}/backends/{backend}", Tag: "load_balancer", Summary: "Remove a backend and its members.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"backend", "id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"delete_load_balancer_certificate": {ID: "delete_load_balancer_certificate", Method: "DELETE", Path: "/v1/load-balancers/certificates/{certificate}", Tag: "load_balancer", Summary: "Delete a certificate and its sealed key.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"certificate"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"delete_load_balancer_frontend":    {ID: "delete_load_balancer_frontend", Method: "DELETE", Path: "/v1/load-balancers/{id}/frontends/{frontend}", Tag: "load_balancer", Summary: "Stop listening on a frontend's port.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"frontend", "id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"delete_load_balancer_member":      {ID: "delete_load_balancer_member", Method: "DELETE", Path: "/v1/load-balancers/{id}/backends/{backend}/members/{member}", Tag: "load_balancer", Summary: "Remove a member from its backend.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"backend", "id", "member"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"delete_network":                   {ID: "delete_network", Method: "DELETE", Path: "/v1/networks/{id}", Tag: "network", Summary: "Delete a private network.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"delete_router":                    {ID: "delete_router", Method: "DELETE", Path: "/v1/routers/{id}", Tag: "network", Summary: "Delete a router.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"delete_server":                    {ID: "delete_server", Method: "DELETE", Path: "/v1/servers/{id}", Tag: "server", Summary: "Delete a server.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{"keep_storages"}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"delete_server_group":              {ID: "delete_server_group", Method: "DELETE", Path: "/v1/server-groups/{id}", Tag: "library", Summary: "Delete a server group.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"delete_ssh_key":                   {ID: "delete_ssh_key", Method: "DELETE", Path: "/v1/ssh-keys/{id}", Tag: "library", Summary: "Delete an SSH key.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"delete_storage":                   {ID: "delete_storage", Method: "DELETE", Path: "/v1/storages/{id}", Tag: "storage", Summary: "Delete a storage; its backups are kept.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"detach_router_network":            {ID: "detach_router_network", Method: "DELETE", Path: "/v1/routers/{id}/networks/{network}", Tag: "network", Summary: "Detach a private network from a router.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id", "network"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"detach_server_network":            {ID: "detach_server_network", Method: "DELETE", Path: "/v1/servers/{id}/networks/{network}", Tag: "network", Summary: "Detach a stopped server from a private network.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id", "network"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"detach_storage":                   {ID: "detach_storage", Method: "POST", Path: "/v1/storages/{id}/detach", Tag: "storage", Summary: "Detach a storage from its stopped server.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"disable_staff":                    {ID: "disable_staff", Method: "DELETE", Path: "/admin/v1/staff/{id}", Tag: "admin", Summary: "Disable a staff member (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
-	"drain_zone_node":                  {ID: "drain_zone_node", Method: "POST", Path: "/v1/zones/{zone}/nodes/{id}/drain", Tag: "maintenance", Summary: "Cordon a compute node and move every server off it, one at a time (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"id", "zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "maintenance", StaffRole: "", IsCredentialRead: false},
-	"enable_object_storage":            {ID: "enable_object_storage", Method: "POST", Path: "/v1/object-storage", Tag: "object_storage", Summary: "Enable S3-compatible object storage in a zone.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"end_impersonation":                {ID: "end_impersonation", Method: "POST", Path: "/v1/auth/end-impersonation", Tag: "auth", Summary: "End a support session and hand the environment back to staff.", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"end_support_session":              {ID: "end_support_session", Method: "DELETE", Path: "/v1/account/support-sessions/{id}", Tag: "support", Summary: "End a support session now.", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "members.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"export_audit_entries":             {ID: "export_audit_entries", Method: "GET", Path: "/v1/audit/export", Tag: "server", Summary: "Export the account's audit log as JSON lines, oldest first, in chain order.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"after", "limit"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"finish_identity_provider_login":   {ID: "finish_identity_provider_login", Method: "GET", Path: "/v1/auth/oidc/callback", Tag: "oidc", Summary: "The identity provider's callback.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{"code", "error", "error_description", "state"}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"force_release_zone_server":        {ID: "force_release_zone_server", Method: "POST", Path: "/v1/zones/{zone}/servers/{id}/force-release", Tag: "maintenance", Summary: "Remove a server whose node is gone for good (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"id", "zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "maintenance", StaffRole: "", IsCredentialRead: false},
-	"get_account":                      {ID: "get_account", Method: "GET", Path: "/admin/v1/accounts/{id}", Tag: "admin", Summary: "An account with its users and servers.", Security: []string{"staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
-	"get_account_usage":                {ID: "get_account_usage", Method: "GET", Path: "/admin/v1/accounts/{id}/usage", Tag: "admin", Summary: "An account's usage this month.", Security: []string{"staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
-	"get_audit_integrity":              {ID: "get_audit_integrity", Method: "GET", Path: "/v1/audit/integrity", Tag: "server", Summary: "Whether the account's audit chain verifies.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"get_backup":                       {ID: "get_backup", Method: "GET", Path: "/v1/backups/{id}", Tag: "storage", Summary: "Get a backup.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"get_control_plane_metrics":        {ID: "get_control_plane_metrics", Method: "GET", Path: "/metrics", Tag: "telemetry", Summary: "The control plane's own Prometheus metrics (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "read", StaffRole: "", IsCredentialRead: false},
-	"get_current_staff":                {ID: "get_current_staff", Method: "GET", Path: "/admin/v1/auth/me", Tag: "admin", Summary: "The signed-in staff member.", Security: []string{"staffSession"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
-	"get_current_user":                 {ID: "get_current_user", Method: "GET", Path: "/v1/auth/me", Tag: "auth", Summary: "The signed-in user, the CSRF token and the permissions of the role.", Security: []string{"sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"get_database":                     {ID: "get_database", Method: "GET", Path: "/v1/databases/{id}", Tag: "database", Summary: "Get a database with its health.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"get_database_credentials":         {ID: "get_database_credentials", Method: "GET", Path: "/v1/databases/{id}/credentials", Tag: "database", Summary: "Show the owner's password and connection URI (audited).", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: true},
-	"get_edge":                         {ID: "get_edge", Method: "GET", Path: "/v1/edges/{id}", Tag: "edge", Summary: "Get an edge with its VMs, addresses and members.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"get_floating_ip":                  {ID: "get_floating_ip", Method: "GET", Path: "/v1/floating-ips/{id}", Tag: "network", Summary: "Get a floating IP.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"get_identity_provider_status":     {ID: "get_identity_provider_status", Method: "GET", Path: "/v1/auth/oidc", Tag: "oidc", Summary: "Whether sign-in through the identity provider is available.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"get_init_script":                  {ID: "get_init_script", Method: "GET", Path: "/v1/init-scripts/{id}", Tag: "library", Summary: "Get an init script.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"get_load_balancer":                {ID: "get_load_balancer", Method: "GET", Path: "/v1/load-balancers/{id}", Tag: "load_balancer", Summary: "Get a load balancer with its VMs, frontends and backends.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"get_load_balancer_certificate":    {ID: "get_load_balancer_certificate", Method: "GET", Path: "/v1/load-balancers/certificates/{certificate}", Tag: "load_balancer", Summary: "Get a certificate.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"certificate"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"get_network":                      {ID: "get_network", Method: "GET", Path: "/v1/networks/{id}", Tag: "network", Summary: "Get a private network with its members.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"get_network_transfer":             {ID: "get_network_transfer", Method: "GET", Path: "/v1/usage/network-transfer", Tag: "compute_data", Summary: "Public network traffic per server in a month.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"month"}, BodyMediaType: "", Permission: "billing.read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"get_object_storage_credentials":   {ID: "get_object_storage_credentials", Method: "GET", Path: "/v1/object-storage/{zone}/credentials", Tag: "object_storage", Summary: "Show the zone's S3 key (audited).", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: true},
-	"get_operation":                    {ID: "get_operation", Method: "GET", Path: "/v1/operations/{id}", Tag: "server", Summary: "Get an operation.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"get_payment_configuration":        {ID: "get_payment_configuration", Method: "GET", Path: "/v1/account/billing", Tag: "payment", Summary: "Whether card payments through Stripe are available.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "billing.read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"get_quotas":                       {ID: "get_quotas", Method: "GET", Path: "/v1/quotas", Tag: "quota", Summary: "The account's limits and what it holds.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"get_router":                       {ID: "get_router", Method: "GET", Path: "/v1/routers/{id}", Tag: "network", Summary: "Get a router.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"get_server":                       {ID: "get_server", Method: "GET", Path: "/v1/servers/{id}", Tag: "server", Summary: "Get a server.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"get_server_console":               {ID: "get_server_console", Method: "GET", Path: "/v1/servers/{id}/console", Tag: "server", Summary: "The last 64 KiB of the serial console.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: true},
-	"get_server_firewall":              {ID: "get_server_firewall", Method: "GET", Path: "/v1/servers/{id}/firewall", Tag: "network", Summary: "Get a server's firewall.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"get_server_group":                 {ID: "get_server_group", Method: "GET", Path: "/v1/server-groups/{id}", Tag: "library", Summary: "Get a server group.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"get_server_metadata_setting":      {ID: "get_server_metadata_setting", Method: "GET", Path: "/v1/servers/{id}/metadata", Tag: "compute_data", Summary: "Whether the metadata service at 169.254.169.254 answers the server.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: true},
-	"get_server_metrics":               {ID: "get_server_metrics", Method: "GET", Path: "/v1/servers/{id}/metrics", Tag: "compute_data", Summary: "Network and disk metrics of the server.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{"period"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"get_ssh_key":                      {ID: "get_ssh_key", Method: "GET", Path: "/v1/ssh-keys/{id}", Tag: "library", Summary: "Get an SSH key.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"get_storage":                      {ID: "get_storage", Method: "GET", Path: "/v1/storages/{id}", Tag: "storage", Summary: "Get a storage.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"get_support_access":               {ID: "get_support_access", Method: "GET", Path: "/v1/account/support-access", Tag: "support", Summary: "How elevated support sessions may be opened for this account.", Security: []string{"sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "members.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"get_usage_summary":                {ID: "get_usage_summary", Method: "GET", Path: "/v1/usage/summary", Tag: "billing", Summary: "This month's usage and estimate.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "billing.read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"get_zone_node":                    {ID: "get_zone_node", Method: "GET", Path: "/v1/zones/{zone}/nodes/{id}", Tag: "maintenance", Summary: "A node with its maintenance state, newest maintenance operation and servers (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"id", "zone"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "read", StaffRole: "", IsCredentialRead: false},
-	"grant_account_credit":             {ID: "grant_account_credit", Method: "POST", Path: "/admin/v1/accounts/{id}/credits", Tag: "coupon", Summary: "Grant an account credit (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
-	"invite_member":                    {ID: "invite_member", Method: "POST", Path: "/v1/members/invitations", Tag: "governance", Summary: "Invite someone to the account.", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "members.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_account_audit_for_staff":     {ID: "list_account_audit_for_staff", Method: "GET", Path: "/admin/v1/audit", Tag: "admin", Summary: "An account's audit log.", Security: []string{"staffSession"}, PathParameters: []string{}, QueryParameters: []string{"account_id", "cursor"}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
-	"list_account_credits":             {ID: "list_account_credits", Method: "GET", Path: "/v1/account/credits", Tag: "coupon", Summary: "The account's credits and what they have left.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "billing.read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_account_credits_for_staff":   {ID: "list_account_credits_for_staff", Method: "GET", Path: "/admin/v1/accounts/{id}/credits", Tag: "coupon", Summary: "An account's credits and balance.", Security: []string{"staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
-	"list_account_identities":          {ID: "list_account_identities", Method: "GET", Path: "/v1/account/identities", Tag: "identity", Summary: "List the identity provider identities you sign in with.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "self", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_api_tokens":                  {ID: "list_api_tokens", Method: "GET", Path: "/v1/api-tokens", Tag: "governance", Summary: "List API tokens, newest first (revoked tokens are not listed).", Security: []string{"sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor"}, BodyMediaType: "", Permission: "tokens.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_audit_entries":               {ID: "list_audit_entries", Method: "GET", Path: "/v1/audit", Tag: "server", Summary: "The account's audit log, newest first (100 per page).", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_backups":                     {ID: "list_backups", Method: "GET", Path: "/v1/backups", Tag: "storage", Summary: "List backups.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit", "storage_id"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_billing_log":                 {ID: "list_billing_log", Method: "GET", Path: "/v1/usage/billing-log", Tag: "billing", Summary: "One line per resource per day, newest day first.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "billing.read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_coupons":                     {ID: "list_coupons", Method: "GET", Path: "/admin/v1/coupons", Tag: "coupon", Summary: "Coupon codes, newest first (admin staff).", Security: []string{"staffSession"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
-	"list_custom_images":               {ID: "list_custom_images", Method: "GET", Path: "/v1/custom-images", Tag: "storage", Summary: "List the account's custom images.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_database_backups":            {ID: "list_database_backups", Method: "GET", Path: "/v1/databases/{id}/backups", Tag: "database", Summary: "The recovery window and base backups of a database, newest first.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_database_plans":              {ID: "list_database_plans", Method: "GET", Path: "/v1/databases/plans", Tag: "database", Summary: "The database sizes on offer and the storage price.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_databases":                   {ID: "list_databases", Method: "GET", Path: "/v1/databases", Tag: "database", Summary: "List managed databases.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_edges":                       {ID: "list_edges", Method: "GET", Path: "/v1/edges", Tag: "edge", Summary: "List network edges.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_floating_ips":                {ID: "list_floating_ips", Method: "GET", Path: "/v1/floating-ips", Tag: "network", Summary: "List floating IPs.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_init_scripts":                {ID: "list_init_scripts", Method: "GET", Path: "/v1/init-scripts", Tag: "library", Summary: "List init scripts.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_invitations":                 {ID: "list_invitations", Method: "GET", Path: "/v1/members/invitations", Tag: "governance", Summary: "List pending invitations (`next_cursor` is always null).", Security: []string{"sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "members.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_invoices":                    {ID: "list_invoices", Method: "GET", Path: "/v1/invoices", Tag: "billing", Summary: "Invoices, newest month first.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor"}, BodyMediaType: "", Permission: "billing.read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_load_balancer_certificates":  {ID: "list_load_balancer_certificates", Method: "GET", Path: "/v1/load-balancers/certificates", Tag: "load_balancer", Summary: "List the account's load balancer certificates.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_load_balancers":              {ID: "list_load_balancers", Method: "GET", Path: "/v1/load-balancers", Tag: "load_balancer", Summary: "List load balancers.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_members":                     {ID: "list_members", Method: "GET", Path: "/v1/members", Tag: "governance", Summary: "List the account's members, oldest first.", Security: []string{"sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_networks":                    {ID: "list_networks", Method: "GET", Path: "/v1/networks", Tag: "network", Summary: "List private networks.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_object_storage":              {ID: "list_object_storage", Method: "GET", Path: "/v1/object-storage", Tag: "object_storage", Summary: "List the zones the account enabled object storage in, with their usage.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_payment_methods":             {ID: "list_payment_methods", Method: "GET", Path: "/v1/account/billing/payment-methods", Tag: "payment", Summary: "The account's saved payment methods.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "billing.read", OperatorScope: "", StaffRole: "", IsCredentialRead: true},
-	"list_plans":                       {ID: "list_plans", Method: "GET", Path: "/v1/plans", Tag: "server", Summary: "List server plans.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_routers":                     {ID: "list_routers", Method: "GET", Path: "/v1/routers", Tag: "network", Summary: "List routers.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_server_groups":               {ID: "list_server_groups", Method: "GET", Path: "/v1/server-groups", Tag: "library", Summary: "List server groups.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_server_interfaces":           {ID: "list_server_interfaces", Method: "GET", Path: "/v1/servers/{id}/networks", Tag: "network", Summary: "List a server's private interfaces.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_servers":                     {ID: "list_servers", Method: "GET", Path: "/v1/servers", Tag: "server", Summary: "List servers.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "label", "limit"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_sessions":                    {ID: "list_sessions", Method: "GET", Path: "/v1/sessions", Tag: "governance", Summary: "The caller's unexpired sessions, newest first (`next_cursor` is always null).", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "self", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_ssh_keys":                    {ID: "list_ssh_keys", Method: "GET", Path: "/v1/ssh-keys", Tag: "library", Summary: "List SSH keys.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_staff":                       {ID: "list_staff", Method: "GET", Path: "/admin/v1/staff", Tag: "admin", Summary: "Every staff member, active or disabled (admin staff).", Security: []string{"staffSession"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
-	"list_storage_tiers":               {ID: "list_storage_tiers", Method: "GET", Path: "/v1/storage-tiers", Tag: "storage", Summary: "List storage tiers.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_storages":                    {ID: "list_storages", Method: "GET", Path: "/v1/storages", Tag: "storage", Summary: "List storages, newest first.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit", "server_id"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_support_consents":            {ID: "list_support_consents", Method: "GET", Path: "/v1/account/support-consents", Tag: "support", Summary: "The account's newest consent codes, open and closed (`next_cursor` is always null).", Security: []string{"sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "members.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_support_sessions":            {ID: "list_support_sessions", Method: "GET", Path: "/v1/account/support-sessions", Tag: "support", Summary: "The support sessions open in the account, newest first (`next_cursor` is always null).", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_templates":                   {ID: "list_templates", Method: "GET", Path: "/v1/templates", Tag: "server", Summary: "List the public templates and the account's online custom images.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"list_zone_gateways":               {ID: "list_zone_gateways", Method: "GET", Path: "/v1/zones/{zone}/gateways", Tag: "node", Summary: "List the gateways of a zone with their failover roles (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "read", StaffRole: "", IsCredentialRead: false},
-	"list_zone_nodes":                  {ID: "list_zone_nodes", Method: "GET", Path: "/v1/zones/{zone}/nodes", Tag: "node", Summary: "List the nodes of a zone (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"zone"}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "", OperatorScope: "read", StaffRole: "", IsCredentialRead: false},
-	"list_zones":                       {ID: "list_zones", Method: "GET", Path: "/v1/zones", Tag: "node", Summary: "List zones.", Security: []string{"apiToken", "operatorToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "read", StaffRole: "", IsCredentialRead: false},
-	"log_in":                           {ID: "log_in", Method: "POST", Path: "/v1/auth/login", Tag: "auth", Summary: "Sign in and receive a session.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"log_in_staff":                     {ID: "log_in_staff", Method: "POST", Path: "/admin/v1/auth/login", Tag: "admin", Summary: "Staff sign-in to the admin console.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"log_out":                          {ID: "log_out", Method: "POST", Path: "/v1/auth/logout", Tag: "auth", Summary: "End the session.", Security: []string{"", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"log_out_staff":                    {ID: "log_out_staff", Method: "POST", Path: "/admin/v1/auth/logout", Tag: "admin", Summary: "End the staff session.", Security: []string{"", "staffCsrfHeader+staffSession"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"look_up_invitation":               {ID: "look_up_invitation", Method: "GET", Path: "/v1/auth/invitation", Tag: "auth", Summary: "Look up an invitation by its token.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{"invitation"}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"migrate_zone_server":              {ID: "migrate_zone_server", Method: "POST", Path: "/v1/zones/{zone}/servers/{id}/migrate", Tag: "maintenance", Summary: "Move a server to another compute node (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"id", "zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "migrate", StaffRole: "", IsCredentialRead: false},
-	"open_support_session":             {ID: "open_support_session", Method: "POST", Path: "/admin/v1/accounts/{id}/support-sessions", Tag: "admin", Summary: "Open a support session acting as one of the account's users.", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
-	"rebuild_server":                   {ID: "rebuild_server", Method: "POST", Path: "/v1/servers/{id}/rebuild", Tag: "server", Summary: "Reinstall a server from a template.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"receive_stripe_webhook":           {ID: "receive_stripe_webhook", Method: "POST", Path: "/v1/webhooks/stripe", Tag: "payment", Summary: "Stripe event delivery.", Security: []string{""}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"redeem_coupon":                    {ID: "redeem_coupon", Method: "POST", Path: "/v1/account/coupons", Tag: "coupon", Summary: "Redeem a coupon code for account credit.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "billing.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"redeem_support_handoff":           {ID: "redeem_support_handoff", Method: "POST", Path: "/v1/auth/support-handoff", Tag: "auth", Summary: "Turn a support handoff code into the support session's cookies.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"register_node":                    {ID: "register_node", Method: "POST", Path: "/internal/v1/nodes/register", Tag: "node", Summary: "A node agent registers with a one-time bootstrap token.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/x-protobuf", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"release_floating_ip":              {ID: "release_floating_ip", Method: "DELETE", Path: "/v1/floating-ips/{id}", Tag: "network", Summary: "Release a floating IP to the pool.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"remove_member":                    {ID: "remove_member", Method: "DELETE", Path: "/v1/members/{id}", Tag: "governance", Summary: "Remove a member with their sessions and API tokens.", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "members.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"remove_payment_method":            {ID: "remove_payment_method", Method: "DELETE", Path: "/v1/account/billing/payment-methods/{id}", Tag: "payment", Summary: "Detach a saved payment method.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "billing.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"renew_node_certificate":           {ID: "renew_node_certificate", Method: "POST", Path: "/internal/v1/nodes/renew", Tag: "node", Summary: "A node agent renews its certificate.", Security: []string{"nodeCertificate"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/x-protobuf", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"replace_account_quotas":           {ID: "replace_account_quotas", Method: "PUT", Path: "/admin/v1/accounts/{id}/quotas", Tag: "quota", Summary: "Change an account's quotas (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
-	"replace_server_firewall":          {ID: "replace_server_firewall", Method: "PUT", Path: "/v1/servers/{id}/firewall", Tag: "network", Summary: "Replace a server's firewall.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"reset_database_password":          {ID: "reset_database_password", Method: "POST", Path: "/v1/databases/{id}/reset-password", Tag: "database", Summary: "Give the owner a new password.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"resize_storage":                   {ID: "resize_storage", Method: "POST", Path: "/v1/storages/{id}/resize", Tag: "storage", Summary: "Grow a storage.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"restart_server":                   {ID: "restart_server", Method: "POST", Path: "/v1/servers/{id}/restart", Tag: "server", Summary: "Restart a server.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"restore_backup":                   {ID: "restore_backup", Method: "POST", Path: "/v1/backups/{id}/restore", Tag: "storage", Summary: "Replace the content of the backup's storage with the backup.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"restore_database":                 {ID: "restore_database", Method: "POST", Path: "/v1/databases/{id}/restore", Tag: "database", Summary: "Restore a database's backups into a new database.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"revoke_api_token":                 {ID: "revoke_api_token", Method: "DELETE", Path: "/v1/api-tokens/{id}", Tag: "governance", Summary: "Revoke an API token.", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "tokens.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"revoke_invitation":                {ID: "revoke_invitation", Method: "DELETE", Path: "/v1/members/invitations/{id}", Tag: "governance", Summary: "Revoke a pending invitation.", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "members.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"revoke_other_sessions":            {ID: "revoke_other_sessions", Method: "POST", Path: "/v1/sessions/revoke-others", Tag: "governance", Summary: "End every session of the user except the one making the call.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "self", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"revoke_session":                   {ID: "revoke_session", Method: "DELETE", Path: "/v1/sessions/{id}", Tag: "governance", Summary: "End one of the caller's sessions.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "self", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"revoke_support_consent":           {ID: "revoke_support_consent", Method: "DELETE", Path: "/v1/account/support-consents/{id}", Tag: "support", Summary: "Revoke an open consent code before staff use it.", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "members.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"rotate_object_storage_keys":       {ID: "rotate_object_storage_keys", Method: "POST", Path: "/v1/object-storage/{zone}/rotate-keys", Tag: "object_storage", Summary: "Replace the zone's S3 key; the old one stops working at once.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"search_accounts":                  {ID: "search_accounts", Method: "GET", Path: "/admin/v1/accounts", Tag: "admin", Summary: "Find customer accounts by name or user email.", Security: []string{"staffSession"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "query"}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
-	"send_mcp_message":                 {ID: "send_mcp_message", Method: "POST", Path: "/mcp", Tag: "mcp", Summary: "Send one MCP JSON-RPC message as the API token.", Security: []string{"apiToken"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"send_operator_mcp_message":        {ID: "send_operator_mcp_message", Method: "POST", Path: "/operator/mcp", Tag: "mcp", Summary: "Send one MCP JSON-RPC message as the operator token.", Security: []string{"operatorToken"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "read", StaffRole: "", IsCredentialRead: false},
-	"send_server_console_input":        {ID: "send_server_console_input", Method: "POST", Path: "/v1/servers/{id}/console/input", Tag: "compute_data", Summary: "Type into the serial console.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"set_default_payment_method":       {ID: "set_default_payment_method", Method: "POST", Path: "/v1/account/billing/payment-methods/{id}/default", Tag: "payment", Summary: "Charge invoices to this payment method.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "billing.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"set_server_ha_policy":             {ID: "set_server_ha_policy", Method: "PUT", Path: "/v1/servers/{id}/ha-policy", Tag: "maintenance", Summary: "Choose what happens to the server when its compute node fails.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"set_server_metadata_setting":      {ID: "set_server_metadata_setting", Method: "PUT", Path: "/v1/servers/{id}/metadata", Tag: "compute_data", Summary: "Turn the metadata service on or off for the server.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"set_server_migration_policy":      {ID: "set_server_migration_policy", Method: "PUT", Path: "/v1/servers/{id}/migration-policy", Tag: "maintenance", Summary: "Choose how hard the server's live migrations try to converge.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"set_support_access":               {ID: "set_support_access", Method: "PUT", Path: "/v1/account/support-access", Tag: "support", Summary: "Change how elevated support sessions may be opened (owner only).", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "members.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"set_zone_primary_gateway":         {ID: "set_zone_primary_gateway", Method: "PUT", Path: "/v1/zones/{zone}/primary-gateway", Tag: "node", Summary: "Choose the zone's primary gateway (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "nodes", StaffRole: "", IsCredentialRead: false},
-	"sign_up":                          {ID: "sign_up", Method: "POST", Path: "/v1/auth/signup", Tag: "auth", Summary: "Create an account with yourself as its owner and sign in.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"start_identity_provider_login":    {ID: "start_identity_provider_login", Method: "GET", Path: "/v1/auth/oidc/login", Tag: "oidc", Summary: "Start a sign-in at the identity provider.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{"connection", "coupon", "prompt", "return_to"}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"start_identity_provider_signup":   {ID: "start_identity_provider_signup", Method: "GET", Path: "/v1/auth/oidc/signup", Tag: "oidc", Summary: "Start a sign-up at the identity provider.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{"connection", "coupon", "prompt", "return_to"}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"start_server":                     {ID: "start_server", Method: "POST", Path: "/v1/servers/{id}/start", Tag: "server", Summary: "Start a server.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"stop_server":                      {ID: "stop_server", Method: "POST", Path: "/v1/servers/{id}/stop", Tag: "server", Summary: "Stop a server.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"stream_server_console":            {ID: "stream_server_console", Method: "GET", Path: "/v1/servers/{id}/console/stream", Tag: "compute_data", Summary: "The interactive serial console as Server-Sent Events.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: true},
-	"templatize_storage":               {ID: "templatize_storage", Method: "POST", Path: "/v1/storages/{id}/templatize", Tag: "storage", Summary: "Make a custom image from a storage; its server must be stopped.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"uncordon_zone_node":               {ID: "uncordon_zone_node", Method: "POST", Path: "/v1/zones/{zone}/nodes/{id}/uncordon", Tag: "maintenance", Summary: "Let a cordoned, drained or fenced compute node take servers again (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"id", "zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "maintenance", StaffRole: "", IsCredentialRead: false},
-	"unlink_account_identity":          {ID: "unlink_account_identity", Method: "DELETE", Path: "/v1/account/identities/{id}", Tag: "identity", Summary: "Unlink one of your sign-in identities.", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "self", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"update_edge":                      {ID: "update_edge", Method: "PATCH", Path: "/v1/edges/{id}", Tag: "edge", Summary: "Rename an edge, change its roles, bastion keys or members.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"update_init_script":               {ID: "update_init_script", Method: "PATCH", Path: "/v1/init-scripts/{id}", Tag: "library", Summary: "Change an init script.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"update_load_balancer_backend":     {ID: "update_load_balancer_backend", Method: "PATCH", Path: "/v1/load-balancers/{id}/backends/{backend}", Tag: "load_balancer", Summary: "Change how a backend balances and checks its members.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"backend", "id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"update_load_balancer_member":      {ID: "update_load_balancer_member", Method: "PATCH", Path: "/v1/load-balancers/{id}/backends/{backend}/members/{member}", Tag: "load_balancer", Summary: "Change a member's weight or take it out of rotation.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"backend", "id", "member"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"update_router":                    {ID: "update_router", Method: "PATCH", Path: "/v1/routers/{id}", Tag: "network", Summary: "Turn a router's NAT gateway on or off.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"update_server":                    {ID: "update_server", Method: "PATCH", Path: "/v1/servers/{id}", Tag: "server", Summary: "Rename or relabel a server.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"update_server_group":              {ID: "update_server_group", Method: "PATCH", Path: "/v1/server-groups/{id}", Tag: "library", Summary: "Change a server group.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"update_ssh_key":                   {ID: "update_ssh_key", Method: "PATCH", Path: "/v1/ssh-keys/{id}", Tag: "library", Summary: "Change an SSH key.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"update_staff":                     {ID: "update_staff", Method: "PATCH", Path: "/admin/v1/staff/{id}", Tag: "admin", Summary: "Change a staff member's role or name (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
-	"update_storage":                   {ID: "update_storage", Method: "PATCH", Path: "/v1/storages/{id}", Tag: "storage", Summary: "Change a storage's title or backup schedule.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
-	"void_account_credit":              {ID: "void_account_credit", Method: "POST", Path: "/admin/v1/accounts/{id}/credits/{credit}/void", Tag: "coupon", Summary: "Void an account credit (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"credit", "id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"accept_invitation":                          {ID: "accept_invitation", Method: "POST", Path: "/v1/auth/accept-invitation", Tag: "auth", Summary: "Accept an invitation, create the user and sign them in.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"add_server_public_ipv4":                     {ID: "add_server_public_ipv4", Method: "POST", Path: "/v1/servers/{id}/public-ipv4", Tag: "server", Summary: "Add a public IPv4 to an existing server.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"adopt_edge_router":                          {ID: "adopt_edge_router", Method: "POST", Path: "/admin/v1/edge-routers", Tag: "edge_router", Summary: "Record an edge router that runs already, with its prefixes and uplinks (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"allocate_floating_ip":                       {ID: "allocate_floating_ip", Method: "POST", Path: "/v1/floating-ips", Tag: "network", Summary: "Allocate a floating IP, optionally assigning it at once.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"assign_floating_ip":                         {ID: "assign_floating_ip", Method: "POST", Path: "/v1/floating-ips/{id}/assign", Tag: "network", Summary: "Move a floating IP to a server, or unassign it.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"attach_router_network":                      {ID: "attach_router_network", Method: "POST", Path: "/v1/routers/{id}/networks", Tag: "network", Summary: "Attach a private network to a router.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"attach_server_network":                      {ID: "attach_server_network", Method: "POST", Path: "/v1/servers/{id}/networks", Tag: "network", Summary: "Attach a stopped server to a private network.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"attach_storage":                             {ID: "attach_storage", Method: "POST", Path: "/v1/storages/{id}/attach", Tag: "storage", Summary: "Attach a storage to a running or stopped server in the same zone.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"back_up_storage":                            {ID: "back_up_storage", Method: "POST", Path: "/v1/storages/{id}/backups", Tag: "storage", Summary: "Take a crash-consistent backup, also of a running server.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"bootstrap_region_kubernetes_host":           {ID: "bootstrap_region_kubernetes_host", Method: "POST", Path: "/v1/regions/{region}/kubernetes-host", Tag: "kubernetes_cluster", Summary: "Bootstrap the region's host cluster for managed Kubernetes (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"region"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "nodes", StaffRole: "", IsCredentialRead: false},
+	"bulk_delete_dns_records":                    {ID: "bulk_delete_dns_records", Method: "POST", Path: "/v1/dns/zones/{id}/records/bulk-delete", Tag: "dns", Summary: "Delete up to 500 records of a zone at once.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"cancel_agent_rollout":                       {ID: "cancel_agent_rollout", Method: "POST", Path: "/admin/v1/agent-rollouts/{id}/cancel", Tag: "agent_rollout", Summary: "Stop a rollout before its next node (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"cancel_private_cloud_request":               {ID: "cancel_private_cloud_request", Method: "DELETE", Path: "/v1/private-cloud/requests/{id}", Tag: "private_cloud", Summary: "Withdraw an open private cloud request.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "billing.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"change_account_member_role":                 {ID: "change_account_member_role", Method: "PUT", Path: "/admin/v1/accounts/{id}/members/{user}", Tag: "account_administration", Summary: "Change a member's role (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id", "user"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"change_database_plan":                       {ID: "change_database_plan", Method: "POST", Path: "/v1/databases/{id}/plan", Tag: "database", Summary: "Scale a running database up or down to another plan.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"change_member_role":                         {ID: "change_member_role", Method: "PATCH", Path: "/v1/members/{id}", Tag: "governance", Summary: "Change a member's role.", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "members.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"change_server_plan":                         {ID: "change_server_plan", Method: "POST", Path: "/v1/servers/{id}/plan", Tag: "server", Summary: "Change the plan of a stopped server.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"change_staff_password":                      {ID: "change_staff_password", Method: "PUT", Path: "/admin/v1/auth/password", Tag: "admin", Summary: "Change the signed-in staff member's password.", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"check_liveness":                             {ID: "check_liveness", Method: "GET", Path: "/healthz", Tag: "health", Summary: "Liveness probe.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"check_readiness":                            {ID: "check_readiness", Method: "GET", Path: "/readyz", Tag: "health", Summary: "Readiness probe.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"copy_custom_image":                          {ID: "copy_custom_image", Method: "POST", Path: "/v1/custom-images/{id}/copy", Tag: "storage", Summary: "Copy a custom image to another zone.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"cordon_fleet_node":                          {ID: "cordon_fleet_node", Method: "POST", Path: "/admin/v1/fleet/nodes/{id}/cordon", Tag: "fleet", Summary: "Stop a node from taking new servers (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"cordon_zone_node":                           {ID: "cordon_zone_node", Method: "POST", Path: "/v1/zones/{zone}/nodes/{id}/cordon", Tag: "maintenance", Summary: "Stop a compute node from taking new servers (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"id", "zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "maintenance", StaffRole: "", IsCredentialRead: false},
+	"create_api_token":                           {ID: "create_api_token", Method: "POST", Path: "/v1/api-tokens", Tag: "governance", Summary: "Create an API token.", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "tokens.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"create_backup_vault":                        {ID: "create_backup_vault", Method: "POST", Path: "/v1/backup-vaults", Tag: "backup_vault", Summary: "Configure a region's off-host backup vault (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "nodes", StaffRole: "", IsCredentialRead: false},
+	"create_coupon":                              {ID: "create_coupon", Method: "POST", Path: "/admin/v1/coupons", Tag: "coupon", Summary: "Create a coupon code (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"create_database":                            {ID: "create_database", Method: "POST", Path: "/v1/databases", Tag: "database", Summary: "Create a managed PostgreSQL 17 database on a private network.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"create_dev_cluster":                         {ID: "create_dev_cluster", Method: "POST", Path: "/v1/dev-clusters", Tag: "dev_cluster", Summary: "Create a dev cluster.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"create_dns_record":                          {ID: "create_dns_record", Method: "POST", Path: "/v1/dns/zones/{id}/records", Tag: "dns", Summary: "Add a record to a zone.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"create_dns_subzone":                         {ID: "create_dns_subzone", Method: "POST", Path: "/v1/dns/zones/{id}/subzones", Tag: "dns", Summary: "Host <label>.<zone> as a zone of its own, delegated from this zone.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"create_dns_zone":                            {ID: "create_dns_zone", Method: "POST", Path: "/v1/dns/zones", Tag: "dns", Summary: "Host a DNS zone on the Ankra Cloud nameservers.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"create_edge":                                {ID: "create_edge", Method: "POST", Path: "/v1/edges", Tag: "edge", Summary: "Attach a bastion, NAT gateway or load balancer to a private network.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"create_host":                                {ID: "create_host", Method: "POST", Path: "/admin/v1/hosts", Tag: "host_onboarding", Summary: "Add a blank server (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"create_init_script":                         {ID: "create_init_script", Method: "POST", Path: "/v1/init-scripts", Tag: "library", Summary: "Add an init script.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"create_ip_pool":                             {ID: "create_ip_pool", Method: "POST", Path: "/admin/v1/zones/{zone}/ip-pools", Tag: "infrastructure", Summary: "Register a zone's routed public address range (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"create_kubernetes_cluster":                  {ID: "create_kubernetes_cluster", Method: "POST", Path: "/v1/kubernetes-clusters", Tag: "kubernetes_cluster", Summary: "Create a managed Kubernetes cluster.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"create_kubernetes_cluster_etcd_snapshot":    {ID: "create_kubernetes_cluster_etcd_snapshot", Method: "POST", Path: "/v1/kubernetes-clusters/{id}/etcd-snapshots", Tag: "kubernetes_cluster", Summary: "Take an etcd snapshot now.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"create_kubernetes_node_pool":                {ID: "create_kubernetes_node_pool", Method: "POST", Path: "/v1/kubernetes-clusters/{id}/node-pools", Tag: "kubernetes_cluster", Summary: "Add a node pool to a cluster.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"create_load_balancer":                       {ID: "create_load_balancer", Method: "POST", Path: "/v1/load-balancers", Tag: "load_balancer", Summary: "Create a load balancer on a private network.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"create_load_balancer_backend":               {ID: "create_load_balancer_backend", Method: "POST", Path: "/v1/load-balancers/{id}/backends", Tag: "load_balancer", Summary: "Add a backend.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"create_load_balancer_certificate":           {ID: "create_load_balancer_certificate", Method: "POST", Path: "/v1/load-balancers/certificates", Tag: "load_balancer", Summary: "Upload a certificate chain and its private key.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"create_load_balancer_frontend":              {ID: "create_load_balancer_frontend", Method: "POST", Path: "/v1/load-balancers/{id}/frontends", Tag: "load_balancer", Summary: "Listen on a port and forward to a backend.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"create_load_balancer_member":                {ID: "create_load_balancer_member", Method: "POST", Path: "/v1/load-balancers/{id}/backends/{backend}/members", Tag: "load_balancer", Summary: "Add a member to a backend.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"backend", "id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"create_monitoring_credential":               {ID: "create_monitoring_credential", Method: "POST", Path: "/admin/v1/monitoring/credentials", Tag: "monitoring", Summary: "Mint the read-only scrape credential for the cluster whose Prometheus scrapes the cloud (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"create_network":                             {ID: "create_network", Method: "POST", Path: "/v1/networks", Tag: "network", Summary: "Create a private network.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"create_node_agent_artifact":                 {ID: "create_node_agent_artifact", Method: "PUT", Path: "/v1/node-agent-artifacts/{version}", Tag: "host", Summary: "Upload an ankra-node build for the maintenance operation to install (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"version"}, QueryParameters: []string{"commit"}, BodyMediaType: "application/octet-stream", Permission: "", OperatorScope: "maintenance", StaffRole: "", IsCredentialRead: false},
+	"create_payment_setup_session":               {ID: "create_payment_setup_session", Method: "POST", Path: "/v1/account/billing/setup-session", Tag: "payment", Summary: "Start Stripe's hosted page for saving a payment method.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "billing.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"create_platform_billing_approval":           {ID: "create_platform_billing_approval", Method: "POST", Path: "/platform/v1/organisations/{organisation_id}/billing-approval", Tag: "platform_credential", Summary: "Apply a verified organisation owner's approval of paid usage.", Security: []string{"platformServiceToken"}, PathParameters: []string{"organisation_id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"create_platform_billing_customer":           {ID: "create_platform_billing_customer", Method: "POST", Path: "/platform/v1/organisations/{organisation_id}/billing-customer", Tag: "platform_credential", Summary: "Ensure one billing customer for Cloud and Platform.", Security: []string{"platformServiceToken"}, PathParameters: []string{"organisation_id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"create_platform_credential":                 {ID: "create_platform_credential", Method: "POST", Path: "/platform/v1/organisations/{organisation_id}/credential", Tag: "platform_credential", Summary: "Issue the Ankra platform an API token for its organisation's Cloud account.", Security: []string{"platformServiceToken"}, PathParameters: []string{"organisation_id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"create_private_cloud_request":               {ID: "create_private_cloud_request", Method: "POST", Path: "/v1/private-cloud/requests", Tag: "private_cloud", Summary: "Ask Ankra for a private cloud, or for more private capacity.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "billing.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"create_region":                              {ID: "create_region", Method: "POST", Path: "/admin/v1/regions", Tag: "infrastructure", Summary: "Create a region (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"create_router":                              {ID: "create_router", Method: "POST", Path: "/v1/routers", Tag: "network", Summary: "Create a router, optionally a NAT gateway.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"create_server":                              {ID: "create_server", Method: "POST", Path: "/v1/servers", Tag: "server", Summary: "Create a server.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"create_server_group":                        {ID: "create_server_group", Method: "POST", Path: "/v1/server-groups", Tag: "library", Summary: "Add a server group.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"create_snapshot":                            {ID: "create_snapshot", Method: "POST", Path: "/v1/storages/{id}/snapshots", Tag: "storage", Summary: "Take a crash-consistent snapshot of a storage, also of a running server's.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"create_ssh_key":                             {ID: "create_ssh_key", Method: "POST", Path: "/v1/ssh-keys", Tag: "library", Summary: "Add an SSH key.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"create_staff":                               {ID: "create_staff", Method: "POST", Path: "/admin/v1/staff", Tag: "admin", Summary: "Add a staff member (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"create_staff_enrollment_invite":             {ID: "create_staff_enrollment_invite", Method: "POST", Path: "/admin/v1/staff/{id}/enrollment-invites", Tag: "admin", Summary: "Mint a one-time second-factor enrolment link for a staff member (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"create_storage":                             {ID: "create_storage", Method: "POST", Path: "/v1/storages", Tag: "storage", Summary: "Create an empty storage, clone a storage or a snapshot, or restore a backup as a new storage.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"create_support_consent":                     {ID: "create_support_consent", Method: "POST", Path: "/v1/account/support-consents", Tag: "support", Summary: "Create a single-use consent code for one elevated support session.", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "members.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"create_zone":                                {ID: "create_zone", Method: "POST", Path: "/admin/v1/zones", Tag: "infrastructure", Summary: "Create a zone in a region (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"create_zone_rack":                           {ID: "create_zone_rack", Method: "POST", Path: "/v1/zones/{zone}/racks", Tag: "region", Summary: "Create a rack in a zone (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "nodes", StaffRole: "", IsCredentialRead: false},
+	"create_zone_rack_for_staff":                 {ID: "create_zone_rack_for_staff", Method: "POST", Path: "/admin/v1/zones/{zone}/racks", Tag: "fleet", Summary: "Add a rack to a zone (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"deactivate_coupon":                          {ID: "deactivate_coupon", Method: "POST", Path: "/admin/v1/coupons/{code}/deactivate", Tag: "coupon", Summary: "Stop a coupon code from being redeemed (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"code"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"delete_backup":                              {ID: "delete_backup", Method: "DELETE", Path: "/v1/backups/{id}", Tag: "storage", Summary: "Delete a backup.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"delete_backup_vault":                        {ID: "delete_backup_vault", Method: "DELETE", Path: "/v1/backup-vaults/{id}", Tag: "backup_vault", Summary: "Retire a backup vault (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "nodes", StaffRole: "", IsCredentialRead: false},
+	"delete_custom_image":                        {ID: "delete_custom_image", Method: "DELETE", Path: "/v1/custom-images/{id}", Tag: "storage", Summary: "Delete a custom image.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"delete_database":                            {ID: "delete_database", Method: "DELETE", Path: "/v1/databases/{id}", Tag: "database", Summary: "Delete a database with its VM and data disk.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"delete_dev_cluster":                         {ID: "delete_dev_cluster", Method: "DELETE", Path: "/v1/dev-clusters/{id}", Tag: "dev_cluster", Summary: "Delete a dev cluster with its server.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"delete_dns_record":                          {ID: "delete_dns_record", Method: "DELETE", Path: "/v1/dns/zones/{id}/records/{record_id}", Tag: "dns", Summary: "Delete a record.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id", "record_id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"delete_dns_zone":                            {ID: "delete_dns_zone", Method: "DELETE", Path: "/v1/dns/zones/{id}", Tag: "dns", Summary: "Stop hosting a zone and delete its records.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"delete_edge":                                {ID: "delete_edge", Method: "DELETE", Path: "/v1/edges/{id}", Tag: "edge", Summary: "Delete an edge, its VMs and (separate placement) its load balancer.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"delete_init_script":                         {ID: "delete_init_script", Method: "DELETE", Path: "/v1/init-scripts/{id}", Tag: "library", Summary: "Delete an init script.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"delete_kubernetes_cluster":                  {ID: "delete_kubernetes_cluster", Method: "DELETE", Path: "/v1/kubernetes-clusters/{id}", Tag: "kubernetes_cluster", Summary: "Delete a Kubernetes cluster with its nodes, volumes, load balancers and etcd snapshots.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"delete_kubernetes_node_pool":                {ID: "delete_kubernetes_node_pool", Method: "DELETE", Path: "/v1/kubernetes-clusters/{id}/node-pools/{pool}", Tag: "kubernetes_cluster", Summary: "Delete a node pool.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id", "pool"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"delete_load_balancer":                       {ID: "delete_load_balancer", Method: "DELETE", Path: "/v1/load-balancers/{id}", Tag: "load_balancer", Summary: "Delete a load balancer, its VMs and its address.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"delete_load_balancer_backend":               {ID: "delete_load_balancer_backend", Method: "DELETE", Path: "/v1/load-balancers/{id}/backends/{backend}", Tag: "load_balancer", Summary: "Remove a backend and its members.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"backend", "id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"delete_load_balancer_certificate":           {ID: "delete_load_balancer_certificate", Method: "DELETE", Path: "/v1/load-balancers/certificates/{certificate}", Tag: "load_balancer", Summary: "Delete a certificate and its sealed key.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"certificate"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"delete_load_balancer_frontend":              {ID: "delete_load_balancer_frontend", Method: "DELETE", Path: "/v1/load-balancers/{id}/frontends/{frontend}", Tag: "load_balancer", Summary: "Stop listening on a frontend's port.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"frontend", "id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"delete_load_balancer_member":                {ID: "delete_load_balancer_member", Method: "DELETE", Path: "/v1/load-balancers/{id}/backends/{backend}/members/{member}", Tag: "load_balancer", Summary: "Remove a member from its backend.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"backend", "id", "member"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"delete_network":                             {ID: "delete_network", Method: "DELETE", Path: "/v1/networks/{id}", Tag: "network", Summary: "Delete a private network.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"delete_public_address_controller":           {ID: "delete_public_address_controller", Method: "DELETE", Path: "/v1/zones/{zone}/public-address-controller", Tag: "underlay", Summary: "Forget a zone's public address controller and its credentials (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "nodes", StaffRole: "", IsCredentialRead: false},
+	"delete_router":                              {ID: "delete_router", Method: "DELETE", Path: "/v1/routers/{id}", Tag: "network", Summary: "Delete a router.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"delete_server":                              {ID: "delete_server", Method: "DELETE", Path: "/v1/servers/{id}", Tag: "server", Summary: "Delete a server.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{"keep_storages"}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"delete_server_group":                        {ID: "delete_server_group", Method: "DELETE", Path: "/v1/server-groups/{id}", Tag: "library", Summary: "Delete a server group.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"delete_snapshot":                            {ID: "delete_snapshot", Method: "DELETE", Path: "/v1/snapshots/{id}", Tag: "storage", Summary: "Delete a snapshot.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"delete_ssh_key":                             {ID: "delete_ssh_key", Method: "DELETE", Path: "/v1/ssh-keys/{id}", Tag: "library", Summary: "Delete an SSH key.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"delete_storage":                             {ID: "delete_storage", Method: "DELETE", Path: "/v1/storages/{id}", Tag: "storage", Summary: "Delete a storage; its backups are kept.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"delete_zone_node_power_controller":          {ID: "delete_zone_node_power_controller", Method: "DELETE", Path: "/v1/zones/{zone}/nodes/{id}/power-controller", Tag: "host", Summary: "Forget the node's BMC; fencing falls back to the command hook (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"id", "zone"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "nodes", StaffRole: "", IsCredentialRead: false},
+	"detach_router_network":                      {ID: "detach_router_network", Method: "DELETE", Path: "/v1/routers/{id}/networks/{network}", Tag: "network", Summary: "Detach a private network from a router.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id", "network"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"detach_server_network":                      {ID: "detach_server_network", Method: "DELETE", Path: "/v1/servers/{id}/networks/{network}", Tag: "network", Summary: "Detach a stopped server from a private network.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id", "network"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"detach_storage":                             {ID: "detach_storage", Method: "POST", Path: "/v1/storages/{id}/detach", Tag: "storage", Summary: "Detach a storage from its running or stopped server.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"disable_account_totp":                       {ID: "disable_account_totp", Method: "DELETE", Path: "/v1/account/mfa/totp", Tag: "mfa", Summary: "Turn the authenticator app off.", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "self", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"disable_staff":                              {ID: "disable_staff", Method: "DELETE", Path: "/admin/v1/staff/{id}", Tag: "admin", Summary: "Disable a staff member (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"disable_staff_totp":                         {ID: "disable_staff_totp", Method: "DELETE", Path: "/admin/v1/auth/mfa/totp", Tag: "admin", Summary: "Turn the staff member's authenticator off (only without enforcement).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"disable_user":                               {ID: "disable_user", Method: "POST", Path: "/admin/v1/users/{id}/disabled", Tag: "account_administration", Summary: "Disable a user (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"drain_fleet_node":                           {ID: "drain_fleet_node", Method: "POST", Path: "/admin/v1/fleet/nodes/{id}/drain", Tag: "fleet", Summary: "Cordon a compute node and move every server off it, one at a time (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"drain_fleet_node_storage":                   {ID: "drain_fleet_node_storage", Method: "POST", Path: "/admin/v1/fleet/nodes/{id}/storage-drain", Tag: "fleet", Summary: "Drain a storage node's OSDs from the zone's replicated storage (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"drain_zone_node":                            {ID: "drain_zone_node", Method: "POST", Path: "/v1/zones/{zone}/nodes/{id}/drain", Tag: "maintenance", Summary: "Cordon a compute node and move every server off it, one at a time (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"id", "zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "maintenance", StaffRole: "", IsCredentialRead: false},
+	"enable_object_storage":                      {ID: "enable_object_storage", Method: "POST", Path: "/v1/object-storage", Tag: "object_storage", Summary: "Enable S3-compatible object storage in a zone.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"enable_user":                                {ID: "enable_user", Method: "DELETE", Path: "/admin/v1/users/{id}/disabled", Tag: "account_administration", Summary: "Enable a disabled user (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"end_impersonation":                          {ID: "end_impersonation", Method: "POST", Path: "/v1/auth/end-impersonation", Tag: "auth", Summary: "End a support session and hand the environment back to staff.", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"end_playground":                             {ID: "end_playground", Method: "DELETE", Path: "/v1/playgrounds/{id}", Tag: "playground", Summary: "End the account's playground before it expires.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"end_playground_for_staff":                   {ID: "end_playground_for_staff", Method: "POST", Path: "/admin/v1/playgrounds/{id}/end", Tag: "playground", Summary: "End any account's playground with a reason (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"end_support_session":                        {ID: "end_support_session", Method: "DELETE", Path: "/v1/account/support-sessions/{id}", Tag: "support", Summary: "End a support session now.", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "members.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"expand_zone_control_plane":                  {ID: "expand_zone_control_plane", Method: "POST", Path: "/v1/zones/{zone}/control-plane/expand", Tag: "control_plane", Summary: "Turn the zone's control plane into the highly available form (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "nodes", StaffRole: "", IsCredentialRead: false},
+	"export_audit_entries":                       {ID: "export_audit_entries", Method: "GET", Path: "/v1/audit/export", Tag: "server", Summary: "Export the account's audit log as JSON lines, oldest first, in chain order.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"after", "limit"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"finish_account_totp_setup":                  {ID: "finish_account_totp_setup", Method: "POST", Path: "/v1/account/mfa/totp/confirm", Tag: "mfa", Summary: "Activate the authenticator app with its first code.", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "self", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"finish_identity_provider_login":             {ID: "finish_identity_provider_login", Method: "GET", Path: "/v1/auth/oidc/callback", Tag: "oidc", Summary: "The identity providers' callback.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{"code", "error", "error_description", "provider", "state"}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"finish_identity_provider_login_at_provider": {ID: "finish_identity_provider_login_at_provider", Method: "GET", Path: "/v1/auth/oidc/callback/{provider}", Tag: "oidc", Summary: "The callback of one identity provider.", Security: []string{}, PathParameters: []string{"provider"}, QueryParameters: []string{"code", "error", "error_description", "state"}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"finish_login_second_factor_setup":           {ID: "finish_login_second_factor_setup", Method: "POST", Path: "/v1/auth/login/mfa/enroll/confirm", Tag: "mfa", Summary: "Activate the new authenticator with its first code and sign in.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"finish_staff_identity_provider_login":       {ID: "finish_staff_identity_provider_login", Method: "GET", Path: "/admin/v1/auth/oidc/callback", Tag: "admin", Summary: "Finish a staff sign-in with the Ankra account.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{"code", "error", "error_description", "state"}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"finish_staff_login_second_factor_setup":     {ID: "finish_staff_login_second_factor_setup", Method: "POST", Path: "/admin/v1/auth/login/mfa/enroll/confirm", Tag: "admin", Summary: "Activate the staff member's authenticator with its first code and sign in.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"finish_staff_totp_setup":                    {ID: "finish_staff_totp_setup", Method: "POST", Path: "/admin/v1/auth/mfa/totp/confirm", Tag: "admin", Summary: "Activate the staff member's authenticator with its first code.", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"force_release_zone_server":                  {ID: "force_release_zone_server", Method: "POST", Path: "/v1/zones/{zone}/servers/{id}/force-release", Tag: "maintenance", Summary: "Remove a server whose node is gone for good (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"id", "zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "maintenance", StaffRole: "", IsCredentialRead: false},
+	"get_account":                                {ID: "get_account", Method: "GET", Path: "/admin/v1/accounts/{id}", Tag: "admin", Summary: "An account with its users and servers.", Security: []string{"staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"get_account_billing_for_staff":              {ID: "get_account_billing_for_staff", Method: "GET", Path: "/admin/v1/accounts/{id}/billing", Tag: "account_administration", Summary: "An account's payment standing.", Security: []string{"staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"get_account_mfa":                            {ID: "get_account_mfa", Method: "GET", Path: "/v1/account/mfa", Tag: "mfa", Summary: "Your second factor and whether the account requires one.", Security: []string{"sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "self", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_account_organisation":                   {ID: "get_account_organisation", Method: "GET", Path: "/v1/account/organisation", Tag: "organisation", Summary: "The Ankra organisation this account belongs to.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_account_usage":                          {ID: "get_account_usage", Method: "GET", Path: "/admin/v1/accounts/{id}/usage", Tag: "admin", Summary: "An account's usage this month.", Security: []string{"staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"get_agent_rollout":                          {ID: "get_agent_rollout", Method: "GET", Path: "/admin/v1/agent-rollouts/{id}", Tag: "agent_rollout", Summary: "One rollout with its nodes (staff).", Security: []string{"staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"get_audit_integrity":                        {ID: "get_audit_integrity", Method: "GET", Path: "/v1/audit/integrity", Tag: "server", Summary: "Whether the account's audit chain verifies.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_backup":                                 {ID: "get_backup", Method: "GET", Path: "/v1/backups/{id}", Tag: "storage", Summary: "Get a backup.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_control_plane_metrics":                  {ID: "get_control_plane_metrics", Method: "GET", Path: "/metrics", Tag: "telemetry", Summary: "The control plane's own Prometheus metrics (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "read", StaffRole: "", IsCredentialRead: false},
+	"get_current_staff":                          {ID: "get_current_staff", Method: "GET", Path: "/admin/v1/auth/me", Tag: "admin", Summary: "The signed-in staff member.", Security: []string{"staffSession"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"get_current_user":                           {ID: "get_current_user", Method: "GET", Path: "/v1/auth/me", Tag: "auth", Summary: "The signed-in user, the CSRF token and the permissions of the role.", Security: []string{"sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_database":                               {ID: "get_database", Method: "GET", Path: "/v1/databases/{id}", Tag: "database", Summary: "Get a database with its health.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_database_credentials":                   {ID: "get_database_credentials", Method: "GET", Path: "/v1/databases/{id}/credentials", Tag: "database", Summary: "Show the owner's password and connection URI (audited).", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: true},
+	"get_database_metrics":                       {ID: "get_database_metrics", Method: "GET", Path: "/v1/databases/{id}/metrics", Tag: "database", Summary: "CPU, memory, disk and query time of a database.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{"period"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_dev_cluster":                            {ID: "get_dev_cluster", Method: "GET", Path: "/v1/dev-clusters/{id}", Tag: "dev_cluster", Summary: "One of the account's dev clusters.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_dev_cluster_kubeconfig":                 {ID: "get_dev_cluster_kubeconfig", Method: "GET", Path: "/v1/dev-clusters/{id}/kubeconfig", Tag: "dev_cluster", Summary: "A kubeconfig with a short-lived cluster-admin credential of a running dev cluster (audited).", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: true},
+	"get_dev_cluster_token":                      {ID: "get_dev_cluster_token", Method: "GET", Path: "/v1/dev-clusters/{id}/token", Tag: "dev_cluster", Summary: "An OIDC token for the dev cluster's API, as a client.authentication.k8s.io ExecCredential.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: true},
+	"get_dns_zone":                               {ID: "get_dns_zone", Method: "GET", Path: "/v1/dns/zones/{id}", Tag: "dns", Summary: "Get a hosted DNS zone.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_edge":                                   {ID: "get_edge", Method: "GET", Path: "/v1/edges/{id}", Tag: "edge", Summary: "Get an edge with its VMs, addresses and members.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_edge_router":                            {ID: "get_edge_router", Method: "GET", Path: "/admin/v1/edge-routers/{id}", Tag: "edge_router", Summary: "An edge router with its gateway uplinks (staff).", Security: []string{"staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"get_edge_router_health":                     {ID: "get_edge_router_health", Method: "GET", Path: "/admin/v1/edge-routers/{id}/health", Tag: "edge_router", Summary: "What an edge router reports now (staff).", Security: []string{"staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"get_edge_router_plan":                       {ID: "get_edge_router_plan", Method: "GET", Path: "/admin/v1/edge-routers/{id}/plan", Tag: "edge_router", Summary: "What applying an edge router's configuration would change (staff, read only).", Security: []string{"staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"get_fleet":                                  {ID: "get_fleet", Method: "GET", Path: "/admin/v1/fleet", Tag: "fleet", Summary: "Every region, zone and node with its health and capacity (staff).", Security: []string{"staffSession"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"get_fleet_node":                             {ID: "get_fleet_node", Method: "GET", Path: "/admin/v1/fleet/nodes/{id}", Tag: "fleet", Summary: "One node of the fleet with its health and capacity (staff).", Security: []string{"staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"get_fleet_node_control_link":                {ID: "get_fleet_node_control_link", Method: "GET", Path: "/admin/v1/fleet/nodes/{id}/control-link", Tag: "control_link", Summary: "The control-plane link a node reaches the management network through (staff).", Security: []string{"staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"get_fleet_node_host":                        {ID: "get_fleet_node_host", Method: "GET", Path: "/admin/v1/fleet/nodes/{id}/host", Tag: "host_onboarding", Summary: "The host that manages a node over SSH (staff).", Security: []string{"staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"get_fleet_node_operation":                   {ID: "get_fleet_node_operation", Method: "GET", Path: "/admin/v1/fleet/nodes/{id}/operations/{operation_id}", Tag: "fleet", Summary: "One operation of a node with its newest events, to follow its progress (staff).", Security: []string{"staffSession"}, PathParameters: []string{"id", "operation_id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"get_floating_ip":                            {ID: "get_floating_ip", Method: "GET", Path: "/v1/floating-ips/{id}", Tag: "network", Summary: "Get a floating IP.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_gateway_uplink_move_plan":               {ID: "get_gateway_uplink_move_plan", Method: "GET", Path: "/admin/v1/gateway-uplinks/{id}/move-plan", Tag: "edge_router", Summary: "What moving a gateway to an uplink would change (staff, read only).", Security: []string{"staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"get_host":                                   {ID: "get_host", Method: "GET", Path: "/admin/v1/hosts/{id}", Tag: "host_onboarding", Summary: "A host with its probe facts, operations and their events.", Security: []string{"staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"get_host_ssh_public_key":                    {ID: "get_host_ssh_public_key", Method: "GET", Path: "/admin/v1/hosts/ssh-public-key", Tag: "host_onboarding", Summary: "The control plane's SSH public key for new servers.", Security: []string{"staffSession"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"get_identity_provider_status":               {ID: "get_identity_provider_status", Method: "GET", Path: "/v1/auth/oidc", Tag: "oidc", Summary: "Which identity providers sign-in is available through.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_infrastructure_zone_underlay":           {ID: "get_infrastructure_zone_underlay", Method: "GET", Path: "/admin/v1/zones/{zone}/underlay", Tag: "infrastructure", Summary: "Read a zone's underlay, its WireGuard mesh and the measured latency budget (staff).", Security: []string{"staffSession"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"get_init_script":                            {ID: "get_init_script", Method: "GET", Path: "/v1/init-scripts/{id}", Tag: "library", Summary: "Get an init script.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_kubernetes_cluster":                     {ID: "get_kubernetes_cluster", Method: "GET", Path: "/v1/kubernetes-clusters/{id}", Tag: "kubernetes_cluster", Summary: "Get a Kubernetes cluster with its node pools and health.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_kubernetes_cluster_kubeconfig":          {ID: "get_kubernetes_cluster_kubeconfig", Method: "GET", Path: "/v1/kubernetes-clusters/{id}/kubeconfig", Tag: "kubernetes_cluster", Summary: "A kubeconfig with a short-lived cluster-admin credential (audited).", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: true},
+	"get_kubernetes_cluster_token":               {ID: "get_kubernetes_cluster_token", Method: "GET", Path: "/v1/kubernetes-clusters/{id}/token", Tag: "kubernetes_cluster", Summary: "An OIDC token for the cluster's API, as a client.authentication.k8s.io ExecCredential.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: true},
+	"get_kubernetes_host":                        {ID: "get_kubernetes_host", Method: "GET", Path: "/v1/kubernetes-hosts/{id}", Tag: "kubernetes_cluster", Summary: "Get a regional host cluster with its servers and the Ankra platform import it waits for (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "read", StaffRole: "", IsCredentialRead: false},
+	"get_kubernetes_node_pool":                   {ID: "get_kubernetes_node_pool", Method: "GET", Path: "/v1/kubernetes-clusters/{id}/node-pools/{pool}", Tag: "kubernetes_cluster", Summary: "Get a node pool with its nodes.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id", "pool"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_kubernetes_oidc_configuration":          {ID: "get_kubernetes_oidc_configuration", Method: "GET", Path: "/v1/kubernetes-oidc/.well-known/openid-configuration", Tag: "kubernetes_cluster", Summary: "OpenID Connect discovery for the Kubernetes token issuer.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_kubernetes_oidc_keys":                   {ID: "get_kubernetes_oidc_keys", Method: "GET", Path: "/v1/kubernetes-oidc/keys", Tag: "kubernetes_cluster", Summary: "The Kubernetes token issuer's public keys (JWKS).", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_load_balancer":                          {ID: "get_load_balancer", Method: "GET", Path: "/v1/load-balancers/{id}", Tag: "load_balancer", Summary: "Get a load balancer with its VMs, frontends and backends.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_load_balancer_certificate":              {ID: "get_load_balancer_certificate", Method: "GET", Path: "/v1/load-balancers/certificates/{certificate}", Tag: "load_balancer", Summary: "Get a certificate.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"certificate"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_monitoring_status":                      {ID: "get_monitoring_status", Method: "GET", Path: "/admin/v1/monitoring", Tag: "monitoring", Summary: "The monitoring integration's credentials and how many targets each job lists (staff).", Security: []string{"staffSession"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"get_network":                                {ID: "get_network", Method: "GET", Path: "/v1/networks/{id}", Tag: "network", Summary: "Get a private network with its members.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_network_transfer":                       {ID: "get_network_transfer", Method: "GET", Path: "/v1/usage/network-transfer", Tag: "compute_data", Summary: "Public network traffic per server in a month.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"month"}, BodyMediaType: "", Permission: "billing.read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_node_agent_artifact":                    {ID: "get_node_agent_artifact", Method: "GET", Path: "/internal/v1/node-agent-artifacts/{version}", Tag: "host", Summary: "A node agent downloads the build its maintenance installs.", Security: []string{}, PathParameters: []string{"version"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_node_agent_artifact_guest":              {ID: "get_node_agent_artifact_guest", Method: "GET", Path: "/internal/v1/node-agent-artifacts/{version}/guest", Tag: "host", Summary: "A node agent downloads the guest binary of the build it installs.", Security: []string{}, PathParameters: []string{"version"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_node_installer":                         {ID: "get_node_installer", Method: "GET", Path: "/v1/node-installer/{artifact}", Tag: "host", Summary: "A fresh server downloads the ankra-node installer.", Security: []string{}, PathParameters: []string{"artifact"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_node_tailnet":                           {ID: "get_node_tailnet", Method: "GET", Path: "/admin/v1/fleet/nodes/{id}/tailnet", Tag: "tailnet", Summary: "A node's tailnet membership and the actions on offer (staff).", Security: []string{"staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"get_object_storage_credentials":             {ID: "get_object_storage_credentials", Method: "GET", Path: "/v1/object-storage/{zone}/credentials", Tag: "object_storage", Summary: "Show the zone's S3 key (audited).", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: true},
+	"get_operation":                              {ID: "get_operation", Method: "GET", Path: "/v1/operations/{id}", Tag: "server", Summary: "Get an operation.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_password_reset_status":                  {ID: "get_password_reset_status", Method: "GET", Path: "/v1/auth/password-reset", Tag: "password_reset", Summary: "Whether password recovery by email is available.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_payment_configuration":                  {ID: "get_payment_configuration", Method: "GET", Path: "/v1/account/billing", Tag: "payment", Summary: "Whether card payments through Stripe are available.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "billing.read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_platform_account":                       {ID: "get_platform_account", Method: "GET", Path: "/platform/v1/organisations/{organisation_id}/account", Tag: "platform_credential", Summary: "Whether the organisation's Cloud account may create billable resources.", Security: []string{"platformServiceToken"}, PathParameters: []string{"organisation_id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_platform_billing_customer":              {ID: "get_platform_billing_customer", Method: "GET", Path: "/platform/v1/organisations/{organisation_id}/billing-customer", Tag: "platform_credential", Summary: "Read the shared billing customer without creating it.", Security: []string{"platformServiceToken"}, PathParameters: []string{"organisation_id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_platform_workspace_credential":          {ID: "get_platform_workspace_credential", Method: "GET", Path: "/v1/account/platform/credential", Tag: "platform", Summary: "Server-only current-member credential exchange.", Security: []string{"sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_platform_workspace_domains":             {ID: "get_platform_workspace_domains", Method: "GET", Path: "/v1/account/platform/domains", Tag: "platform", Summary: "Assigned organisation and cluster domains in the linked Platform workspace.", Security: []string{"sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_platform_workspace_sync":                {ID: "get_platform_workspace_sync", Method: "GET", Path: "/v1/account/platform", Tag: "platform", Summary: "Workspace organisation mapping and membership sync status.", Security: []string{"sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_playground":                             {ID: "get_playground", Method: "GET", Path: "/v1/playgrounds/{id}", Tag: "playground", Summary: "One of the account's playgrounds.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_playground_kubeconfig":                  {ID: "get_playground_kubeconfig", Method: "GET", Path: "/v1/playgrounds/{id}/kubeconfig", Tag: "playground", Summary: "A kubeconfig with a cluster-admin credential of a ready playground (audited).", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: true},
+	"get_playground_offer":                       {ID: "get_playground_offer", Method: "GET", Path: "/v1/playgrounds/offer", Tag: "playground", Summary: "Whether the account may start a free playground, and on what terms.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_private_cloud":                          {ID: "get_private_cloud", Method: "GET", Path: "/v1/private-cloud", Tag: "private_cloud", Summary: "The account's private cloud, or what it takes to request one.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_private_cloud_request_for_staff":        {ID: "get_private_cloud_request_for_staff", Method: "GET", Path: "/admin/v1/private-cloud-requests/{id}", Tag: "private_cloud", Summary: "One private cloud request with the account's dedicated hosts (staff).", Security: []string{"staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"get_public_address_controller":              {ID: "get_public_address_controller", Method: "GET", Path: "/v1/zones/{zone}/public-address-controller", Tag: "underlay", Summary: "Read a zone's public address controller and where each address is routed (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "read", StaffRole: "", IsCredentialRead: false},
+	"get_quotas":                                 {ID: "get_quotas", Method: "GET", Path: "/v1/quotas", Tag: "quota", Summary: "The account's limits and what it holds.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_region":                                 {ID: "get_region", Method: "GET", Path: "/v1/regions/{region}", Tag: "region", Summary: "Get a region with its zones.", Security: []string{"apiToken", "operatorToken", "sessionCookie"}, PathParameters: []string{"region"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "read", StaffRole: "", IsCredentialRead: false},
+	"get_region_tailnet":                         {ID: "get_region_tailnet", Method: "GET", Path: "/admin/v1/regions/{region}/tailnet", Tag: "tailnet", Summary: "A region's tailnet user and who is on it (staff).", Security: []string{"staffSession"}, PathParameters: []string{"region"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"get_router":                                 {ID: "get_router", Method: "GET", Path: "/v1/routers/{id}", Tag: "network", Summary: "Get a router.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_server":                                 {ID: "get_server", Method: "GET", Path: "/v1/servers/{id}", Tag: "server", Summary: "Get a server.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_server_console":                         {ID: "get_server_console", Method: "GET", Path: "/v1/servers/{id}/console", Tag: "server", Summary: "The last 64 KiB of the serial console.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: true},
+	"get_server_firewall":                        {ID: "get_server_firewall", Method: "GET", Path: "/v1/servers/{id}/firewall", Tag: "network", Summary: "Get a server's firewall.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_server_group":                           {ID: "get_server_group", Method: "GET", Path: "/v1/server-groups/{id}", Tag: "library", Summary: "Get a server group.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_server_metadata_setting":                {ID: "get_server_metadata_setting", Method: "GET", Path: "/v1/servers/{id}/metadata", Tag: "compute_data", Summary: "Whether the metadata service at 169.254.169.254 answers the server.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: true},
+	"get_server_metrics":                         {ID: "get_server_metrics", Method: "GET", Path: "/v1/servers/{id}/metrics", Tag: "compute_data", Summary: "Network and disk metrics of the server.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{"period"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_setup_checklist":                        {ID: "get_setup_checklist", Method: "GET", Path: "/admin/v1/setup", Tag: "setup", Summary: "The steps from bought bare-metal servers to a live cloud, each with where it stands (staff).", Security: []string{"staffSession"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"get_snapshot":                               {ID: "get_snapshot", Method: "GET", Path: "/v1/snapshots/{id}", Tag: "storage", Summary: "Get a snapshot.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_ssh_key":                                {ID: "get_ssh_key", Method: "GET", Path: "/v1/ssh-keys/{id}", Tag: "library", Summary: "Get an SSH key.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_staff_identity_provider_status":         {ID: "get_staff_identity_provider_status", Method: "GET", Path: "/admin/v1/auth/oidc", Tag: "admin", Summary: "Whether staff may sign in with their Ankra account.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_staff_mfa":                              {ID: "get_staff_mfa", Method: "GET", Path: "/admin/v1/auth/mfa", Tag: "admin", Summary: "The signed-in staff member's second factor.", Security: []string{"staffSession"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"get_storage":                                {ID: "get_storage", Method: "GET", Path: "/v1/storages/{id}", Tag: "storage", Summary: "Get a storage.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_support_access":                         {ID: "get_support_access", Method: "GET", Path: "/v1/account/support-access", Tag: "support", Summary: "How elevated support sessions may be opened for this account.", Security: []string{"sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "members.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_unread_notification_count":              {ID: "get_unread_notification_count", Method: "GET", Path: "/v1/notifications/unread-count", Tag: "notification", Summary: "How many notifications of the account are unread.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_usage_summary":                          {ID: "get_usage_summary", Method: "GET", Path: "/v1/usage/summary", Tag: "billing", Summary: "This month's usage and estimate.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "billing.read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"get_user":                                   {ID: "get_user", Method: "GET", Path: "/admin/v1/users/{id}", Tag: "account_administration", Summary: "A user and the accounts they reach.", Security: []string{"staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"get_zone_capabilities":                      {ID: "get_zone_capabilities", Method: "GET", Path: "/v1/zones/{zone}/capabilities", Tag: "node", Summary: "What the zone offers at its growth stage.", Security: []string{"apiToken", "operatorToken", "sessionCookie"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "read", StaffRole: "", IsCredentialRead: false},
+	"get_zone_control_plane":                     {ID: "get_zone_control_plane", Method: "GET", Path: "/v1/zones/{zone}/control-plane", Tag: "control_plane", Summary: "Show a zone's control plane (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "read", StaffRole: "", IsCredentialRead: false},
+	"get_zone_node":                              {ID: "get_zone_node", Method: "GET", Path: "/v1/zones/{zone}/nodes/{id}", Tag: "maintenance", Summary: "A node with its inventory, maintenance state, newest operation and servers (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"id", "zone"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "read", StaffRole: "", IsCredentialRead: false},
+	"get_zone_node_power_controller":             {ID: "get_zone_node_power_controller", Method: "GET", Path: "/v1/zones/{zone}/nodes/{id}/power-controller", Tag: "host", Summary: "The node's BMC settings, without the password (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"id", "zone"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "read", StaffRole: "", IsCredentialRead: false},
+	"get_zone_object_storage":                    {ID: "get_zone_object_storage", Method: "GET", Path: "/admin/v1/zones/{zone}/object-storage", Tag: "zone_object_storage", Summary: "A zone's S3 exposure (staff).", Security: []string{"staffSession"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"get_zone_object_storage_operator":           {ID: "get_zone_object_storage_operator", Method: "GET", Path: "/v1/zones/{zone}/object-storage", Tag: "zone_object_storage", Summary: "A zone's S3 exposure (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "read", StaffRole: "", IsCredentialRead: false},
+	"get_zone_underlay":                          {ID: "get_zone_underlay", Method: "GET", Path: "/v1/zones/{zone}/underlay", Tag: "underlay", Summary: "Read a zone's underlay, its WireGuard mesh and the measured latency budget (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "read", StaffRole: "", IsCredentialRead: false},
+	"grant_account_credit":                       {ID: "grant_account_credit", Method: "POST", Path: "/admin/v1/accounts/{id}/credits", Tag: "coupon", Summary: "Grant an account credit (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"invite_member":                              {ID: "invite_member", Method: "POST", Path: "/v1/members/invitations", Tag: "governance", Summary: "Invite someone to the account.", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "members.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"link_account_organisation":                  {ID: "link_account_organisation", Method: "POST", Path: "/v1/account/organisation", Tag: "organisation", Summary: "Link your account to an Ankra organisation (owner only).", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "members.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"link_host_node":                             {ID: "link_host_node", Method: "POST", Path: "/admin/v1/hosts/{id}/adopt", Tag: "host_onboarding", Summary: "Take a node that joined by hand into SSH management (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"list_account_audit_for_staff":               {ID: "list_account_audit_for_staff", Method: "GET", Path: "/admin/v1/audit", Tag: "admin", Summary: "An account's audit log.", Security: []string{"staffSession"}, PathParameters: []string{}, QueryParameters: []string{"account_id", "cursor"}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"list_account_credits":                       {ID: "list_account_credits", Method: "GET", Path: "/v1/account/credits", Tag: "coupon", Summary: "The account's credits and what they have left.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "billing.read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_account_credits_for_staff":             {ID: "list_account_credits_for_staff", Method: "GET", Path: "/admin/v1/accounts/{id}/credits", Tag: "coupon", Summary: "An account's credits and balance.", Security: []string{"staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"list_account_identities":                    {ID: "list_account_identities", Method: "GET", Path: "/v1/account/identities", Tag: "identity", Summary: "List the identity provider identities you sign in with.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "self", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_account_invoices_for_staff":            {ID: "list_account_invoices_for_staff", Method: "GET", Path: "/admin/v1/accounts/{id}/invoices", Tag: "account_administration", Summary: "An account's invoices.", Security: []string{"staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{"cursor"}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"list_accounts":                              {ID: "list_accounts", Method: "GET", Path: "/v1/accounts", Tag: "organisation", Summary: "The accounts you can act in.", Security: []string{"sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "self", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_agent_builds":                          {ID: "list_agent_builds", Method: "GET", Path: "/admin/v1/agent-builds", Tag: "agent_rollout", Summary: "The node agent builds of the artefact store, newest first (staff).", Security: []string{"staffSession"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"list_agent_rollouts":                        {ID: "list_agent_rollouts", Method: "GET", Path: "/admin/v1/agent-rollouts", Tag: "agent_rollout", Summary: "The fleet rollouts of agent builds, newest first (staff).", Security: []string{"staffSession"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"list_api_tokens":                            {ID: "list_api_tokens", Method: "GET", Path: "/v1/api-tokens", Tag: "governance", Summary: "List API tokens, newest first (revoked tokens are not listed).", Security: []string{"sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor"}, BodyMediaType: "", Permission: "tokens.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_audit_entries":                         {ID: "list_audit_entries", Method: "GET", Path: "/v1/audit", Tag: "server", Summary: "The account's audit log, newest first (100 per page).", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_backup_vaults":                         {ID: "list_backup_vaults", Method: "GET", Path: "/v1/backup-vaults", Tag: "backup_vault", Summary: "List the backup vaults (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "read", StaffRole: "", IsCredentialRead: false},
+	"list_backups":                               {ID: "list_backups", Method: "GET", Path: "/v1/backups", Tag: "storage", Summary: "List backups.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit", "storage_id"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_billing_log":                           {ID: "list_billing_log", Method: "GET", Path: "/v1/usage/billing-log", Tag: "billing", Summary: "One line per resource per day, newest day first.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "billing.read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_control_links":                         {ID: "list_control_links", Method: "GET", Path: "/admin/v1/control-links", Tag: "control_link", Summary: "The control-plane links of remote hosts, newest first (staff).", Security: []string{"staffSession"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"list_coupons":                               {ID: "list_coupons", Method: "GET", Path: "/admin/v1/coupons", Tag: "coupon", Summary: "Coupon codes, newest first (admin staff).", Security: []string{"staffSession"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"list_custom_images":                         {ID: "list_custom_images", Method: "GET", Path: "/v1/custom-images", Tag: "storage", Summary: "List the account's custom images.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_database_backups":                      {ID: "list_database_backups", Method: "GET", Path: "/v1/databases/{id}/backups", Tag: "database", Summary: "The recovery window and base backups of a database, newest first.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_database_plans":                        {ID: "list_database_plans", Method: "GET", Path: "/v1/databases/plans", Tag: "database", Summary: "The database sizes on offer and the storage price.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_databases":                             {ID: "list_databases", Method: "GET", Path: "/v1/databases", Tag: "database", Summary: "List managed databases.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_dev_cluster_versions":                  {ID: "list_dev_cluster_versions", Method: "GET", Path: "/v1/dev-clusters/versions", Tag: "dev_cluster", Summary: "The Kubernetes versions a dev cluster can run, and where and on what terms dev clusters are offered.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_dev_clusters":                          {ID: "list_dev_clusters", Method: "GET", Path: "/v1/dev-clusters", Tag: "dev_cluster", Summary: "The account's dev clusters, newest first.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_dns_records":                           {ID: "list_dns_records", Method: "GET", Path: "/v1/dns/zones/{id}/records", Tag: "dns", Summary: "List every record of a zone in name and type order (`next_cursor` is always null).", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_dns_subzones":                          {ID: "list_dns_subzones", Method: "GET", Path: "/v1/dns/zones/{id}/subzones", Tag: "dns", Summary: "List the subzones a zone delegates (`next_cursor` is always null).", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_dns_zones":                             {ID: "list_dns_zones", Method: "GET", Path: "/v1/dns/zones", Tag: "dns", Summary: "List the account's hosted DNS zones and subzones in name order.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_edge_router_operations":                {ID: "list_edge_router_operations", Method: "GET", Path: "/admin/v1/edge-routers/{id}/operations", Tag: "edge_router", Summary: "An edge router's operations and the progress of the newest (staff).", Security: []string{"staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"list_edge_routers":                          {ID: "list_edge_routers", Method: "GET", Path: "/admin/v1/edge-routers", Tag: "edge_router", Summary: "The regions' IPv6 edge routers, by name (staff).", Security: []string{"staffSession"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"list_edges":                                 {ID: "list_edges", Method: "GET", Path: "/v1/edges", Tag: "edge", Summary: "List network edges.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_fleet_node_servers":                    {ID: "list_fleet_node_servers", Method: "GET", Path: "/admin/v1/fleet/nodes/{id}/servers", Tag: "fleet", Summary: "The servers placed on a node, largest first (staff).", Security: []string{"staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"list_fleet_servers":                         {ID: "list_fleet_servers", Method: "GET", Path: "/admin/v1/fleet/servers", Tag: "fleet", Summary: "Every live server across the fleet, newest first (staff).", Security: []string{"staffSession"}, PathParameters: []string{}, QueryParameters: []string{"account_id", "cursor", "limit", "query", "zone"}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"list_floating_ips":                          {ID: "list_floating_ips", Method: "GET", Path: "/v1/floating-ips", Tag: "network", Summary: "List floating IPs.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_hosts":                                 {ID: "list_hosts", Method: "GET", Path: "/admin/v1/hosts", Tag: "host_onboarding", Summary: "Servers staff added, newest first.", Security: []string{"staffSession"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"list_infrastructure_regions":                {ID: "list_infrastructure_regions", Method: "GET", Path: "/admin/v1/regions", Tag: "infrastructure", Summary: "Every region with every zone, hidden ones included (staff).", Security: []string{"staffSession"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"list_infrastructure_zones":                  {ID: "list_infrastructure_zones", Method: "GET", Path: "/admin/v1/zones", Tag: "infrastructure", Summary: "Every zone, hidden ones included, with how its hosts join and its gateways route (staff).", Security: []string{"staffSession"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"list_init_scripts":                          {ID: "list_init_scripts", Method: "GET", Path: "/v1/init-scripts", Tag: "library", Summary: "List init scripts.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_invitations":                           {ID: "list_invitations", Method: "GET", Path: "/v1/members/invitations", Tag: "governance", Summary: "List pending invitations (`next_cursor` is always null).", Security: []string{"sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "members.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_invoices":                              {ID: "list_invoices", Method: "GET", Path: "/v1/invoices", Tag: "billing", Summary: "Invoices, newest month first.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor"}, BodyMediaType: "", Permission: "billing.read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_ip_pools":                              {ID: "list_ip_pools", Method: "GET", Path: "/admin/v1/zones/{zone}/ip-pools", Tag: "infrastructure", Summary: "A zone's public IP pools (staff).", Security: []string{"staffSession"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"list_kubernetes_cluster_etcd_snapshots":     {ID: "list_kubernetes_cluster_etcd_snapshots", Method: "GET", Path: "/v1/kubernetes-clusters/{id}/etcd-snapshots", Tag: "kubernetes_cluster", Summary: "The etcd snapshots of a cluster, newest first.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_kubernetes_clusters":                   {ID: "list_kubernetes_clusters", Method: "GET", Path: "/v1/kubernetes-clusters", Tag: "kubernetes_cluster", Summary: "List Kubernetes clusters.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_kubernetes_hosts":                      {ID: "list_kubernetes_hosts", Method: "GET", Path: "/v1/kubernetes-hosts", Tag: "kubernetes_cluster", Summary: "List the regional host clusters that run tenant control planes (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "read", StaffRole: "", IsCredentialRead: false},
+	"list_kubernetes_node_pools":                 {ID: "list_kubernetes_node_pools", Method: "GET", Path: "/v1/kubernetes-clusters/{id}/node-pools", Tag: "kubernetes_cluster", Summary: "List a cluster's node pools with their nodes.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_kubernetes_versions":                   {ID: "list_kubernetes_versions", Method: "GET", Path: "/v1/kubernetes-clusters/versions", Tag: "kubernetes_cluster", Summary: "The Kubernetes versions a cluster can run, with their pinned add-ons, the control-plane tiers and the prices.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_load_balancer_certificates":            {ID: "list_load_balancer_certificates", Method: "GET", Path: "/v1/load-balancers/certificates", Tag: "load_balancer", Summary: "List the account's load balancer certificates.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_load_balancers":                        {ID: "list_load_balancers", Method: "GET", Path: "/v1/load-balancers", Tag: "load_balancer", Summary: "List load balancers.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "label", "limit"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_members":                               {ID: "list_members", Method: "GET", Path: "/v1/members", Tag: "governance", Summary: "List the account's members, oldest first.", Security: []string{"sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_monitoring_targets":                    {ID: "list_monitoring_targets", Method: "GET", Path: "/v1/monitoring/targets", Tag: "monitoring", Summary: "Prometheus HTTP service discovery of the API, the node agents and Ceph (operator).", Security: []string{"operatorToken"}, PathParameters: []string{}, QueryParameters: []string{"job"}, BodyMediaType: "", Permission: "", OperatorScope: "read", StaffRole: "", IsCredentialRead: false},
+	"list_networks":                              {ID: "list_networks", Method: "GET", Path: "/v1/networks", Tag: "network", Summary: "List private networks.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_node_agent_artifacts":                  {ID: "list_node_agent_artifacts", Method: "GET", Path: "/v1/node-agent-artifacts", Tag: "host", Summary: "The node agent builds the artefact store holds, in version order (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "", OperatorScope: "read", StaffRole: "", IsCredentialRead: false},
+	"list_notifications":                         {ID: "list_notifications", Method: "GET", Path: "/v1/notifications", Tag: "notification", Summary: "List the account's notifications, newest first.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit", "unread"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_object_storage":                        {ID: "list_object_storage", Method: "GET", Path: "/v1/object-storage", Tag: "object_storage", Summary: "List the zones the account enabled object storage in, with their usage.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_operations":                            {ID: "list_operations", Method: "GET", Path: "/v1/operations", Tag: "server", Summary: "List the account's operations across every resource, newest first.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"active", "cursor", "kind", "limit", "status"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_payment_methods":                       {ID: "list_payment_methods", Method: "GET", Path: "/v1/account/billing/payment-methods", Tag: "payment", Summary: "The account's saved payment methods.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "billing.read", OperatorScope: "", StaffRole: "", IsCredentialRead: true},
+	"list_plans":                                 {ID: "list_plans", Method: "GET", Path: "/v1/plans", Tag: "server", Summary: "List server plans.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_platform_audit":                        {ID: "list_platform_audit", Method: "GET", Path: "/admin/v1/platform-audit", Tag: "platform_audit", Summary: "The platform audit log, newest first (staff).", Security: []string{"staffSession"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"list_playgrounds":                           {ID: "list_playgrounds", Method: "GET", Path: "/v1/playgrounds", Tag: "playground", Summary: "The account's playgrounds, newest first.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_playgrounds_for_staff":                 {ID: "list_playgrounds_for_staff", Method: "GET", Path: "/admin/v1/playgrounds", Tag: "playground", Summary: "Every account's playgrounds, newest first (staff).", Security: []string{"staffSession"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit", "state"}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"list_private_cloud_requests":                {ID: "list_private_cloud_requests", Method: "GET", Path: "/v1/private-cloud/requests", Tag: "private_cloud", Summary: "The account's private cloud requests, newest first.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_private_cloud_requests_for_staff":      {ID: "list_private_cloud_requests_for_staff", Method: "GET", Path: "/admin/v1/private-cloud-requests", Tag: "private_cloud", Summary: "Every account's private cloud requests, newest first (staff).", Security: []string{"staffSession"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit", "state"}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"list_regions":                               {ID: "list_regions", Method: "GET", Path: "/v1/regions", Tag: "region", Summary: "List regions with their zones.", Security: []string{"apiToken", "operatorToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "read", StaffRole: "", IsCredentialRead: false},
+	"list_routers":                               {ID: "list_routers", Method: "GET", Path: "/v1/routers", Tag: "network", Summary: "List routers.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_server_groups":                         {ID: "list_server_groups", Method: "GET", Path: "/v1/server-groups", Tag: "library", Summary: "List server groups.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_server_interfaces":                     {ID: "list_server_interfaces", Method: "GET", Path: "/v1/servers/{id}/networks", Tag: "network", Summary: "List a server's private interfaces.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_servers":                               {ID: "list_servers", Method: "GET", Path: "/v1/servers", Tag: "server", Summary: "List servers.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "hostname", "label", "limit"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_sessions":                              {ID: "list_sessions", Method: "GET", Path: "/v1/sessions", Tag: "governance", Summary: "The caller's unexpired sessions, newest first (`next_cursor` is always null).", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "self", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_ssh_keys":                              {ID: "list_ssh_keys", Method: "GET", Path: "/v1/ssh-keys", Tag: "library", Summary: "List SSH keys.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_staff":                                 {ID: "list_staff", Method: "GET", Path: "/admin/v1/staff", Tag: "admin", Summary: "Every staff member, active or disabled (admin staff).", Security: []string{"staffSession"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"list_storage_backends":                      {ID: "list_storage_backends", Method: "GET", Path: "/v1/zones/{zone}/storage-backends", Tag: "storage_backend", Summary: "List a zone's storage backends and storage nodes (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "read", StaffRole: "", IsCredentialRead: false},
+	"list_storage_snapshots":                     {ID: "list_storage_snapshots", Method: "GET", Path: "/v1/storages/{id}/snapshots", Tag: "storage", Summary: "List a storage's snapshots, newest first.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_storage_tiers":                         {ID: "list_storage_tiers", Method: "GET", Path: "/v1/storage-tiers", Tag: "storage", Summary: "List storage tiers.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_storages":                              {ID: "list_storages", Method: "GET", Path: "/v1/storages", Tag: "storage", Summary: "List storages, newest first.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "limit", "server_id"}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_support_consents":                      {ID: "list_support_consents", Method: "GET", Path: "/v1/account/support-consents", Tag: "support", Summary: "The account's newest consent codes, open and closed (`next_cursor` is always null).", Security: []string{"sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "members.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_support_sessions":                      {ID: "list_support_sessions", Method: "GET", Path: "/v1/account/support-sessions", Tag: "support", Summary: "The support sessions open in the account, newest first (`next_cursor` is always null).", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_templates":                             {ID: "list_templates", Method: "GET", Path: "/v1/templates", Tag: "server", Summary: "List the public templates and the account's online custom images.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"list_zone_gateways":                         {ID: "list_zone_gateways", Method: "GET", Path: "/v1/zones/{zone}/gateways", Tag: "node", Summary: "List the gateways of a zone with their failover roles (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "read", StaffRole: "", IsCredentialRead: false},
+	"list_zone_nodes":                            {ID: "list_zone_nodes", Method: "GET", Path: "/v1/zones/{zone}/nodes", Tag: "node", Summary: "List the nodes of a zone (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"zone"}, QueryParameters: []string{"cursor", "limit"}, BodyMediaType: "", Permission: "", OperatorScope: "read", StaffRole: "", IsCredentialRead: false},
+	"list_zone_racks":                            {ID: "list_zone_racks", Method: "GET", Path: "/v1/zones/{zone}/racks", Tag: "region", Summary: "List the racks of a zone with their node counts (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "read", StaffRole: "", IsCredentialRead: false},
+	"list_zone_racks_for_staff":                  {ID: "list_zone_racks_for_staff", Method: "GET", Path: "/admin/v1/zones/{zone}/racks", Tag: "fleet", Summary: "A zone's racks with how many nodes each holds (staff).", Security: []string{"staffSession"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"list_zone_uplink_operations":                {ID: "list_zone_uplink_operations", Method: "GET", Path: "/admin/v1/zones/{zone}/uplink-operations", Tag: "edge_router", Summary: "The moves of a zone's gateway uplinks and the progress of the newest (staff).", Security: []string{"staffSession"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"list_zone_uplinks":                          {ID: "list_zone_uplinks", Method: "GET", Path: "/admin/v1/zones/{zone}/uplinks", Tag: "edge_router", Summary: "A zone's gateway uplinks, active first (staff).", Security: []string{"staffSession"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"list_zones":                                 {ID: "list_zones", Method: "GET", Path: "/v1/zones", Tag: "node", Summary: "List zones.", Security: []string{"apiToken", "operatorToken", "sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "read", StaffRole: "", IsCredentialRead: false},
+	"log_in":                                     {ID: "log_in", Method: "POST", Path: "/v1/auth/login", Tag: "auth", Summary: "Sign in and receive a session.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"log_in_staff":                               {ID: "log_in_staff", Method: "POST", Path: "/admin/v1/auth/login", Tag: "admin", Summary: "Staff sign-in to the admin console.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"log_out":                                    {ID: "log_out", Method: "POST", Path: "/v1/auth/logout", Tag: "auth", Summary: "End the session.", Security: []string{"", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"log_out_staff":                              {ID: "log_out_staff", Method: "POST", Path: "/admin/v1/auth/logout", Tag: "admin", Summary: "End the staff session.", Security: []string{"", "staffCsrfHeader+staffSession"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"look_up_invitation":                         {ID: "look_up_invitation", Method: "GET", Path: "/v1/auth/invitation", Tag: "auth", Summary: "Look up an invitation by its token.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{"invitation"}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"mark_all_notifications_read":                {ID: "mark_all_notifications_read", Method: "POST", Path: "/v1/notifications/read-all", Tag: "notification", Summary: "Mark every unread notification of the account read.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"mark_notification_read":                     {ID: "mark_notification_read", Method: "POST", Path: "/v1/notifications/{id}/read", Tag: "notification", Summary: "Mark one notification read.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "read", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"migrate_object_storage":                     {ID: "migrate_object_storage", Method: "POST", Path: "/v1/object-storage/{zone}/migrate", Tag: "object_storage", Summary: "Move the zone's buckets from the single-node S3 server to replicated object storage.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"migrate_zone_server":                        {ID: "migrate_zone_server", Method: "POST", Path: "/v1/zones/{zone}/servers/{id}/migrate", Tag: "maintenance", Summary: "Move a server to another compute node (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"id", "zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "migrate", StaffRole: "", IsCredentialRead: false},
+	"move_gateway_uplink":                        {ID: "move_gateway_uplink", Method: "POST", Path: "/admin/v1/gateway-uplinks/{id}/move", Tag: "edge_router", Summary: "Move a gateway's transit to this uplink, or roll it back to it (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"move_storage":                               {ID: "move_storage", Method: "POST", Path: "/v1/storages/{id}/move", Tag: "storage", Summary: "Move a storage to another tier, across backends.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"open_support_session":                       {ID: "open_support_session", Method: "POST", Path: "/admin/v1/accounts/{id}/support-sessions", Tag: "admin", Summary: "Open a support session acting as one of the account's users.", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"promote_agent_rollout":                      {ID: "promote_agent_rollout", Method: "POST", Path: "/admin/v1/agent-rollouts/{id}/promote", Tag: "agent_rollout", Summary: "Continue a rollout that awaits promotion without waiting for the soak (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"rebalance_zone_storage":                     {ID: "rebalance_zone_storage", Method: "POST", Path: "/v1/zones/{zone}/storage-backends/rebalance", Tag: "storage_backend", Summary: "Run the zone's Ceph growth policy now (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "nodes", StaffRole: "", IsCredentialRead: false},
+	"rebuild_server":                             {ID: "rebuild_server", Method: "POST", Path: "/v1/servers/{id}/rebuild", Tag: "server", Summary: "Reinstall a server from a template.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"receive_stripe_webhook":                     {ID: "receive_stripe_webhook", Method: "POST", Path: "/v1/webhooks/stripe", Tag: "payment", Summary: "Stripe event delivery.", Security: []string{""}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"redeem_coupon":                              {ID: "redeem_coupon", Method: "POST", Path: "/v1/account/coupons", Tag: "coupon", Summary: "Redeem a coupon code for account credit.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "billing.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"redeem_support_handoff":                     {ID: "redeem_support_handoff", Method: "POST", Path: "/v1/auth/support-handoff", Tag: "auth", Summary: "Turn a support handoff code into the support session's cookies.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"register_kubernetes_cluster_in_platform":    {ID: "register_kubernetes_cluster_in_platform", Method: "POST", Path: "/v1/kubernetes-clusters/{id}/platform/register", Tag: "platform_cluster", Summary: "Register a Kubernetes cluster in the Ankra platform now.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"register_node":                              {ID: "register_node", Method: "POST", Path: "/internal/v1/nodes/register", Tag: "node", Summary: "A node agent registers with a one-time bootstrap token.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/x-protobuf", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"release_control_link":                       {ID: "release_control_link", Method: "DELETE", Path: "/admin/v1/control-links/{id}", Tag: "control_link", Summary: "Release a control link of a host that is taken apart (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"release_floating_ip":                        {ID: "release_floating_ip", Method: "DELETE", Path: "/v1/floating-ips/{id}", Tag: "network", Summary: "Release a floating IP to the pool.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"remove_account_member":                      {ID: "remove_account_member", Method: "DELETE", Path: "/admin/v1/accounts/{id}/members/{user}", Tag: "account_administration", Summary: "Remove a member (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id", "user"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"remove_host":                                {ID: "remove_host", Method: "DELETE", Path: "/admin/v1/hosts/{id}", Tag: "host_onboarding", Summary: "Forget a host that never registered (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"remove_kubernetes_cluster_from_platform":    {ID: "remove_kubernetes_cluster_from_platform", Method: "DELETE", Path: "/v1/kubernetes-clusters/{id}/platform", Tag: "platform_cluster", Summary: "Take a Kubernetes cluster out of the Ankra platform.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"remove_member":                              {ID: "remove_member", Method: "DELETE", Path: "/v1/members/{id}", Tag: "governance", Summary: "Remove a member with their sessions and API tokens.", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "members.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"remove_payment_method":                      {ID: "remove_payment_method", Method: "DELETE", Path: "/v1/account/billing/payment-methods/{id}", Tag: "payment", Summary: "Detach a saved payment method.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "billing.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"remove_server_public_ipv4":                  {ID: "remove_server_public_ipv4", Method: "DELETE", Path: "/v1/servers/{id}/public-ipv4", Tag: "server", Summary: "Remove a server's public IPv4.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"renew_node_certificate":                     {ID: "renew_node_certificate", Method: "POST", Path: "/internal/v1/nodes/renew", Tag: "node", Summary: "A node agent renews its certificate.", Security: []string{"nodeCertificate"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/x-protobuf", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"renumber_server_ipv6":                       {ID: "renumber_server_ipv6", Method: "POST", Path: "/v1/servers/{id}/renumber-ipv6", Tag: "server", Summary: "Move a server's IPv6 /64 to the zone's public IPv6 pool.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"replace_account_quotas":                     {ID: "replace_account_quotas", Method: "PUT", Path: "/admin/v1/accounts/{id}/quotas", Tag: "quota", Summary: "Change an account's quotas (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"replace_account_recovery_codes":             {ID: "replace_account_recovery_codes", Method: "POST", Path: "/v1/account/mfa/recovery-codes", Tag: "mfa", Summary: "Replace your recovery codes.", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "self", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"replace_load_balancer_members":              {ID: "replace_load_balancer_members", Method: "PUT", Path: "/v1/load-balancers/{id}/backends/{backend}/members", Tag: "load_balancer", Summary: "Replace a backend's whole member list at once.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"backend", "id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"replace_server_firewall":                    {ID: "replace_server_firewall", Method: "PUT", Path: "/v1/servers/{id}/firewall", Tag: "network", Summary: "Replace a server's firewall.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"replace_staff_recovery_codes":               {ID: "replace_staff_recovery_codes", Method: "POST", Path: "/admin/v1/auth/mfa/recovery-codes", Tag: "admin", Summary: "Replace the staff member's recovery codes.", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"reset_database_password":                    {ID: "reset_database_password", Method: "POST", Path: "/v1/databases/{id}/reset-password", Tag: "database", Summary: "Give the owner a new password.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"reset_password":                             {ID: "reset_password", Method: "POST", Path: "/v1/auth/password-reset/confirm", Tag: "password_reset", Summary: "Set a new password with the token from a reset link.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"reset_staff_password":                       {ID: "reset_staff_password", Method: "POST", Path: "/admin/v1/staff/{id}/password", Tag: "admin", Summary: "Reset another staff member's password (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"resize_database":                            {ID: "resize_database", Method: "POST", Path: "/v1/databases/{id}/resize", Tag: "database", Summary: "Grow a database's storage online.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"resize_storage":                             {ID: "resize_storage", Method: "POST", Path: "/v1/storages/{id}/resize", Tag: "storage", Summary: "Grow a storage, online too.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"restart_server":                             {ID: "restart_server", Method: "POST", Path: "/v1/servers/{id}/restart", Tag: "server", Summary: "Restart a server.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"restore_backup":                             {ID: "restore_backup", Method: "POST", Path: "/v1/backups/{id}/restore", Tag: "storage", Summary: "Replace the content of the backup's storage with the backup.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"restore_database":                           {ID: "restore_database", Method: "POST", Path: "/v1/databases/{id}/restore", Tag: "database", Summary: "Restore a database's backups into a new database.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"restore_kubernetes_cluster":                 {ID: "restore_kubernetes_cluster", Method: "POST", Path: "/v1/kubernetes-clusters/{id}/restore", Tag: "kubernetes_cluster", Summary: "Restore the cluster's etcd from a snapshot.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"retire_zone":                                {ID: "retire_zone", Method: "POST", Path: "/admin/v1/zones/{zone}/retire", Tag: "infrastructure", Summary: "Retire a zone (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"revoke_api_token":                           {ID: "revoke_api_token", Method: "DELETE", Path: "/v1/api-tokens/{id}", Tag: "governance", Summary: "Revoke an API token.", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "tokens.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"revoke_invitation":                          {ID: "revoke_invitation", Method: "DELETE", Path: "/v1/members/invitations/{id}", Tag: "governance", Summary: "Revoke a pending invitation.", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "members.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"revoke_monitoring_credential":               {ID: "revoke_monitoring_credential", Method: "DELETE", Path: "/admin/v1/monitoring/credentials/{cluster}", Tag: "monitoring", Summary: "End the cluster's scrape credential (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"cluster"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"revoke_other_sessions":                      {ID: "revoke_other_sessions", Method: "POST", Path: "/v1/sessions/revoke-others", Tag: "governance", Summary: "End every session of the user except the one making the call.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "self", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"revoke_session":                             {ID: "revoke_session", Method: "DELETE", Path: "/v1/sessions/{id}", Tag: "governance", Summary: "End one of the caller's sessions.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "self", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"revoke_support_consent":                     {ID: "revoke_support_consent", Method: "DELETE", Path: "/v1/account/support-consents/{id}", Tag: "support", Summary: "Revoke an open consent code before staff use it.", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "members.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"rotate_object_storage_keys":                 {ID: "rotate_object_storage_keys", Method: "POST", Path: "/v1/object-storage/{zone}/rotate-keys", Tag: "object_storage", Summary: "Replace the zone's S3 key; the old one stops working at once.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"search_accounts":                            {ID: "search_accounts", Method: "GET", Path: "/admin/v1/accounts", Tag: "admin", Summary: "Find customer accounts by name or user email.", Security: []string{"staffSession"}, PathParameters: []string{}, QueryParameters: []string{"attention", "cursor", "query"}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"search_users":                               {ID: "search_users", Method: "GET", Path: "/admin/v1/users", Tag: "account_administration", Summary: "Find users across every account.", Security: []string{"staffSession"}, PathParameters: []string{}, QueryParameters: []string{"cursor", "query"}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"send_email_verification":                    {ID: "send_email_verification", Method: "POST", Path: "/v1/auth/email-verification", Tag: "email_verification", Summary: "Mail a new link that verifies the signed-in user's email address.", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"send_mcp_message":                           {ID: "send_mcp_message", Method: "POST", Path: "/mcp", Tag: "mcp", Summary: "Send one MCP JSON-RPC message as the API token.", Security: []string{"apiToken"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"send_operator_mcp_message":                  {ID: "send_operator_mcp_message", Method: "POST", Path: "/operator/mcp", Tag: "mcp", Summary: "Send one MCP JSON-RPC message as the operator token.", Security: []string{"operatorToken"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "read", StaffRole: "", IsCredentialRead: false},
+	"send_password_reset_email":                  {ID: "send_password_reset_email", Method: "POST", Path: "/v1/auth/password-reset", Tag: "password_reset", Summary: "Email a link to set a new password.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"send_server_console_input":                  {ID: "send_server_console_input", Method: "POST", Path: "/v1/servers/{id}/console/input", Tag: "compute_data", Summary: "Type into the serial console.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"set_account_mfa_policy":                     {ID: "set_account_mfa_policy", Method: "PUT", Path: "/v1/account/mfa/policy", Tag: "mfa", Summary: "Require a second factor of every member (owner only).", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "members.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"set_default_payment_method":                 {ID: "set_default_payment_method", Method: "POST", Path: "/v1/account/billing/payment-methods/{id}/default", Tag: "payment", Summary: "Charge invoices to this payment method.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "billing.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"set_fleet_node_allocation":                  {ID: "set_fleet_node_allocation", Method: "PUT", Path: "/admin/v1/fleet/nodes/{id}/allocation", Tag: "fleet", Summary: "Offer a compute host publicly, dedicate it to one account (private cloud) or hold it back (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"set_fleet_node_rack":                        {ID: "set_fleet_node_rack", Method: "PUT", Path: "/admin/v1/fleet/nodes/{id}/rack", Tag: "fleet", Summary: "Put a node in one of its zone's racks, or take it out (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"set_fleet_node_storage_policy":              {ID: "set_fleet_node_storage_policy", Method: "PUT", Path: "/admin/v1/fleet/nodes/{id}/storage-policy", Tag: "fleet", Summary: "Set what a storage node's disks serve, then start the zone's storage policy (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"set_infrastructure_zone_underlay":           {ID: "set_infrastructure_zone_underlay", Method: "PUT", Path: "/admin/v1/zones/{zone}/underlay", Tag: "infrastructure", Summary: "Switch a zone between its physical fabric and the WireGuard mesh (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"set_ip_pool_state":                          {ID: "set_ip_pool_state", Method: "PUT", Path: "/admin/v1/zones/{zone}/ip-pools/{id}/state", Tag: "infrastructure", Summary: "Make a public IP pool active or draining (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id", "zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"set_node_datacenter":                        {ID: "set_node_datacenter", Method: "PUT", Path: "/v1/zones/{zone}/nodes/{id}/datacenter", Tag: "underlay", Summary: "Record the datacenter a node stands in (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"id", "zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "nodes", StaffRole: "", IsCredentialRead: false},
+	"set_node_rack":                              {ID: "set_node_rack", Method: "PUT", Path: "/v1/zones/{zone}/nodes/{id}/rack", Tag: "region", Summary: "Put a node into a rack of its zone, or take it out (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"id", "zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "nodes", StaffRole: "", IsCredentialRead: false},
+	"set_node_rollout_canary":                    {ID: "set_node_rollout_canary", Method: "PUT", Path: "/admin/v1/fleet/nodes/{id}/rollout-canary", Tag: "agent_rollout", Summary: "Mark a node as one of its zone's rollout canaries, or clear the mark (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"set_plan_cpu_pool":                          {ID: "set_plan_cpu_pool", Method: "PUT", Path: "/v1/plans/{plan}/cpu-pool", Tag: "cpu_pool", Summary: "Pin a plan to a CPU pool (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"plan"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "nodes", StaffRole: "", IsCredentialRead: false},
+	"set_platform_billing_arrangement":           {ID: "set_platform_billing_arrangement", Method: "PUT", Path: "/platform/v1/organisations/{organisation_id}/billing-arrangement", Tag: "platform_credential", Summary: "Record how the platform bills the organisation.", Security: []string{"platformServiceToken"}, PathParameters: []string{"organisation_id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"set_private_cloud_request_state":            {ID: "set_private_cloud_request_state", Method: "PUT", Path: "/admin/v1/private-cloud-requests/{id}/state", Tag: "private_cloud", Summary: "Move a private cloud request on (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"set_public_address_controller":              {ID: "set_public_address_controller", Method: "PUT", Path: "/v1/zones/{zone}/public-address-controller", Tag: "underlay", Summary: "Configure how a zone's failover IPs and routed subnets follow its gateways (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "nodes", StaffRole: "", IsCredentialRead: false},
+	"set_server_ha_policy":                       {ID: "set_server_ha_policy", Method: "PUT", Path: "/v1/servers/{id}/ha-policy", Tag: "maintenance", Summary: "Choose what happens to the server when its compute node fails.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"set_server_metadata_setting":                {ID: "set_server_metadata_setting", Method: "PUT", Path: "/v1/servers/{id}/metadata", Tag: "compute_data", Summary: "Turn the metadata service on or off for the server.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"set_server_migration_policy":                {ID: "set_server_migration_policy", Method: "PUT", Path: "/v1/servers/{id}/migration-policy", Tag: "maintenance", Summary: "Choose how hard the server's live migrations try to converge.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"set_support_access":                         {ID: "set_support_access", Method: "PUT", Path: "/v1/account/support-access", Tag: "support", Summary: "Change how elevated support sessions may be opened (owner only).", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "members.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"set_zone_control_plane_service_address":     {ID: "set_zone_control_plane_service_address", Method: "PUT", Path: "/v1/zones/{zone}/control-plane/service-address", Tag: "control_plane", Summary: "Choose the service address a highly available control plane answers on (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "nodes", StaffRole: "", IsCredentialRead: false},
+	"set_zone_node_power_controller":             {ID: "set_zone_node_power_controller", Method: "PUT", Path: "/v1/zones/{zone}/nodes/{id}/power-controller", Tag: "host", Summary: "Set the node's BMC that fencing powers it off through (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"id", "zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "nodes", StaffRole: "", IsCredentialRead: false},
+	"set_zone_primary_gateway":                   {ID: "set_zone_primary_gateway", Method: "PUT", Path: "/v1/zones/{zone}/primary-gateway", Tag: "node", Summary: "Choose the zone's primary gateway (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "nodes", StaffRole: "", IsCredentialRead: false},
+	"set_zone_public_uplink":                     {ID: "set_zone_public_uplink", Method: "PUT", Path: "/admin/v1/zones/{zone}/public-uplink", Tag: "infrastructure", Summary: "Set how a zone's gateways reach the internet (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"set_zone_underlay":                          {ID: "set_zone_underlay", Method: "PUT", Path: "/v1/zones/{zone}/underlay", Tag: "underlay", Summary: "Switch a zone between its physical fabric and the WireGuard mesh (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "nodes", StaffRole: "", IsCredentialRead: false},
+	"shrink_zone_control_plane":                  {ID: "shrink_zone_control_plane", Method: "POST", Path: "/v1/zones/{zone}/control-plane/shrink", Tag: "control_plane", Summary: "Remove a member from the zone's control plane (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "nodes", StaffRole: "", IsCredentialRead: false},
+	"sign_up":                                    {ID: "sign_up", Method: "POST", Path: "/v1/auth/signup", Tag: "auth", Summary: "Create an account with yourself as its owner and get the link that verifies your email.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"start_account_totp_setup":                   {ID: "start_account_totp_setup", Method: "POST", Path: "/v1/account/mfa/totp", Tag: "mfa", Summary: "Start setting up an authenticator app.", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "self", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"start_agent_rollout":                        {ID: "start_agent_rollout", Method: "POST", Path: "/admin/v1/agent-rollouts", Tag: "agent_rollout", Summary: "Roll one agent build across the fleet, one node at a time (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"start_edge_router_apply":                    {ID: "start_edge_router_apply", Method: "POST", Path: "/admin/v1/edge-routers/{id}/apply", Tag: "edge_router", Summary: "Apply the rendered configuration to an edge router (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"start_fleet_node_agent_upgrade":             {ID: "start_fleet_node_agent_upgrade", Method: "POST", Path: "/admin/v1/fleet/nodes/{id}/agent-upgrade", Tag: "fleet", Summary: "Upgrade a node's agent without taking the node out of service (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"start_fleet_node_maintenance":               {ID: "start_fleet_node_maintenance", Method: "POST", Path: "/admin/v1/fleet/nodes/{id}/maintenance", Tag: "fleet", Summary: "Take a compute node out of service, upgrade its agent, optionally reboot it and bring it back (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"start_host_install":                         {ID: "start_host_install", Method: "POST", Path: "/admin/v1/hosts/{id}/install", Tag: "host_onboarding", Summary: "Confirm the host key and install the node agent (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"start_host_probe":                           {ID: "start_host_probe", Method: "POST", Path: "/admin/v1/hosts/{id}/probe", Tag: "host_onboarding", Summary: "Probe a host again (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"start_host_reprovision":                     {ID: "start_host_reprovision", Method: "POST", Path: "/admin/v1/hosts/{id}/reprovision", Tag: "host_onboarding", Summary: "Change a registered node's roles (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"start_identity_provider_login":              {ID: "start_identity_provider_login", Method: "GET", Path: "/v1/auth/oidc/login", Tag: "oidc", Summary: "Start a sign-in at the identity provider.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{"connection", "coupon", "prompt", "provider", "return_to"}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"start_identity_provider_signup":             {ID: "start_identity_provider_signup", Method: "GET", Path: "/v1/auth/oidc/signup", Tag: "oidc", Summary: "Start a sign-up at the identity provider.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{"connection", "coupon", "prompt", "provider", "return_to"}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"start_login_second_factor_setup":            {ID: "start_login_second_factor_setup", Method: "POST", Path: "/v1/auth/login/mfa/enroll", Tag: "mfa", Summary: "Start setting up the authenticator app the account requires, before the first session.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"start_node_tailnet_join":                    {ID: "start_node_tailnet_join", Method: "POST", Path: "/admin/v1/fleet/nodes/{id}/tailnet/join", Tag: "tailnet", Summary: "Join a node to its region's tailnet user (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"start_node_tailnet_move":                    {ID: "start_node_tailnet_move", Method: "POST", Path: "/admin/v1/fleet/nodes/{id}/tailnet/move", Tag: "tailnet", Summary: "Move a node to its region's tailnet user (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"start_platform_workspace_sync":              {ID: "start_platform_workspace_sync", Method: "POST", Path: "/v1/account/platform/sync", Tag: "platform", Summary: "Queue a membership sync retry.", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "members.manage", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"start_playground":                           {ID: "start_playground", Method: "POST", Path: "/v1/playgrounds", Tag: "playground", Summary: "Start the account's free playground.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"start_server":                               {ID: "start_server", Method: "POST", Path: "/v1/servers/{id}/start", Tag: "server", Summary: "Start a server.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"start_staff_identity_provider_login":        {ID: "start_staff_identity_provider_login", Method: "GET", Path: "/admin/v1/auth/oidc/login", Tag: "admin", Summary: "Start a staff sign-in with the Ankra account.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{"next"}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"start_staff_login_second_factor_setup":      {ID: "start_staff_login_second_factor_setup", Method: "POST", Path: "/admin/v1/auth/login/mfa/enroll", Tag: "admin", Summary: "Start the authenticator setup a staff member needs before their first session.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"start_staff_totp_setup":                     {ID: "start_staff_totp_setup", Method: "POST", Path: "/admin/v1/auth/mfa/totp", Tag: "admin", Summary: "Start setting up an authenticator app (staff without enforcement).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "", Permission: "", OperatorScope: "", StaffRole: "support", IsCredentialRead: false},
+	"start_zone_node_maintenance":                {ID: "start_zone_node_maintenance", Method: "POST", Path: "/v1/zones/{zone}/nodes/{id}/maintenance", Tag: "host", Summary: "Take a compute node out of service, upgrade its agent, optionally reboot it and bring it back (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"id", "zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "maintenance", StaffRole: "", IsCredentialRead: false},
+	"stop_server":                                {ID: "stop_server", Method: "POST", Path: "/v1/servers/{id}/stop", Tag: "server", Summary: "Stop a server.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"stream_server_console":                      {ID: "stream_server_console", Method: "GET", Path: "/v1/servers/{id}/console/stream", Tag: "compute_data", Summary: "The interactive serial console as Server-Sent Events.", Security: []string{"apiToken", "sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: true},
+	"suspend_account":                            {ID: "suspend_account", Method: "POST", Path: "/admin/v1/accounts/{id}/suspension", Tag: "account_administration", Summary: "Suspend an account (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"switch_account":                             {ID: "switch_account", Method: "POST", Path: "/v1/accounts/active", Tag: "organisation", Summary: "Act in another of your accounts, or open an Ankra organisation.", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "self", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"sync_dns_zone":                              {ID: "sync_dns_zone", Method: "POST", Path: "/v1/dns/zones/{id}/sync", Tag: "dns", Summary: "Republish every record of the zone to the nameservers.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"templatize_storage":                         {ID: "templatize_storage", Method: "POST", Path: "/v1/storages/{id}/templatize", Tag: "storage", Summary: "Make a custom image from a storage; its server must be stopped.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"uncordon_fleet_node":                        {ID: "uncordon_fleet_node", Method: "POST", Path: "/admin/v1/fleet/nodes/{id}/uncordon", Tag: "fleet", Summary: "Let a cordoned, drained or fenced node take servers again (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"uncordon_zone_node":                         {ID: "uncordon_zone_node", Method: "POST", Path: "/v1/zones/{zone}/nodes/{id}/uncordon", Tag: "maintenance", Summary: "Let a cordoned, drained or fenced compute node take servers again (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"id", "zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "maintenance", StaffRole: "", IsCredentialRead: false},
+	"unlink_account_identity":                    {ID: "unlink_account_identity", Method: "DELETE", Path: "/v1/account/identities/{id}", Tag: "identity", Summary: "Unlink one of your sign-in identities.", Security: []string{"csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "", Permission: "self", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"unlink_account_organisation":                {ID: "unlink_account_organisation", Method: "DELETE", Path: "/admin/v1/accounts/{id}/organisation", Tag: "organisation", Summary: "Unlink an account from its Ankra organisation (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"unretire_zone":                              {ID: "unretire_zone", Method: "POST", Path: "/admin/v1/zones/{zone}/unretire", Tag: "infrastructure", Summary: "Return a retired zone to service (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"unsuspend_account":                          {ID: "unsuspend_account", Method: "DELETE", Path: "/admin/v1/accounts/{id}/suspension", Tag: "account_administration", Summary: "Unsuspend an account suspended by staff (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"update_dns_record":                          {ID: "update_dns_record", Method: "PATCH", Path: "/v1/dns/zones/{id}/records/{record_id}", Tag: "dns", Summary: "Change a record's name, content, TTL, priority or comment.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id", "record_id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"update_edge":                                {ID: "update_edge", Method: "PATCH", Path: "/v1/edges/{id}", Tag: "edge", Summary: "Rename an edge, change its roles, bastion keys or members.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"update_init_script":                         {ID: "update_init_script", Method: "PATCH", Path: "/v1/init-scripts/{id}", Tag: "library", Summary: "Change an init script.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"update_kubernetes_node_pool":                {ID: "update_kubernetes_node_pool", Method: "PATCH", Path: "/v1/kubernetes-clusters/{id}/node-pools/{pool}", Tag: "kubernetes_cluster", Summary: "Scale a node pool or change its labels, taints or autoscaling bounds.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id", "pool"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"update_load_balancer":                       {ID: "update_load_balancer", Method: "PATCH", Path: "/v1/load-balancers/{id}", Tag: "load_balancer", Summary: "Rename a load balancer or replace its labels.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"update_load_balancer_backend":               {ID: "update_load_balancer_backend", Method: "PATCH", Path: "/v1/load-balancers/{id}/backends/{backend}", Tag: "load_balancer", Summary: "Change how a backend balances and checks its members.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"backend", "id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"update_load_balancer_member":                {ID: "update_load_balancer_member", Method: "PATCH", Path: "/v1/load-balancers/{id}/backends/{backend}/members/{member}", Tag: "load_balancer", Summary: "Change a member's weight or take it out of rotation.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"backend", "id", "member"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"update_network":                             {ID: "update_network", Method: "PATCH", Path: "/v1/networks/{id}", Tag: "network", Summary: "Change the zones a private network is present in.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"update_region":                              {ID: "update_region", Method: "PATCH", Path: "/admin/v1/regions/{region}", Tag: "infrastructure", Summary: "Change a region's display name, country or control plane endpoint (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"region"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"update_router":                              {ID: "update_router", Method: "PATCH", Path: "/v1/routers/{id}", Tag: "network", Summary: "Turn a router's NAT gateway on or off.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"update_server":                              {ID: "update_server", Method: "PATCH", Path: "/v1/servers/{id}", Tag: "server", Summary: "Rename or relabel a server.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"update_server_group":                        {ID: "update_server_group", Method: "PATCH", Path: "/v1/server-groups/{id}", Tag: "library", Summary: "Change a server group.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"update_ssh_key":                             {ID: "update_ssh_key", Method: "PATCH", Path: "/v1/ssh-keys/{id}", Tag: "library", Summary: "Change an SSH key.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"update_staff":                               {ID: "update_staff", Method: "PATCH", Path: "/admin/v1/staff/{id}", Tag: "admin", Summary: "Change a staff member's role or name (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"update_storage":                             {ID: "update_storage", Method: "PATCH", Path: "/v1/storages/{id}", Tag: "storage", Summary: "Change a storage's title or backup schedule.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"update_zone":                                {ID: "update_zone", Method: "PATCH", Path: "/admin/v1/zones/{zone}", Tag: "infrastructure", Summary: "Change a zone's listing, autonomous system or NAT64 settings (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"update_zone_object_storage":                 {ID: "update_zone_object_storage", Method: "PATCH", Path: "/admin/v1/zones/{zone}/object-storage", Tag: "zone_object_storage", Summary: "Change a zone's S3 exposure (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
+	"update_zone_object_storage_operator":        {ID: "update_zone_object_storage_operator", Method: "PATCH", Path: "/v1/zones/{zone}/object-storage", Tag: "zone_object_storage", Summary: "Change a zone's S3 exposure (operator only).", Security: []string{"operatorToken"}, PathParameters: []string{"zone"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "nodes", StaffRole: "", IsCredentialRead: false},
+	"upgrade_kubernetes_cluster":                 {ID: "upgrade_kubernetes_cluster", Method: "POST", Path: "/v1/kubernetes-clusters/{id}/upgrade", Tag: "kubernetes_cluster", Summary: "Upgrade a Kubernetes cluster to the next minor.", Security: []string{"apiToken", "csrfHeader+sessionCookie"}, PathParameters: []string{"id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "operate", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"verify_email":                               {ID: "verify_email", Method: "POST", Path: "/v1/auth/email-verification/confirm", Tag: "email_verification", Summary: "Verify an email address with the token from a verification link.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"verify_login_second_factor":                 {ID: "verify_login_second_factor", Method: "POST", Path: "/v1/auth/login/mfa", Tag: "mfa", Summary: "Finish a sign-in with a code from the authenticator app or a recovery code.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"verify_staff_login_second_factor":           {ID: "verify_staff_login_second_factor", Method: "POST", Path: "/admin/v1/auth/login/mfa", Tag: "admin", Summary: "Finish a staff sign-in with a code or a recovery code.", Security: []string{}, PathParameters: []string{}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "", IsCredentialRead: false},
+	"void_account_credit":                        {ID: "void_account_credit", Method: "POST", Path: "/admin/v1/accounts/{id}/credits/{credit}/void", Tag: "coupon", Summary: "Void an account credit (admin staff).", Security: []string{"staffCsrfHeader+staffSession"}, PathParameters: []string{"credit", "id"}, QueryParameters: []string{}, BodyMediaType: "application/json", Permission: "", OperatorScope: "", StaffRole: "admin", IsCredentialRead: false},
 }
 
 // APIToken is the ApiToken schema.
@@ -240,6 +477,216 @@ type AcceptInvitationRequest struct {
 	// Invitation: The `aci_…` token from the signup link.
 	Invitation string `json:"invitation"`
 	Password   string `json:"password"`
+}
+
+// AccountOrganisation is the AccountOrganisation schema.
+type AccountOrganisation struct {
+	Candidates []OrganisationMembership `json:"candidates"`
+	Connected  bool                     `json:"connected"`
+	Link       *OrganisationLink        `json:"link"`
+	Members    []OrganisationMember     `json:"members"`
+}
+
+// AccountStanding is the AccountStanding schema: Whether the account may create billable resources; a refused create answers 402 with the same `reason`.
+type AccountStanding struct {
+	// BillingArrangement: `card`: a default payment method is required to create billable resources and Cloud charges the invoices through Stripe.
+	BillingArrangement string `json:"billing_arrangement"`
+	CanCreateResources bool   `json:"can_create_resources"`
+	// Reason: Why the account may not create billable resources; null while it may.
+	Reason *string `json:"reason"`
+	// RequiresBillingApproval: Saving a card does not authorise paid usage.
+	RequiresBillingApproval bool `json:"requires_billing_approval"`
+	// ServersStopAt: When the account's servers are powered off for unpaid usage (seven days after the account was told), or were.
+	ServersStopAt *time.Time `json:"servers_stop_at"`
+	// SuspendedByStaffAt: When Ankra staff suspended the account; null while they have not.
+	SuspendedByStaffAt *time.Time `json:"suspended_by_staff_at"`
+	// SuspendedForPaymentAt: When an invoice overdue past the grace period suspended the account; null while it is in good standing.
+	SuspendedForPaymentAt *time.Time `json:"suspended_for_payment_at"`
+	// UnpaidUsageSince: When the account was first seen running billable servers that nothing pays for: it is billed by card, has no payment method on file and no credit left.
+	UnpaidUsageSince *time.Time `json:"unpaid_usage_since"`
+}
+
+// AccountSwitcher is the AccountSwitcher schema.
+type AccountSwitcher struct {
+	ActiveAccountID string `json:"active_account_id"`
+	// Connected: Sign-in with an Ankra account follows platform organisations on this deployment.
+	Connected bool `json:"connected"`
+	// CreateOrganisationURL: The Ankra platform page that creates an organisation; null when this deployment is not connected to the platform.
+	CreateOrganisationURL *string                  `json:"create_organisation_url"`
+	Items                 []SwitchableAccount      `json:"items"`
+	Organisations         []OrganisationMembership `json:"organisations"`
+}
+
+// AddServerPublicIPv4Response is an inline object.
+type AddServerPublicIPv4Response struct {
+	Operation Operation `json:"operation"`
+	Server    Server    `json:"server"`
+}
+
+// AdoptEdgeRouterRequest is the AdoptEdgeRouterRequest schema.
+type AdoptEdgeRouterRequest struct {
+	AutonomousSystem      int64                                `json:"autonomous_system"`
+	Downstream            *AdoptEdgeRouterRequestDownstream    `json:"downstream,omitempty"`
+	Management            *string                              `json:"management,omitempty"`
+	Name                  string                               `json:"name"`
+	Nat64Enabled          *bool                                `json:"nat64_enabled,omitempty"`
+	Nat64Prefix           *string                              `json:"nat64_prefix,omitempty"`
+	Prefixes              []AdoptEdgeRouterRequestPrefixesItem `json:"prefixes,omitempty"`
+	ProtectedNetworks     []string                             `json:"protected_networks,omitempty"`
+	PublicIPv4            *string                              `json:"public_ipv4,omitempty"`
+	PublicIPv6            *string                              `json:"public_ipv6,omitempty"`
+	Region                string                               `json:"region"`
+	RollbackSeconds       *int64                               `json:"rollback_seconds,omitempty"`
+	SSHAddress            *string                              `json:"ssh_address,omitempty"`
+	SSHHostKeyFingerprint *string                              `json:"ssh_host_key_fingerprint,omitempty"`
+	SSHPort               *int64                               `json:"ssh_port,omitempty"`
+	UplinkInterface       *string                              `json:"uplink_interface,omitempty"`
+	Uplinks               []AdoptEdgeRouterRequestUplinksItem  `json:"uplinks,omitempty"`
+}
+
+// AdoptEdgeRouterRequestDownstream is an inline object.
+type AdoptEdgeRouterRequestDownstream struct {
+	ListenPort        int64   `json:"listen_port"`
+	Name              string  `json:"name"`
+	PeerPublicKey     string  `json:"peer_public_key"`
+	PeerSourceAddress *string `json:"peer_source_address,omitempty"`
+	PeerTunnelAddress string  `json:"peer_tunnel_address"`
+	TunnelAddress     string  `json:"tunnel_address"`
+}
+
+// AdoptEdgeRouterRequestPrefixesItem is an inline object.
+type AdoptEdgeRouterRequestPrefixesItem struct {
+	Prefix        string  `json:"prefix"`
+	RoutedAddress *string `json:"routed_address,omitempty"`
+}
+
+// AdoptEdgeRouterRequestUplinksItem is an inline object.
+type AdoptEdgeRouterRequestUplinksItem struct {
+	EdgeEndpoint            *string `json:"edge_endpoint,omitempty"`
+	EdgeInterface           string  `json:"edge_interface"`
+	EdgeLinkLocal           string  `json:"edge_link_local"`
+	EdgeListenPort          int64   `json:"edge_listen_port"`
+	EdgePublicKey           *string `json:"edge_public_key,omitempty"`
+	EdgeTransitAddress4     string  `json:"edge_transit_address4"`
+	EdgeTransitAddress6     string  `json:"edge_transit_address6"`
+	GatewayAutonomousSystem int64   `json:"gateway_autonomous_system"`
+	GatewayInterface        *string `json:"gateway_interface,omitempty"`
+	GatewayName             string  `json:"gateway_name"`
+	GatewayNodeID           *string `json:"gateway_node_id,omitempty"`
+	GatewayPublicAddress    string  `json:"gateway_public_address"`
+	GatewayPublicKey        string  `json:"gateway_public_key"`
+	// GatewaySSHAddress: An address of the gateway that stays reachable while its transit moves (control link or tailnet).
+	GatewaySSHAddress            *string `json:"gateway_ssh_address,omitempty"`
+	GatewaySSHHostKeyFingerprint *string `json:"gateway_ssh_host_key_fingerprint,omitempty"`
+	GatewaySSHPort               *int64  `json:"gateway_ssh_port,omitempty"`
+	GatewayTransitAddress4       string  `json:"gateway_transit_address4"`
+	GatewayTransitAddress6       string  `json:"gateway_transit_address6"`
+	PresentedAutonomousSystem    *int64  `json:"presented_autonomous_system,omitempty"`
+	State                        *string `json:"state,omitempty"`
+	Zone                         string  `json:"zone"`
+}
+
+// AdoptHostRequest is the AdoptHostRequest schema.
+type AdoptHostRequest struct {
+	// HostKeyFingerprint: The fingerprint staff checked against the server.
+	HostKeyFingerprint string `json:"host_key_fingerprint"`
+}
+
+// AgentBuild is the AgentBuild schema.
+type AgentBuild struct {
+	Commit string `json:"commit"`
+	// HasGuest: Whether the build carries the `ankra-guest` binary that an upgrade installs with it.
+	HasGuest bool `json:"has_guest"`
+	// NodesRunning: Nodes whose agent reports the build's commit.
+	NodesRunning int64 `json:"nodes_running"`
+	// SHA256: Lowercase hex digest of the `ankra-node` binary.
+	SHA256     string    `json:"sha256"`
+	SizeBytes  int64     `json:"size_bytes"`
+	UploadedAt time.Time `json:"uploaded_at"`
+	// UploadedBy: `release:<commit>` for a build the release published, `operator:<name>` for an uploaded one.
+	UploadedBy string `json:"uploaded_by"`
+	Version    string `json:"version"`
+}
+
+// AgentBuildList is the AgentBuildList schema.
+type AgentBuildList struct {
+	Items []AgentBuild `json:"items"`
+	// NextCursor: Pass as `?cursor=` for the next page; null on the last page.
+	NextCursor *NextCursor `json:"next_cursor"`
+}
+
+// AgentBuildReference is the AgentBuildReference schema.
+type AgentBuildReference struct {
+	Commit  string `json:"commit"`
+	Version string `json:"version"`
+}
+
+// AgentRollout is the AgentRollout schema.
+type AgentRollout struct {
+	// AllowWithoutCanary: True for a rollout that takes zones without a canary node instead of refusing them.
+	AllowWithoutCanary bool `json:"allow_without_canary"`
+	// AutoPromoteAfterSeconds: How long each zone's canaries soak before the rollout continues on its own.
+	AutoPromoteAfterSeconds int64 `json:"auto_promote_after_seconds"`
+	// AwaitingPromotion: The pause of a rollout whose status is `awaiting_promotion`; null otherwise.
+	AwaitingPromotion *AgentRolloutAwaitingPromotion `json:"awaiting_promotion"`
+	// Commit: The build's commit; a node is done once its agent reports it.
+	Commit string `json:"commit"`
+	// Error: Which node failed and why, which zones were refused, or who cancelled or superseded the rollout; null otherwise.
+	Error      *string    `json:"error"`
+	FinishedAt *time.Time `json:"finished_at"`
+	ID         string     `json:"id"`
+	// Nodes: The nodes in the order the rollout takes them.
+	Nodes []AgentRolloutNode `json:"nodes"`
+	// PromotedZones: The zones whose canary stage was promoted, by the soak or by staff.
+	PromotedZones []string  `json:"promoted_zones"`
+	Reason        string    `json:"reason"`
+	StartedAt     time.Time `json:"started_at"`
+	// StartedBy: `staff:<staff id>` or `release:<commit>`.
+	StartedBy string `json:"started_by"`
+	// Status: `awaiting_promotion` is the pause after a zone's canaries took the build; it is as unfinished as `running`.
+	Status  string `json:"status"`
+	Version string `json:"version"`
+	// Zones: The zones the rollout is limited to; empty means every zone.
+	Zones []string `json:"zones"`
+}
+
+// AgentRolloutAwaitingPromotion is an inline object.
+type AgentRolloutAwaitingPromotion struct {
+	// AutoPromoteAt: When the rollout continues on its own if the canaries stay healthy.
+	AutoPromoteAt time.Time `json:"auto_promote_at"`
+	// Since: When the zone's canary stage completed.
+	Since time.Time `json:"since"`
+	// Zone: The zone whose canaries took the build and whose other nodes wait.
+	Zone string `json:"zone"`
+}
+
+// AgentRolloutEnvelope is the AgentRolloutEnvelope schema.
+type AgentRolloutEnvelope struct {
+	Rollout AgentRollout `json:"rollout"`
+}
+
+// AgentRolloutList is the AgentRolloutList schema.
+type AgentRolloutList struct {
+	Items []AgentRollout `json:"items"`
+	// NextCursor: Pass as `?cursor=` for the next page; null on the last page.
+	NextCursor *NextCursor `json:"next_cursor"`
+}
+
+// AgentRolloutNode is the AgentRolloutNode schema.
+type AgentRolloutNode struct {
+	// Canary: Whether the node was one of its zone's canaries when the rollout started.
+	Canary bool `json:"canary"`
+	// Detail: Why the node was skipped or failed, or what a pending node waits for; null otherwise.
+	Detail     *string    `json:"detail"`
+	FinishedAt *time.Time `json:"finished_at"`
+	Hostname   string     `json:"hostname"`
+	NodeID     string     `json:"node_id"`
+	// OperationID: The node's `node.agent_upgrade` operation once it started (see `get_fleet_node_operation`).
+	OperationID *string    `json:"operation_id"`
+	Roles       []string   `json:"roles"`
+	StartedAt   *time.Time `json:"started_at"`
+	Status      string     `json:"status"`
+	Zone        string     `json:"zone"`
 }
 
 // AllocateFloatingIPRequest is an inline object.
@@ -352,6 +799,22 @@ type AuditIntegrityBreak struct {
 	Sequence int64  `json:"sequence"`
 }
 
+// AuthenticatorCodeRequest is the AuthenticatorCodeRequest schema.
+type AuthenticatorCodeRequest struct {
+	// Code: Six digits from the authenticator app.
+	Code string `json:"code"`
+}
+
+// AuthenticatorSetup is the AuthenticatorSetup schema.
+type AuthenticatorSetup struct {
+	// ExpiresAt: Confirm with the first code before this.
+	ExpiresAt time.Time `json:"expires_at"`
+	// OtpauthURI: otpauth://totp/… for the QR code; render it locally.
+	OtpauthURI string `json:"otpauth_uri"`
+	// Secret: Base32, for typing into the app.
+	Secret string `json:"secret"`
+}
+
 // BackUpStorageRequest is an inline object.
 type BackUpStorageRequest struct {
 	Title *string `json:"title,omitempty"`
@@ -365,16 +828,27 @@ type BackUpStorageResponse struct {
 
 // Backup is the Backup schema.
 type Backup struct {
-	CompletedAt     *time.Time `json:"completed_at"`
+	CompletedAt *time.Time `json:"completed_at"`
+	// CopyOfBackupID: Set on another zone's copy of a backup: the backup it copies.
+	CopyOfBackupID  *string    `json:"copy_of_backup_id"`
 	CreatedAt       time.Time  `json:"created_at"`
 	ExpiresAt       *time.Time `json:"expires_at"`
 	ID              string     `json:"id"`
 	Kind            string     `json:"kind"`
 	OriginStorageID string     `json:"origin_storage_id"`
-	SizeGibibytes   int64      `json:"size_gibibytes"`
-	State           string     `json:"state"`
-	Title           string     `json:"title"`
-	Zone            string     `json:"zone"`
+	Region          string     `json:"region"`
+	// SameHost: Stored on the host that holds its volume: losing that host loses both.
+	SameHost      *bool  `json:"same_host,omitempty"`
+	SizeGibibytes int64  `json:"size_gibibytes"`
+	State         string `json:"state"`
+	// Target: Where the backup's bytes are: `ceph`, the zone's Ankra Storage; `vault`, the region's off-host backup vault; or `zone-object-store`, the zone's single-node S...
+	Target *string `json:"target,omitempty"`
+	Title  string  `json:"title"`
+	// VerificationError: What the last verification found wrong.
+	VerificationError *string `json:"verification_error,omitempty"`
+	// VerifiedAt: When an object backup was last read back and checked against its manifest.
+	VerifiedAt *time.Time `json:"verified_at,omitempty"`
+	Zone       string     `json:"zone"`
 }
 
 // BackupList is the BackupList schema.
@@ -386,10 +860,32 @@ type BackupList struct {
 
 // BackupRule is the BackupRule schema.
 type BackupRule struct {
-	Interval      string `json:"interval"`
-	RetentionDays int64  `json:"retention_days"`
+	// BackupCopyZone: Where the rule's backups are copied (ADR 0003): another zone of the storage's region, or `none`.
+	BackupCopyZone *string `json:"backup_copy_zone,omitempty"`
+	Interval       string  `json:"interval"`
+	RetentionDays  int64   `json:"retention_days"`
 	// Time: HHMM in UTC.
 	Time string `json:"time"`
+}
+
+// BackupVault is the BackupVault schema.
+type BackupVault struct {
+	AccessKeyID   string    `json:"access_key_id"`
+	Bucket        string    `json:"bucket"`
+	CreatedAt     time.Time `json:"created_at"`
+	CreatedBy     string    `json:"created_by"`
+	Endpoint      string    `json:"endpoint"`
+	ID            string    `json:"id"`
+	Name          string    `json:"name"`
+	Region        string    `json:"region"`
+	SigningRegion string    `json:"signing_region"`
+}
+
+// BackupVaultList is the BackupVaultList schema.
+type BackupVaultList struct {
+	Items []BackupVault `json:"items"`
+	// NextCursor: Pass as `?cursor=` for the next page; null on the last page.
+	NextCursor *NextCursor `json:"next_cursor"`
 }
 
 // BillingLogEntry is the BillingLogEntry schema.
@@ -411,6 +907,51 @@ type BillingLogEntryList struct {
 	NextCursor *NextCursor `json:"next_cursor"`
 }
 
+// BootstrapRegionKubernetesHostRequest is an inline object.
+type BootstrapRegionKubernetesHostRequest struct {
+	// ControlPlanePlan: Defaults to premium-4c-8g.
+	ControlPlanePlan *string `json:"control_plane_plan,omitempty"`
+	// WorkerPlan: Defaults to premium-4c-32g.
+	WorkerPlan *string `json:"worker_plan,omitempty"`
+	// Workers: Defaults to 3.
+	Workers *int64 `json:"workers,omitempty"`
+}
+
+// BootstrapRegionKubernetesHostResponse is an inline object.
+type BootstrapRegionKubernetesHostResponse struct {
+	KubernetesHost KubernetesHost `json:"kubernetes_host"`
+	Operation      Operation      `json:"operation"`
+}
+
+// BulkDeleteDNSRecordsRequest is an inline object.
+type BulkDeleteDNSRecordsRequest struct {
+	IDs []string `json:"ids"`
+}
+
+// BulkDeleteDNSRecordsResponse is an inline object.
+type BulkDeleteDNSRecordsResponse struct {
+	Deleted int64                                     `json:"deleted"`
+	Skipped []BulkDeleteDNSRecordsResponseSkippedItem `json:"skipped"`
+}
+
+// BulkDeleteDNSRecordsResponseSkippedItem is an inline object.
+type BulkDeleteDNSRecordsResponseSkippedItem struct {
+	ID     string `json:"id"`
+	Reason string `json:"reason"`
+}
+
+// ChangeAccountMemberRoleRequest is an inline object.
+type ChangeAccountMemberRoleRequest struct {
+	Reason string `json:"reason"`
+	Role   string `json:"role"`
+}
+
+// ChangeDatabasePlanRequest is an inline object.
+type ChangeDatabasePlanRequest struct {
+	// Plan: A database plan from `GET /v1/databases/plans`, such as `db-2c-4g`.
+	Plan string `json:"plan"`
+}
+
 // ChangeMemberRoleRequest is an inline object.
 type ChangeMemberRoleRequest struct {
 	// Role: Nobody can be made owner through the API.
@@ -427,6 +968,12 @@ type ChangeServerPlanRequest struct {
 	Plan string `json:"plan"`
 }
 
+// ChangeStaffPasswordRequest is the ChangeStaffPasswordRequest schema.
+type ChangeStaffPasswordRequest struct {
+	CurrentPassword string `json:"current_password"`
+	NewPassword     string `json:"new_password"`
+}
+
 // ConsoleInput is the ConsoleInput schema.
 type ConsoleInput struct {
 	// Data: Base64 of at most 4096 bytes.
@@ -439,6 +986,82 @@ type ConsoleInput struct {
 type ConsoleStatus struct {
 	Detail string `json:"detail"`
 	State  string `json:"state"`
+}
+
+// ControlLink is the ControlLink schema: A remote host's control-plane link (ADR 0009): a WireGuard /30 between the host's `wg-ctl` and a hub on the management network.
+type ControlLink struct {
+	CreatedAt         time.Time `json:"created_at"`
+	CreatedBy         string    `json:"created_by"`
+	HostAddress       string    `json:"host_address"`
+	HostPublicAddress string    `json:"host_public_address"`
+	// HostPublicKey: The public key of the host's wg-ctl; the private key never leaves the host.
+	HostPublicKey string `json:"host_public_key"`
+	// Hub: `managed` links end on `ankra-ctl0`, which `ankra-cloud-api control-link hub` reconciles; `external` ones on an interface built by hand.
+	Hub        string `json:"hub"`
+	HubAddress string `json:"hub_address"`
+	// HubAppliedAt: When a managed hub last applied the peer.
+	HubAppliedAt *time.Time `json:"hub_applied_at"`
+	// HubEndpoint: The address:port the host dials.
+	HubEndpoint  string `json:"hub_endpoint"`
+	HubInterface string `json:"hub_interface"`
+	HubPublicKey string `json:"hub_public_key"`
+	ID           string `json:"id"`
+	// LastHandshakeAt: The latest handshake a managed hub saw.
+	LastHandshakeAt *time.Time `json:"last_handshake_at"`
+	Network         string     `json:"network"`
+	// NodeID: The node the link serves.
+	NodeID *string `json:"node_id"`
+	// PendingHostID: The host Add server made the link for.
+	PendingHostID *string    `json:"pending_host_id"`
+	ReleasedAt    *time.Time `json:"released_at"`
+	State         string     `json:"state"`
+	UpdatedAt     time.Time  `json:"updated_at"`
+	Zone          string     `json:"zone"`
+}
+
+// ControlLinkEnvelope is the ControlLinkEnvelope schema.
+type ControlLinkEnvelope struct {
+	// ControlLink: A remote host's control-plane link (ADR 0009): a WireGuard /30 between the host's `wg-ctl` and a hub on the management network.
+	ControlLink ControlLink `json:"control_link"`
+}
+
+// ControlLinkList is the ControlLinkList schema.
+type ControlLinkList struct {
+	Items []ControlLink `json:"items"`
+	// NextCursor: Pass as `?cursor=` for the next page; null on the last page.
+	NextCursor *NextCursor `json:"next_cursor"`
+}
+
+// ControlPlane is the ControlPlane schema.
+type ControlPlane struct {
+	AppliedMode  *string                        `json:"applied_mode"`
+	ControlNodes []ControlPlaneControlNodesItem `json:"control_nodes"`
+	Generation   int64                          `json:"generation"`
+	Members      []ControlPlaneMembersItem      `json:"members"`
+	Mode         string                         `json:"mode"`
+	// OperationID: The operation that last planned the control plane.
+	OperationID    *string `json:"operation_id"`
+	ServiceAddress *string `json:"service_address"`
+	Zone           string  `json:"zone"`
+}
+
+// ControlPlaneControlNodesItem is an inline object.
+type ControlPlaneControlNodesItem struct {
+	APIReady          bool       `json:"api_ready"`
+	AppliedGeneration int64      `json:"applied_generation"`
+	ControlAddress    *string    `json:"control_address"`
+	Error             *string    `json:"error"`
+	Hostname          string     `json:"hostname"`
+	NodeID            string     `json:"node_id"`
+	Online            bool       `json:"online"`
+	ReportedAt        *time.Time `json:"reported_at"`
+}
+
+// ControlPlaneMembersItem is an inline object.
+type ControlPlaneMembersItem struct {
+	Address string `json:"address"`
+	Name    string `json:"name"`
+	NodeID  string `json:"node_id"`
 }
 
 // CopyCustomImageRequest is an inline object.
@@ -514,6 +1137,20 @@ type CreateAPITokenResponse struct {
 	Token string `json:"token"`
 }
 
+// CreateBackupVaultRequest is the CreateBackupVaultRequest schema.
+type CreateBackupVaultRequest struct {
+	AccessKeyID string `json:"access_key_id"`
+	Bucket      string `json:"bucket"`
+	// CertificateAuthority: A PEM CA for an endpoint with a private certificate.
+	CertificateAuthority *string `json:"certificate_authority,omitempty"`
+	Endpoint             string  `json:"endpoint"`
+	Name                 string  `json:"name"`
+	Region               string  `json:"region"`
+	SecretAccessKey      string  `json:"secret_access_key"`
+	// SigningRegion: The SigV4 region; us-east-1 when left out.
+	SigningRegion *string `json:"signing_region,omitempty"`
+}
+
 // CreateCouponRequest is the CreateCouponRequest schema.
 type CreateCouponRequest struct {
 	Code            string     `json:"code"`
@@ -525,6 +1162,43 @@ type CreateCouponRequest struct {
 	ValidityDays    int64      `json:"validity_days"`
 }
 
+// CreateDNSRecordRequest is an inline object.
+type CreateDNSRecordRequest struct {
+	Comment  *string       `json:"comment,omitempty"`
+	Content  string        `json:"content"`
+	Name     string        `json:"name"`
+	Priority *int64        `json:"priority,omitempty"`
+	TTL      *int64        `json:"ttl,omitempty"`
+	Type     DNSRecordType `json:"type"`
+}
+
+// CreateDNSRecordResponse is an inline object.
+type CreateDNSRecordResponse struct {
+	Record DNSRecord `json:"record"`
+}
+
+// CreateDNSSubzoneRequest is an inline object.
+type CreateDNSSubzoneRequest struct {
+	Label string `json:"label"`
+}
+
+// CreateDNSSubzoneResponse is an inline object.
+type CreateDNSSubzoneResponse struct {
+	// Zone: A hosted DNS zone.
+	Zone DNSZone `json:"zone"`
+}
+
+// CreateDNSZoneRequest is an inline object.
+type CreateDNSZoneRequest struct {
+	Name string `json:"name"`
+}
+
+// CreateDNSZoneResponse is an inline object.
+type CreateDNSZoneResponse struct {
+	// Zone: A hosted DNS zone.
+	Zone DNSZone `json:"zone"`
+}
+
 // CreateDatabaseRequest is an inline object.
 type CreateDatabaseRequest struct {
 	DatabaseName     string  `json:"database_name"`
@@ -534,6 +1208,8 @@ type CreateDatabaseRequest struct {
 	Plan             *string `json:"plan,omitempty"`
 	StorageGibibytes *int64  `json:"storage_gibibytes,omitempty"`
 	Zone             string  `json:"zone"`
+	// ZoneRedundant: Primary and replica in different zones of the zone's region.
+	ZoneRedundant *bool `json:"zone_redundant,omitempty"`
 }
 
 // CreateDatabaseResponse is an inline object.
@@ -543,6 +1219,28 @@ type CreateDatabaseResponse struct {
 	Operation   Operation           `json:"operation"`
 }
 
+// CreateDevCluster is the CreateDevCluster schema.
+type CreateDevCluster struct {
+	// Labels: Keys of 1-63 letters, digits, `.`, `_`, `/` or `-`, starting and ending with a letter or digit; values of at most 255 printable characters.
+	Labels Labels `json:"labels,omitempty"`
+	// Name: DNS label, 2 to 40 characters, unique among the account's dev clusters.
+	Name string `json:"name"`
+	// NetworkID: A private network of the zone the server also joins.
+	NetworkID *string `json:"network_id,omitempty"`
+	// Plan: A server plan with at least `minimum_memory_mebibytes` of memory.
+	Plan string `json:"plan"`
+	// PublicIPv4: Give the server a public IPv4 too (paid add-on) and make the cluster dual-stack.
+	PublicIPv4 *bool `json:"public_ipv4,omitempty"`
+	// SSHKeyIDs: Keys from the account's library for the server.
+	SSHKeyIDs []string `json:"ssh_key_ids,omitempty"`
+	// SSHKeys: SSH public keys for the server.
+	SSHKeys []string `json:"ssh_keys,omitempty"`
+	// Version: A minor from list_dev_cluster_versions; defaults to the default one.
+	Version *string `json:"version,omitempty"`
+	// Zone: A zone that offers dev clusters (list_dev_cluster_versions).
+	Zone string `json:"zone"`
+}
+
 // CreateEdgeRequest is the CreateEdgeRequest schema.
 type CreateEdgeRequest struct {
 	// Members: The load_balancer role's backends, one TCP frontend per frontend_port.
@@ -550,6 +1248,7 @@ type CreateEdgeRequest struct {
 	// Name: Defaults to "<network name> edge".
 	Name      *string `json:"name,omitempty"`
 	NetworkID string  `json:"network_id"`
+	// Placement: separate where the zone offers it (separate_edges), combined otherwise.
 	Placement *string `json:"placement,omitempty"`
 	// Plan: The plan of the bastion and NAT gateway VMs (the load balancer pair keeps its own).
 	Plan  *string    `json:"plan,omitempty"`
@@ -564,9 +1263,101 @@ type CreateEdgeResponse struct {
 	Operation Operation `json:"operation"`
 }
 
+// CreateHostRequest is the CreateHostRequest schema: `zone` and `roles` are required for a blank server.
+type CreateHostRequest struct {
+	// Address: IPv4 or IPv6 address, or DNS name, the control plane reaches the server at.
+	Address string `json:"address"`
+	// Allocation: Who the server's compute capacity is offered to from the moment it registers; only for a server with the compute role.
+	Allocation *HostAllocation `json:"allocation,omitempty"`
+	// AutonomousSystem: Overrides the fabric AS (`--autonomous-system`); left out, the join token carries the zone's recorded AS, and without one the installer keeps the one a previ...
+	AutonomousSystem *int64  `json:"autonomous_system,omitempty"`
+	Datacenter       *string `json:"datacenter,omitempty"`
+	// Gateway: A gateway server's link to the internet; required with the gateway role.
+	Gateway *HostGatewayRequest `json:"gateway,omitempty"`
+	// NodeID: The registered node the server is, to adopt it.
+	NodeID *string `json:"node_id,omitempty"`
+	// Rack: A rack of the zone (create it first with `ankra-cloud-api rack create`).
+	Rack  *string  `json:"rack,omitempty"`
+	Roles []string `json:"roles,omitempty"`
+	// SkipBurnIn: Install without the burn-in; the node is ready once it registers.
+	SkipBurnIn *bool `json:"skip_burn_in,omitempty"`
+	// SSHAllowedNetworks: WireGuard underlay only - networks SSH is admitted from on the public interface.
+	SSHAllowedNetworks []string                  `json:"ssh_allowed_networks,omitempty"`
+	SSHPort            *int64                    `json:"ssh_port,omitempty"`
+	Storage            *CreateHostRequestStorage `json:"storage,omitempty"`
+	// Underlay: `wireguard` for a server without a private network to the zone's other hosts.
+	Underlay *string `json:"underlay,omitempty"`
+	// WireguardEndpoint: WireGuard underlay only - address:port peers reach the server at.
+	WireguardEndpoint *string `json:"wireguard_endpoint,omitempty"`
+	Zone              *string `json:"zone,omitempty"`
+}
+
+// CreateHostRequestStorage is an inline object.
+type CreateHostRequestStorage struct {
+	// LocalStorageFile: Back Ankra Local with this preallocated file on the root filesystem.
+	LocalStorageFile          *string `json:"local_storage_file,omitempty"`
+	LocalStorageSizeGibibytes *int64  `json:"local_storage_size_gibibytes,omitempty"`
+	// Policy: Where a storage server's data disks go.
+	Policy *string `json:"policy,omitempty"`
+}
+
 // CreateInitScriptResponse is an inline object.
 type CreateInitScriptResponse struct {
 	InitScript InitScript `json:"init_script"`
+}
+
+// CreateIppoolRequest is the CreateIPPoolRequest schema.
+type CreateIppoolRequest struct {
+	// DelegationPrefixLength: The prefix each server gets, longer than the network: 64 on a routed /44 to /60, 80 on a routed /64 to /72 (whose gateway lies in its first /80) and on a poo...
+	DelegationPrefixLength *int64 `json:"delegation_prefix_length,omitempty"`
+	// FirstAddress: The first assignable address.
+	FirstAddress *string `json:"first_address,omitempty"`
+	// Gateway: The gateway address inside the prefix.
+	Gateway *string `json:"gateway,omitempty"`
+	// LastAddress: The last assignable address.
+	LastAddress *string `json:"last_address,omitempty"`
+	// Nameservers: DNS resolvers handed to servers.
+	Nameservers []string `json:"nameservers"`
+	Network     string   `json:"network"`
+	// Node: The identifier or hostname of the gateway node whose public interface holds this IPv6 network on-link: a provider /64 delegated in /80s (ADR 0008).
+	Node *string `json:"node,omitempty"`
+	// State: active when absent; draining has the gateways announce the pool before it delegates anything.
+	State *string `json:"state,omitempty"`
+	// VNI: VXLAN network identifier of the public network; 200 when absent.
+	VNI *int64 `json:"vni,omitempty"`
+}
+
+// CreateKubernetesClusterRequest is an inline object.
+type CreateKubernetesClusterRequest struct {
+	// ControlPlane: The control-plane tier, from `control_planes` of list_kubernetes_versions; defaults to `production`.
+	ControlPlane *KubernetesControlPlaneTier `json:"control_plane,omitempty"`
+	// Labels: Keys of 1-63 letters, digits, `.`, `_`, `/` or `-`, starting and ending with a letter or digit; values of at most 255 printable characters.
+	Labels Labels `json:"labels,omitempty"`
+	// Name: DNS label, 2 to 40 characters.
+	Name string `json:"name"`
+	// NetworkID: The private network every node joins.
+	NetworkID string                      `json:"network_id"`
+	NodePools []KubernetesNodePoolRequest `json:"node_pools,omitempty"`
+	// PrivateEndpoint: Not available yet; true answers 400.
+	PrivateEndpoint *bool `json:"private_endpoint,omitempty"`
+	// PublicIPv4: Serve the API on IPv4 too (paid add-on).
+	PublicIPv4 *bool `json:"public_ipv4,omitempty"`
+	// Version: A minor from list_kubernetes_versions; defaults to the newest.
+	Version *string `json:"version,omitempty"`
+	// Zone: The zone the node pools default to; its region hosts the control plane.
+	Zone string `json:"zone"`
+}
+
+// CreateKubernetesClusterResponse is an inline object.
+type CreateKubernetesClusterResponse struct {
+	KubernetesCluster KubernetesCluster `json:"kubernetes_cluster"`
+	Operation         Operation         `json:"operation"`
+}
+
+// CreateKubernetesNodePoolResponse is an inline object.
+type CreateKubernetesNodePoolResponse struct {
+	NodePool  KubernetesNodePool `json:"node_pool"`
+	Operation Operation          `json:"operation"`
 }
 
 // CreateLoadBalancerBackendRequest is an inline object.
@@ -633,9 +1424,17 @@ type CreateLoadBalancerMemberResponse struct {
 
 // CreateLoadBalancerRequest is an inline object.
 type CreateLoadBalancerRequest struct {
+	// HighAvailability: Two VMs on different compute nodes (true) or one (false).
+	HighAvailability *bool `json:"high_availability,omitempty"`
+	// Labels: Keys of 1-63 letters, digits, `.`, `_`, `/` or `-`, starting and ending with a letter or digit; values of at most 255 printable characters.
+	Labels    Labels `json:"labels,omitempty"`
 	Name      string `json:"name"`
 	NetworkID string `json:"network_id"`
-	Zone      string `json:"zone"`
+	// PublicIPv4: The floating IPv4 frontend address, the paid add-on.
+	PublicIPv4 *bool  `json:"public_ipv4,omitempty"`
+	Zone       string `json:"zone"`
+	// ZoneRedundant: A VM pair in each of two or more zones of the zone's region.
+	ZoneRedundant *bool `json:"zone_redundant,omitempty"`
 }
 
 // CreateLoadBalancerResponse is an inline object.
@@ -644,11 +1443,76 @@ type CreateLoadBalancerResponse struct {
 	Operation    Operation    `json:"operation"`
 }
 
+// CreateMonitoringCredentialRequest is an inline object.
+type CreateMonitoringCredentialRequest struct {
+	Cluster string `json:"cluster"`
+}
+
+// CreateMonitoringCredentialResponse is an inline object.
+type CreateMonitoringCredentialResponse struct {
+	Credential MonitoringCredential `json:"credential"`
+	Token      string               `json:"token"`
+}
+
 // CreateNetworkRequest is an inline object.
 type CreateNetworkRequest struct {
 	CIDR string `json:"cidr"`
 	Name string `json:"name"`
 	Zone string `json:"zone"`
+	// Zones: Zones of the home zone's region; the home zone is added when missing.
+	Zones []string `json:"zones,omitempty"`
+}
+
+// CreatePlatformBillingApprovalRequest is an inline object.
+type CreatePlatformBillingApprovalRequest struct {
+	ApprovedBy   string `json:"approved_by"`
+	TermsVersion string `json:"terms_version"`
+}
+
+// CreatePlatformBillingCustomerResponse is an inline object.
+type CreatePlatformBillingCustomerResponse struct {
+	CustomerID string `json:"customer_id"`
+}
+
+// CreatePlatformCredentialRequest is an inline object.
+type CreatePlatformCredentialRequest struct {
+	// OrganisationName: The organisation's display name, the new account's name.
+	OrganisationName string `json:"organisation_name"`
+}
+
+// CreatePlatformCredentialResponse is an inline object.
+type CreatePlatformCredentialResponse struct {
+	// AccountCreated: True when this request created the account.
+	AccountCreated bool   `json:"account_created"`
+	AccountID      string `json:"account_id"`
+	// APIToken: The `act_…` token.
+	APIToken   string    `json:"api_token"`
+	APITokenID string    `json:"api_token_id"`
+	ExpiresAt  time.Time `json:"expires_at"`
+}
+
+// CreatePrivateCloudRequest is the CreatePrivateCloudRequest schema.
+type CreatePrivateCloudRequest struct {
+	// DiskGigabytes: Disk wanted in GB; at least `minimums.disk_gigabytes`.
+	DiskGigabytes int64 `json:"disk_gigabytes"`
+	// MemoryGibibytes: Memory wanted in GiB; at least `minimums.memory_gibibytes`.
+	MemoryGibibytes int64 `json:"memory_gibibytes"`
+	// Notes: Anything staff should know: workloads, timing, contacts.
+	Notes *string `json:"notes,omitempty"`
+	// Region: The region wanted (a name from `list_regions`); null or absent for any.
+	Region *string `json:"region,omitempty"`
+	// Vcpus: vCPUs wanted; at least `minimums.vcpus`.
+	Vcpus int64 `json:"vcpus"`
+}
+
+// CreateRegionRequest is the CreateRegionRequest schema.
+type CreateRegionRequest struct {
+	// ControlPlaneEndpoint: The regional control plane's https API URL; empty while the global one serves the region.
+	ControlPlaneEndpoint *string `json:"control_plane_endpoint,omitempty"`
+	// Country: ISO 3166-1 alpha-2; upper-cased.
+	Country     string `json:"country"`
+	DisplayName string `json:"display_name"`
+	Name        string `json:"name"`
 }
 
 // CreateRouterRequest is an inline object.
@@ -671,9 +1535,15 @@ type CreateSSHKeyResponse struct {
 
 // CreateServerGroupRequest is the CreateServerGroupRequest schema.
 type CreateServerGroupRequest struct {
-	Name   string  `json:"name"`
+	Name string `json:"name"`
+	// Policy: Older spelling of `strict`; send one of the two.
 	Policy *string `json:"policy,omitempty"`
-	Zone   string  `json:"zone"`
+	// Region: The region of a zone-spread group (or give `zone`).
+	Region *string `json:"region,omitempty"`
+	Spread *string `json:"spread,omitempty"`
+	Strict *bool   `json:"strict,omitempty"`
+	// Zone: Required for host and rack spread; for zone spread it names a zone of the region instead of `region`.
+	Zone *string `json:"zone,omitempty"`
 }
 
 // CreateServerGroupResponse is an inline object.
@@ -683,8 +1553,12 @@ type CreateServerGroupResponse struct {
 
 // CreateServerRequest is the CreateServerRequest schema.
 type CreateServerRequest struct {
-	BackupRule *BackupRule `json:"backup_rule,omitempty"`
-	Hostname   string      `json:"hostname"`
+	// AcknowledgeSingleCopyWithoutBackup: In a zone that keeps one copy of every volume (`storage_durability: single_copy`) and backs new volumes up by default (`default_backup` in `GET /v1/zones/{zo...
+	AcknowledgeSingleCopyWithoutBackup *bool       `json:"acknowledge_single_copy_without_backup,omitempty"`
+	BackupRule                         *BackupRule `json:"backup_rule,omitempty"`
+	// CPUPool: Pins the server to a CPU pool of the zone; the plan's pin (or the scheduler) otherwise.
+	CPUPool  *string `json:"cpu_pool,omitempty"`
+	Hostname string  `json:"hostname"`
 	// InitScriptID: Takes the user data from the script library; cannot be combined with `user_data`.
 	InitScriptID *string `json:"init_script_id,omitempty"`
 	// Labels: Keys of 1-63 letters, digits, `.`, `_`, `/` or `-`, starting and ending with a letter or digit; values of at most 255 printable characters.
@@ -703,8 +1577,9 @@ type CreateServerRequest struct {
 	// SSHKeys: OpenSSH public keys; together with `ssh_key_ids` at least one key is required.
 	SSHKeys []string `json:"ssh_keys,omitempty"`
 	// StorageGibibytes: At least the plan's and the template's minimum.
-	StorageGibibytes *int64  `json:"storage_gibibytes,omitempty"`
-	StorageTier      *string `json:"storage_tier,omitempty"`
+	StorageGibibytes *int64 `json:"storage_gibibytes,omitempty"`
+	// StorageTier: Defaults to the zone's `default_storage_tier` (`GET /v1/zones/{zone}/capabilities`).
+	StorageTier *string `json:"storage_tier,omitempty"`
 	// Template: A public template or one of the account's custom images in the same zone.
 	Template string  `json:"template"`
 	Title    *string `json:"title,omitempty"`
@@ -723,6 +1598,18 @@ type CreateServerRequestNetworksItem struct {
 type CreateServerResponse struct {
 	Operation Operation `json:"operation"`
 	Server    Server    `json:"server"`
+}
+
+// CreateSnapshotRequest is an inline object.
+type CreateSnapshotRequest struct {
+	// Title: Defaults to the storage title with the time.
+	Title *string `json:"title,omitempty"`
+}
+
+// CreateSnapshotResponse is an inline object.
+type CreateSnapshotResponse struct {
+	Operation Operation `json:"operation"`
+	Snapshot  Snapshot  `json:"snapshot"`
 }
 
 // CreateSshkeyRequest is the CreateSSHKeyRequest schema.
@@ -744,16 +1631,23 @@ type CreateStaffRequest struct {
 
 // CreateStorageRequest is the CreateStorageRequest schema.
 type CreateStorageRequest struct {
-	BackupRule *BackupRule `json:"backup_rule,omitempty"`
+	// AcknowledgeSingleCopyWithoutBackup: In a zone that keeps one copy of every volume (`storage_durability: single_copy`) and backs new volumes up by default (`default_backup` in `GET /v1/zones/{zo...
+	AcknowledgeSingleCopyWithoutBackup *bool       `json:"acknowledge_single_copy_without_backup,omitempty"`
+	BackupRule                         *BackupRule `json:"backup_rule,omitempty"`
+	// Placement: Where a local-nvme storage lands; other tiers ignore it.
+	Placement *StoragePlacement `json:"placement,omitempty"`
 	// SizeGibibytes: Defaults to, and must be at least, the source's size.
 	SizeGibibytes *int64 `json:"size_gibibytes,omitempty"`
 	// SourceBackupID: Restore this backup as a new storage.
 	SourceBackupID *string `json:"source_backup_id,omitempty"`
+	// SourceSnapshotID: Clone this snapshot (copy-on-write) as a new storage in its zone.
+	SourceSnapshotID *string `json:"source_snapshot_id,omitempty"`
 	// SourceStorageID: Clone this storage.
 	SourceStorageID *string `json:"source_storage_id,omitempty"`
-	Tier            string  `json:"tier"`
-	Title           string  `json:"title"`
-	// Zone: With `source_storage_id` it must be the source's zone; with `source_backup_id` it may differ from the backup's zone (a cross-zone restore).
+	// Tier: Left empty, the source snapshot's tier, otherwise the zone's `default_storage_tier` (`GET /v1/zones/{zone}/capabilities`).
+	Tier  *string `json:"tier,omitempty"`
+	Title string  `json:"title"`
+	// Zone: With `source_storage_id` or `source_snapshot_id` it must be the source's zone; with `source_backup_id` it may differ from the backup's zone (a cross-zone res...
 	Zone string `json:"zone"`
 }
 
@@ -772,6 +1666,36 @@ type CreateSupportConsentRequest struct {
 type CreateSupportConsentResponse struct {
 	Code    string         `json:"code"`
 	Consent SupportConsent `json:"consent"`
+}
+
+// CreateZoneRackForStaffRequest is an inline object.
+type CreateZoneRackForStaffRequest struct {
+	Name string `json:"name"`
+}
+
+// CreateZoneRackRequest is an inline object.
+type CreateZoneRackRequest struct {
+	Name string `json:"name"`
+}
+
+// CreateZoneRequest is the CreateZoneRequest schema.
+type CreateZoneRequest struct {
+	// AutonomousSystem: A private ASN (64512 to 65534 or 4200000000 to 4294967294) every join token for the zone carries.
+	AutonomousSystem *int64 `json:"autonomous_system,omitempty"`
+	// CustomerVisible: Whether customers see the zone and may place new resources in it; true when absent.
+	CustomerVisible *bool  `json:"customer_visible,omitempty"`
+	DisplayName     string `json:"display_name"`
+	// Name: <country>-<site><number>.
+	Name string `json:"name"`
+	// Nat64EgressAddresses: Public IPv4 addresses the zone's gateways translate NAT64 to: on a bgp zone addresses of its public networks outside the allocatable range, on a provider_nat...
+	Nat64EgressAddresses []string `json:"nat64_egress_addresses,omitempty"`
+	// Position: Where the zone is listed, lowest first; 100 when absent.
+	Position *int64 `json:"position,omitempty"`
+	// PublicUplink: How the zone's gateways reach the internet; bgp when absent.
+	PublicUplink *string `json:"public_uplink,omitempty"`
+	Region       string  `json:"region"`
+	// Underlay: How the zone's hosts reach each other; fabric when absent.
+	Underlay *string `json:"underlay,omitempty"`
 }
 
 // CreatedStaff is the CreatedStaff schema.
@@ -810,6 +1734,10 @@ type CreditList struct {
 // CurrentUser is the CurrentUser schema.
 type CurrentUser struct {
 	CSRFToken string `json:"csrf_token"`
+	// EmailVerificationRequired: Whether the routes marked `x-ankra-verified-email` still refuse the user: the address is not verified and this deployment can send the link (`POST /v1/auth/e...
+	EmailVerificationRequired bool `json:"email_verification_required"`
+	// EmailVerified: Whether the user's email address is verified.
+	EmailVerified bool `json:"email_verified"`
 	// Identities: The identity provider identities linked to the user (empty without a provider).
 	Identities    []LinkedIdentity `json:"identities"`
 	Impersonation *Impersonation   `json:"impersonation"`
@@ -832,6 +1760,49 @@ type CustomImageList struct {
 	Items []CustomImage `json:"items"`
 	// NextCursor: Pass as `?cursor=` for the next page; null on the last page.
 	NextCursor *NextCursor `json:"next_cursor"`
+}
+
+// DNSRecord is the DnsRecord schema.
+type DNSRecord struct {
+	// Comment: A note for people; never published in DNS.
+	Comment   *string   `json:"comment"`
+	Content   string    `json:"content"`
+	CreatedAt time.Time `json:"created_at"`
+	ID        string    `json:"id"`
+	// Managed: Apex NS and subzone delegations, owned by the platform and not editable.
+	Managed bool `json:"managed"`
+	// Name: Relative to the zone: `@` for the apex, `www`, `a.b`, `*`.
+	Name string `json:"name"`
+	// Priority: MX and SRV only.
+	Priority  *int64        `json:"priority"`
+	TTL       int64         `json:"ttl"`
+	Type      DNSRecordType `json:"type"`
+	UpdatedAt time.Time     `json:"updated_at"`
+	ZoneID    string        `json:"zone_id"`
+}
+
+// DNSRecordType is the DnsRecordType schema.
+type DNSRecordType = string
+
+// DNSZone is the DnsZone schema: A hosted DNS zone.
+type DNSZone struct {
+	CreatedAt time.Time `json:"created_at"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	// Nameservers: The hostnames to delegate the domain to at its registrar.
+	Nameservers  []string `json:"nameservers"`
+	ParentZoneID *string  `json:"parent_zone_id"`
+	RecordCount  int64    `json:"record_count"`
+	// RecordLimit: How many records the zone may hold.
+	RecordLimit int64 `json:"record_limit"`
+	// SyncError: The last failure publishing the zone; null once a push succeeds.
+	SyncError *string `json:"sync_error"`
+}
+
+// DNSZoneList is the DnsZoneList schema.
+type DNSZoneList struct {
+	Items      []DNSZone       `json:"items"`
+	NextCursor json.RawMessage `json:"next_cursor"`
 }
 
 // Database is the Database schema.
@@ -862,6 +1833,10 @@ type Database struct {
 	RestoredFrom           *DatabaseRestoredFrom `json:"restored_from"`
 	State                  string                `json:"state"`
 	StorageGibibytes       int64                 `json:"storage_gibibytes"`
+	// StorageGrowthAvailable: Whether `POST /v1/databases/{id}/resize` would be accepted right now; only on GET /v1/databases/{id}.
+	StorageGrowthAvailable *bool `json:"storage_growth_available,omitempty"`
+	// StorageGrowthUnavailableReason: Why storage cannot grow online right now; only on GET /v1/databases/{id}, and only when `storage_growth_available` is false.
+	StorageGrowthUnavailableReason *string `json:"storage_growth_unavailable_reason,omitempty"`
 	// TLSServerName: The DNS name the server certificate carries besides the host address.
 	TLSServerName string `json:"tls_server_name"`
 	Zone          string `json:"zone"`
@@ -898,10 +1873,188 @@ type DatabaseCredentials struct {
 	Password      string `json:"password"`
 }
 
+// DatabaseMetricsPoint is the DatabaseMetricsPoint schema.
+type DatabaseMetricsPoint struct {
+	At time.Time `json:"at"`
+	// CPUPercent: Share of the VM's CPU time spent busy in the step, 0 to 100.
+	CPUPercent     *float64 `json:"cpu_percent"`
+	DiskTotalBytes *int64   `json:"disk_total_bytes"`
+	// DiskUsedBytes: Average space used on the data disk.
+	DiskUsedBytes    *int64 `json:"disk_used_bytes"`
+	MemoryTotalBytes *int64 `json:"memory_total_bytes"`
+	// MemoryUsedBytes: Average memory in use (total less available).
+	MemoryUsedBytes *int64 `json:"memory_used_bytes"`
+	// QueryCount: Statements the database's roles finished in the step.
+	QueryCount int64 `json:"query_count"`
+	// QueryMeanMilliseconds: Their mean execution time; null without statements.
+	QueryMeanMilliseconds *float64 `json:"query_mean_milliseconds"`
+}
+
+// DatabaseMetricsSeries is the DatabaseMetricsSeries schema.
+type DatabaseMetricsSeries struct {
+	// CollectsQueryStatistics: Whether any step in the period carried query statistics.
+	CollectsQueryStatistics bool                   `json:"collects_query_statistics"`
+	Period                  string                 `json:"period"`
+	Points                  []DatabaseMetricsPoint `json:"points"`
+	StepSeconds             int64                  `json:"step_seconds"`
+}
+
 // DatabaseRestoredFrom is an inline object.
 type DatabaseRestoredFrom struct {
 	DatabaseID string     `json:"database_id"`
 	TargetTime *time.Time `json:"target_time"`
+}
+
+// Datacenter is the Datacenter schema.
+type Datacenter struct {
+	ComputeNodes int64 `json:"compute_nodes"`
+	// Name: null groups the nodes without a recorded datacenter.
+	Name         *string `json:"name"`
+	Nodes        int64   `json:"nodes"`
+	StorageNodes int64   `json:"storage_nodes"`
+}
+
+// DatacenterLink is the DatacenterLink schema: A pair of datacenters (or a datacenter with itself) rated against the latency budget over every pair of their storage and compute hosts.
+type DatacenterLink struct {
+	// CephReplication: Ankra Storage replication's budget: p95 RTT under 2 ms.
+	CephReplication string  `json:"ceph_replication"`
+	From            *string `json:"from"`
+	HostPairs       int64   `json:"host_pairs"`
+	// LiveMigration: Budget p95 RTT under 5 ms and at least 1 Gbit/s.
+	LiveMigration                string   `json:"live_migration"`
+	LowestBandwidthBitsPerSecond *int64   `json:"lowest_bandwidth_bits_per_second"`
+	MeasuredPairs                int64    `json:"measured_pairs"`
+	To                           *string  `json:"to"`
+	WorstP95RttMs                *float64 `json:"worst_p95_rtt_ms"`
+}
+
+// DevCluster is the DevCluster schema.
+type DevCluster struct {
+	CreatedAt time.Time `json:"created_at"`
+	// Endpoint: The API server URL on IPv6, once the server has its address.
+	Endpoint *string `json:"endpoint"`
+	// EndpointIPv4: The API server URL on IPv4, with `public_ipv4`.
+	EndpointIPv4 *string `json:"endpoint_ipv4"`
+	// FailureReason: Why a cluster in `error` failed.
+	FailureReason *string          `json:"failure_reason"`
+	Health        DevClusterHealth `json:"health"`
+	ID            string           `json:"id"`
+	// IPv4Address: The server's public IPv4 address, with `public_ipv4`.
+	IPv4Address *string `json:"ipv4_address"`
+	// IPv6Address: The server's public IPv6 address: the API on 6443, ingress on 80 and 443.
+	IPv6Address *string `json:"ipv6_address"`
+	// IsTrial: Created without a payment method: free, and deleted with its server at `trial_expires_at` unless the account saves a card first.
+	IsTrial *bool `json:"is_trial,omitempty"`
+	// K3sVersion: The k3s release installed when the cluster was created.
+	K3sVersion string `json:"k3s_version"`
+	// Labels: Keys of 1-63 letters, digits, `.`, `_`, `/` or `-`, starting and ending with a letter or digit; values of at most 255 printable characters.
+	Labels Labels `json:"labels"`
+	Name   string `json:"name"`
+	// NetworkID: The private network the server also joins.
+	NetworkID *string `json:"network_id"`
+	// Plan: The server's plan.
+	Plan string `json:"plan"`
+	// ProductionRecommended: Always false: a dev cluster is one server.
+	ProductionRecommended bool `json:"production_recommended"`
+	// ProductionWarning: What running on one server means, to show wherever the cluster is shown.
+	ProductionWarning string `json:"production_warning"`
+	// PublicIPv4: Whether the server holds a public IPv4 (the add-on) and the cluster is dual-stack.
+	PublicIPv4 bool   `json:"public_ipv4"`
+	Region     string `json:"region"`
+	// ServerID: The cluster's server, in the account's servers.
+	ServerID *string `json:"server_id"`
+	// State: `creating` until the cluster's API answers; `running`; `error` when it never came up or lost its server (`failure_reason` says which; only a deletion leaves ...
+	State DevClusterState `json:"state"`
+	// TrialConvertedAt: When the account saved a card and the trial became an ordinary cluster, its server billed from the next full hour.
+	TrialConvertedAt *time.Time `json:"trial_converted_at,omitempty"`
+	// TrialExpiresAt: When a live trial is deleted; null once it converted or for a paid cluster.
+	TrialExpiresAt *time.Time `json:"trial_expires_at,omitempty"`
+	UpdatedAt      time.Time  `json:"updated_at"`
+	// Version: The Kubernetes minor.
+	Version string `json:"version"`
+	Zone    string `json:"zone"`
+}
+
+// DevClusterEnvelope is the DevClusterEnvelope schema.
+type DevClusterEnvelope struct {
+	DevCluster DevCluster `json:"dev_cluster"`
+}
+
+// DevClusterHealth is the DevClusterHealth schema.
+type DevClusterHealth struct {
+	// APIServer: Whether the API answered /readyz when last observed; `unknown` before the first observation.
+	APIServer string `json:"api_server"`
+	// Detail: What is wrong, empty when nothing is.
+	Detail string `json:"detail"`
+	// NodeReady: Whether the node reported Ready.
+	NodeReady  bool       `json:"node_ready"`
+	ObservedAt *time.Time `json:"observed_at"`
+}
+
+// DevClusterList is the DevClusterList schema.
+type DevClusterList struct {
+	Items []DevCluster `json:"items"`
+	// NextCursor: Pass as `?cursor=` for the next page; null on the last page.
+	NextCursor *NextCursor `json:"next_cursor"`
+}
+
+// DevClusterState is the DevClusterState schema: `creating` until the cluster's API answers; `running`; `error` when it never came up or lost its server (`failure_reason` says which; only a deletion leaves ...
+type DevClusterState = string
+
+// DevClusterTrialOffer is the DevClusterTrialOffer schema: Whether the account may start a free trial dev cluster now.
+type DevClusterTrialOffer struct {
+	// Detail: Why the trial is not on offer, in a sentence.
+	Detail      *string `json:"detail"`
+	IsAvailable bool    `json:"is_available"`
+	Reason      *string `json:"reason"`
+	// RunningTrialID: The account's live trial dev cluster.
+	RunningTrialID     *string              `json:"running_trial_id"`
+	Terms              DevClusterTrialTerms `json:"terms"`
+	TrialsUsedInWindow int64                `json:"trials_used_in_window"`
+}
+
+// DevClusterTrialTerms is the DevClusterTrialTerms schema.
+type DevClusterTrialTerms struct {
+	// LifetimeHours: How long a trial runs before it is deleted with its server.
+	LifetimeHours int64 `json:"lifetime_hours"`
+	// MaximumCores: The largest plan's cores a trial may use.
+	MaximumCores int64 `json:"maximum_cores"`
+	// MaximumMemoryMebibytes: The largest plan's memory a trial may use.
+	MaximumMemoryMebibytes int64 `json:"maximum_memory_mebibytes"`
+	// TrialsPerWindow: How many trials an account may start in `window_days`.
+	TrialsPerWindow int64 `json:"trials_per_window"`
+	WindowDays      int64 `json:"window_days"`
+}
+
+// DevClusterVersions is the DevClusterVersions schema.
+type DevClusterVersions struct {
+	// AllZones: Every zone offers dev clusters; `zones` is then empty.
+	AllZones bool `json:"all_zones"`
+	// IPv4PriceMonthlyCents: What `public_ipv4` adds a month.
+	IPv4PriceMonthlyCents int64 `json:"ipv4_price_monthly_cents"`
+	// IsAvailable: Whether any zone offers dev clusters.
+	IsAvailable bool                          `json:"is_available"`
+	Items       []DevClusterVersionsItemsItem `json:"items"`
+	// MinimumMemoryMebibytes: The smallest plan a dev cluster runs on.
+	MinimumMemoryMebibytes int64                `json:"minimum_memory_mebibytes"`
+	ProductionWarning      string               `json:"production_warning"`
+	Trial                  DevClusterTrialTerms `json:"trial"`
+	// Zones: The zones that offer dev clusters, unless `all_zones`.
+	Zones []string `json:"zones"`
+}
+
+// DevClusterVersionsItemsItem is an inline object.
+type DevClusterVersionsItemsItem struct {
+	IsDefault  bool   `json:"is_default"`
+	K3sVersion string `json:"k3s_version"`
+	Version    string `json:"version"`
+}
+
+// DisableUserResponse is an inline object.
+type DisableUserResponse struct {
+	// EndedSessions: How many of the user's sessions ended.
+	EndedSessions int64     `json:"ended_sessions"`
+	User          StaffUser `json:"user"`
 }
 
 // Edge is the Edge schema.
@@ -975,15 +2128,245 @@ type EdgeMembersItem struct {
 // EdgeRole is the EdgeRole schema.
 type EdgeRole = string
 
+// EdgeRoute is the EdgeRoute schema.
+type EdgeRoute struct {
+	// Device: Null when the edge has no route for a routed prefix.
+	Device   *string `json:"device"`
+	Gateway  *string `json:"gateway"`
+	Network  string  `json:"network"`
+	Protocol *string `json:"protocol"`
+}
+
+// EdgeRouter is the EdgeRouter schema: A region's IPv6 edge (ADR 0007): a host the provider routes a prefix to, which carries it to zones' gateways over WireGuard and BGP, and may run NAT64 for zo...
+type EdgeRouter struct {
+	AutonomousSystem int64     `json:"autonomous_system"`
+	CreatedAt        time.Time `json:"created_at"`
+	CreatedBy        string    `json:"created_by"`
+	// Downstream: The WireGuard peer the edge forwards its routed prefixes to, or null.
+	Downstream *EdgeRouterDownstream `json:"downstream"`
+	ID         string                `json:"id"`
+	// Management: `managed` edges are read (and, later, configured) by the control plane over SSH; `external` ones are only recorded.
+	Management string             `json:"management"`
+	Name       string             `json:"name"`
+	Nat64      EdgeRouterNat64    `json:"nat64"`
+	Prefixes   []EdgeRouterPrefix `json:"prefixes"`
+	// ProtectedNetworks: What a gateway's zone never reaches through the edge, besides private, shared, link-local and ULA space.
+	ProtectedNetworks []string `json:"protected_networks"`
+	PublicIPv4        *string  `json:"public_ipv4"`
+	PublicIPv6        *string  `json:"public_ipv6"`
+	Region            string   `json:"region"`
+	// RollbackSeconds: How long a new firewall stays armed before it rolls back unless confirmed.
+	RollbackSeconds int64   `json:"rollback_seconds"`
+	SSHAddress      *string `json:"ssh_address"`
+	// SSHHostKeyFingerprint: The pinned host key; any other is refused.
+	SSHHostKeyFingerprint *string   `json:"ssh_host_key_fingerprint"`
+	SSHPort               *int64    `json:"ssh_port"`
+	State                 string    `json:"state"`
+	UpdatedAt             time.Time `json:"updated_at"`
+	UplinkCount           int64     `json:"uplink_count"`
+	UplinkInterface       string    `json:"uplink_interface"`
+}
+
+// EdgeRouterDetail is the EdgeRouterDetail schema.
+type EdgeRouterDetail struct {
+	// EdgeRouter: A region's IPv6 edge (ADR 0007): a host the provider routes a prefix to, which carries it to zones' gateways over WireGuard and BGP, and may run NAT64 for zo...
+	EdgeRouter EdgeRouter      `json:"edge_router"`
+	Uplinks    []GatewayUplink `json:"uplinks"`
+}
+
+// EdgeRouterDownstream is the EdgeRouterDownstream schema.
+type EdgeRouterDownstream struct {
+	Interface     string `json:"interface"`
+	ListenPort    int64  `json:"listen_port"`
+	Name          string `json:"name"`
+	PeerPublicKey string `json:"peer_public_key"`
+	// PeerSourceAddress: The only IPv4 address WireGuard is accepted from; null accepts any.
+	PeerSourceAddress *string `json:"peer_source_address"`
+	PeerTunnelAddress string  `json:"peer_tunnel_address"`
+	TunnelAddress     string  `json:"tunnel_address"`
+}
+
+// EdgeRouterHealth is the EdgeRouterHealth schema.
+type EdgeRouterHealth struct {
+	CheckedAt     time.Time                      `json:"checked_at"`
+	Counters      []EdgeRouterHealthCountersItem `json:"counters"`
+	LearnedRoutes []EdgeRoute                    `json:"learned_routes"`
+	// Problem: Why the edge could not be read, or its report not understood.
+	Problem        *string                        `json:"problem"`
+	Reachable      bool                           `json:"reachable"`
+	RoutedPrefixes []EdgeRoute                    `json:"routed_prefixes"`
+	Sessions       []EdgeRouterHealthSessionsItem `json:"sessions"`
+	Tunnels        []EdgeRouterHealthTunnelsItem  `json:"tunnels"`
+	Units          []EdgeRouterHealthUnitsItem    `json:"units"`
+}
+
+// EdgeRouterHealthCountersItem is an inline object.
+type EdgeRouterHealthCountersItem struct {
+	Bytes   int64  `json:"bytes"`
+	Nat64   bool   `json:"nat64"`
+	Packets int64  `json:"packets"`
+	Rule    string `json:"rule"`
+}
+
+// EdgeRouterHealthSessionsItem is an inline object.
+type EdgeRouterHealthSessionsItem struct {
+	Description string `json:"description"`
+	Family      int64  `json:"family"`
+	// LocalAs: The AS the edge presents to the neighbour.
+	LocalAs          int64  `json:"local_as"`
+	Neighbor         string `json:"neighbor"`
+	PrefixesReceived int64  `json:"prefixes_received"`
+	PrefixesSent     int64  `json:"prefixes_sent"`
+	RemoteAs         int64  `json:"remote_as"`
+	State            string `json:"state"`
+	Uptime           string `json:"uptime"`
+}
+
+// EdgeRouterHealthTunnelsItem is an inline object.
+type EdgeRouterHealthTunnelsItem struct {
+	AllowedIPs         []string   `json:"allowed_ips"`
+	Endpoint           *string    `json:"endpoint"`
+	Interface          string     `json:"interface"`
+	InterfacePublicKey string     `json:"interface_public_key"`
+	LatestHandshakeAt  *time.Time `json:"latest_handshake_at"`
+	ListenPort         int64      `json:"listen_port"`
+	PeerPublicKey      string     `json:"peer_public_key"`
+	ReceivedBytes      int64      `json:"received_bytes"`
+	SentBytes          int64      `json:"sent_bytes"`
+}
+
+// EdgeRouterHealthUnitsItem is an inline object.
+type EdgeRouterHealthUnitsItem struct {
+	Name  string `json:"name"`
+	State string `json:"state"`
+}
+
+// EdgeRouterList is the EdgeRouterList schema.
+type EdgeRouterList struct {
+	Items []EdgeRouter `json:"items"`
+}
+
+// EdgeRouterNat64 is an inline object.
+type EdgeRouterNat64 struct {
+	Enabled bool   `json:"enabled"`
+	Prefix  string `json:"prefix"`
+}
+
+// EdgeRouterOperation is the EdgeRouterOperation schema.
+type EdgeRouterOperation struct {
+	Actor      string     `json:"actor"`
+	CreatedAt  time.Time  `json:"created_at"`
+	Error      *string    `json:"error"`
+	FinishedAt *time.Time `json:"finished_at"`
+	// GatewayUplinkID: The uplink a gateway_uplink.move goes to.
+	GatewayUplinkID *string `json:"gateway_uplink_id"`
+	ID              string  `json:"id"`
+	Kind            string  `json:"kind"`
+	// Rollback: A move that goes back to the configuration the gateway kept.
+	Rollback bool `json:"rollback"`
+	// SourceGatewayUplinkID: The uplink a gateway_uplink.move leaves.
+	SourceGatewayUplinkID *string    `json:"source_gateway_uplink_id"`
+	StartedAt             *time.Time `json:"started_at"`
+	Status                string     `json:"status"`
+	// Step: The step it runs next; null once done.
+	Step *string `json:"step"`
+}
+
+// EdgeRouterOperationEvent is the EdgeRouterOperationEvent schema.
+type EdgeRouterOperationEvent struct {
+	Data        map[string]any `json:"data"`
+	ID          string         `json:"id"`
+	Kind        string         `json:"kind"`
+	Message     string         `json:"message"`
+	OccurredAt  time.Time      `json:"occurred_at"`
+	OperationID string         `json:"operation_id"`
+}
+
+// EdgeRouterPlan is the EdgeRouterPlan schema.
+type EdgeRouterPlan struct {
+	CheckedAt time.Time `json:"checked_at"`
+	// Digest: Names the rendering; an apply is started with it.
+	Digest     *string                   `json:"digest"`
+	Files      []EdgeRouterPlanFilesItem `json:"files"`
+	HasChanges bool                      `json:"has_changes"`
+	// Problem: Why the edge could not be read.
+	Problem *string `json:"problem"`
+	// Refusal: Why the configuration may not be applied; null when it may.
+	Refusal *string `json:"refusal"`
+}
+
+// EdgeRouterPlanFilesItem is an inline object.
+type EdgeRouterPlanFilesItem struct {
+	// Diff: The edge's file against the rendered one, every line with its context.
+	Diff   *string `json:"diff"`
+	Path   string  `json:"path"`
+	Status string  `json:"status"`
+}
+
+// EdgeRouterPrefix is the EdgeRouterPrefix schema.
+type EdgeRouterPrefix struct {
+	ID     string `json:"id"`
+	Prefix string `json:"prefix"`
+	// RoutedAddress: The edge's own address in the prefix.
+	RoutedAddress string `json:"routed_address"`
+	State         string `json:"state"`
+}
+
+// EmailVerificationConfirmation is the EmailVerificationConfirmation schema.
+type EmailVerificationConfirmation struct {
+	// Token: The `token` query parameter of the verification link.
+	Token string `json:"token"`
+}
+
+// EmailVerificationRefusalProblem is the EmailVerificationRefusalProblem schema.
+type EmailVerificationRefusalProblem struct {
+	// Detail: Written for the customer.
+	Detail *string `json:"detail,omitempty"`
+	Reason string  `json:"reason"`
+	Status int64   `json:"status"`
+	Title  string  `json:"title"`
+	Type   string  `json:"type"`
+}
+
+// EmailVerificationRequest is the EmailVerificationRequest schema.
+type EmailVerificationRequest struct {
+	// Email: The address the link goes to.
+	Email  string `json:"email"`
+	Status string `json:"status"`
+}
+
+// EmailVerificationResult is the EmailVerificationResult schema.
+type EmailVerificationResult struct {
+	Email         string `json:"email"`
+	EmailVerified bool   `json:"email_verified"`
+}
+
 // EnableObjectStorageRequest is an inline object.
 type EnableObjectStorageRequest struct {
 	Zone string `json:"zone"`
+}
+
+// EnableUserResponse is an inline object.
+type EnableUserResponse struct {
+	User StaffUser `json:"user"`
 }
 
 // EndImpersonationResponse is an inline object.
 type EndImpersonationResponse struct {
 	// Redirect: Where the staff browser goes next, e.g. `/admin/accounts/<account_id>`.
 	Redirect string `json:"redirect"`
+}
+
+// EndPlaygroundForStaff is the EndPlaygroundForStaff schema.
+type EndPlaygroundForStaff struct {
+	// Reason: 10 to 500 characters on one line; recorded in the account audit log.
+	Reason string `json:"reason"`
+}
+
+// ExpandZoneControlPlaneRequest is an inline object.
+type ExpandZoneControlPlaneRequest struct {
+	// ServiceAddress: The keepalived service address; the recorded one when left out.
+	ServiceAddress *string `json:"service_address,omitempty"`
 }
 
 // Firewall is the Firewall schema: Rules apply in order, the first match decides, then the direction's default; established and related traffic is always allowed.
@@ -1005,6 +2388,327 @@ type FirewallRule struct {
 	Protocol  string `json:"protocol"`
 	// RemoteCIDR: An IPv4 or IPv6 address or CIDR; empty for any.
 	RemoteCIDR string `json:"remote_cidr"`
+}
+
+// Fleet is the Fleet schema.
+type Fleet struct {
+	// GeneratedAt: The instant liveness and heartbeat ages are computed at.
+	GeneratedAt time.Time `json:"generated_at"`
+	// LatestAgentBuild: The newest build of the artefact store, which each node's `agent_is_current` is measured against; null while the store holds none.
+	LatestAgentBuild *AgentBuildReference `json:"latest_agent_build"`
+	Regions          []FleetRegion        `json:"regions"`
+	Rollup           FleetRollup          `json:"rollup"`
+}
+
+// FleetAddressPools is the FleetAddressPools schema: Address pools of one family.
+type FleetAddressPools struct {
+	// Allocated: What is taken from the pools.
+	Allocated int64 `json:"allocated"`
+	// Available: What the active pools have left.
+	Available int64 `json:"available"`
+	// DrainingPools: Pools that hand out nothing new.
+	DrainingPools int64 `json:"draining_pools"`
+	Pools         int64 `json:"pools"`
+	// Total: What every pool holds.
+	Total int64 `json:"total"`
+}
+
+// FleetCeph is the FleetCeph schema: The replicated storage as the control plane knows it.
+type FleetCeph struct {
+	// ActiveZones: Zones whose Ceph serves volumes.
+	ActiveZones int64 `json:"active_zones"`
+	// OsdHosts: Hosts holding at least one OSD at the last rebalance.
+	OsdHosts int64 `json:"osd_hosts"`
+	// ProvisionedGibibytes: Their size added up.
+	ProvisionedGibibytes int64 `json:"provisioned_gibibytes"`
+	// Volumes: Volumes online or in maintenance on Ceph.
+	Volumes int64 `json:"volumes"`
+}
+
+// FleetLocalPool is the FleetLocalPool schema: A node's Ankra Local thin pool as its last heartbeat reported it.
+type FleetLocalPool struct {
+	AcceptsNewVolumes bool    `json:"accepts_new_volumes"`
+	DataPercent       float64 `json:"data_percent"`
+	// MaximumOvercommitRatio: New volumes stop when one would take the pool past this (ANKRA_CLOUD_LOCAL_POOL_MAX_OVERCOMMIT_RATIO, default 1.5).
+	MaximumOvercommitRatio float64 `json:"maximum_overcommit_ratio"`
+	// MaximumUsedPercent: New volumes stop when data or metadata reach this (ANKRA_CLOUD_LOCAL_POOL_MAX_USED_PERCENT, default 80).
+	MaximumUsedPercent float64 `json:"maximum_used_percent"`
+	MetadataPercent    float64 `json:"metadata_percent"`
+	// OvercommitRatio: provisioned_bytes over size_bytes.
+	OvercommitRatio float64 `json:"overcommit_ratio"`
+	// ProvisionedBytes: The virtual sizes of the pool's volumes added up: the larger of what the agent counted (templates included, snapshots not) and what the control plane pinned ...
+	ProvisionedBytes int64 `json:"provisioned_bytes"`
+	// Refusal: Why the pool takes no new volumes; null while it does.
+	Refusal *string `json:"refusal"`
+	// ReservedBytes: The node's Ankra Storage volume when it is a thin volume in this pool (storage policy both), outside provisioned_bytes.
+	ReservedBytes int64 `json:"reserved_bytes"`
+	// SizeBytes: The pool's data size: the physical bytes its volumes share.
+	SizeBytes int64 `json:"size_bytes"`
+}
+
+// FleetLocalStorage is the FleetLocalStorage schema.
+type FleetLocalStorage struct {
+	// AllocatedGibibytes: The Ankra Local storage pinned to the nodes.
+	AllocatedGibibytes int64 `json:"allocated_gibibytes"`
+	// DiskTotalBytes: The raw disk capacity the inventories report; 0 for an agent that reports none.
+	DiskTotalBytes int64 `json:"disk_total_bytes"`
+	// PoolProvisionedBytes: What their volumes provision (thin, so it may pass the size).
+	PoolProvisionedBytes int64 `json:"pool_provisioned_bytes"`
+	// PoolSizeBytes: The reported thin pools' physical size added up.
+	PoolSizeBytes int64 `json:"pool_size_bytes"`
+	// PoolUsedBytes: The bytes written, by the fuller of each pool's data and metadata areas.
+	PoolUsedBytes int64 `json:"pool_used_bytes"`
+	// Pools: Nodes that report an Ankra Local thin pool.
+	Pools int64 `json:"pools"`
+	// RefusingPools: Thin pools too full or too overcommitted to take a new volume.
+	RefusingPools int64 `json:"refusing_pools"`
+}
+
+// FleetNode is the FleetNode schema.
+type FleetNode struct {
+	// AdvisoryUnhealthyComponents: The other components the node's last heartbeat reported unhealthy (`frr_bgp`, `vrrp`, `conntrackd`, `ceph_client`, `watchdog_armed`, `time_sync`).
+	AdvisoryUnhealthyComponents []string   `json:"advisory_unhealthy_components"`
+	AgentBuiltAt                *time.Time `json:"agent_built_at"`
+	AgentCommit                 string     `json:"agent_commit"`
+	// AgentIsCurrent: True when the node's agent reports the commit of the fleet's `latest_agent_build`.
+	AgentIsCurrent bool              `json:"agent_is_current"`
+	AgentUpgrade   *NodeAgentUpgrade `json:"agent_upgrade"`
+	AgentVersion   string            `json:"agent_version"`
+	// Allocation: Who the host's compute capacity is offered to.
+	Allocation NodeAllocation `json:"allocation"`
+	// Available: A compute node that takes new servers now (online, schedulable, with KVM).
+	Available  bool    `json:"available"`
+	Datacenter *string `json:"datacenter"`
+	// HeartbeatAgeSeconds: Seconds since the last heartbeat; null before the first.
+	HeartbeatAgeSeconds *int64          `json:"heartbeat_age_seconds"`
+	Hostname            string          `json:"hostname"`
+	ID                  string          `json:"id"`
+	LastHeartbeatAt     *time.Time      `json:"last_heartbeat_at"`
+	Liveness            string          `json:"liveness"`
+	Maintenance         NodeMaintenance `json:"maintenance"`
+	ProvisioningState   string          `json:"provisioning_state"`
+	Rack                *string         `json:"rack"`
+	Roles               []string        `json:"roles"`
+	// RolloutCanary: True for a node marked as one of its zone's rollout canaries: a fleet rollout takes it first (`set_node_rollout_canary`).
+	RolloutCanary bool `json:"rollout_canary"`
+	// Schedulable: False while the node is cordoned, draining or fenced.
+	Schedulable bool `json:"schedulable"`
+	// ServerCount: Servers placed on the node.
+	ServerCount int64 `json:"server_count"`
+	// UnhealthyComponents: The gating components (`kvm`, `boot`) the node's last heartbeat reported unhealthy.
+	UnhealthyComponents []string       `json:"unhealthy_components"`
+	Usage               FleetNodeUsage `json:"usage"`
+	Zone                string         `json:"zone"`
+}
+
+// FleetNodeDetail is the FleetNodeDetail schema.
+type FleetNodeDetail struct {
+	// AdvisoryUnhealthyComponents: The other components the last heartbeat reported unhealthy; they hold nothing.
+	AdvisoryUnhealthyComponents []string `json:"advisory_unhealthy_components"`
+	// AgentBuiltAt: When the node's agent was built.
+	AgentBuiltAt *time.Time `json:"agent_built_at,omitempty"`
+	// AgentCommit: The git commit the node's agent was built from; empty for an older agent.
+	AgentCommit *string `json:"agent_commit,omitempty"`
+	// AgentIsCurrent: True when the node's agent runs the newest build of the artefact store.
+	AgentIsCurrent bool `json:"agent_is_current"`
+	// AgentUpgrade: The upgrade the node's maintenance asks for and what the node last reported; null when neither.
+	AgentUpgrade *NodeAgentUpgrade `json:"agent_upgrade,omitempty"`
+	AgentVersion string            `json:"agent_version"`
+	// Allocation: Who the host's compute capacity is offered to.
+	Allocation NodeAllocation `json:"allocation"`
+	Available  bool           `json:"available"`
+	// Boot: The node's current boot; null until its agent reports a boot id.
+	Boot     *NodeBoot    `json:"boot,omitempty"`
+	Capacity NodeCapacity `json:"capacity"`
+	// Compatibility: What a live migration must match; null until the node's agent reports it.
+	Compatibility *NodeCompatibility `json:"compatibility,omitempty"`
+	// Datacenter: The datacenter the node stands in; null until one is recorded.
+	Datacenter *string `json:"datacenter,omitempty"`
+	// Hardware: The key facts of the node's inventory (ADR 0004); zero for an agent that reports none.
+	Hardware              *NodeHardware     `json:"hardware,omitempty"`
+	HeartbeatAgeSeconds   *int64            `json:"heartbeat_age_seconds"`
+	Hostname              string            `json:"hostname"`
+	ID                    string            `json:"id"`
+	LastHeartbeatAt       *time.Time        `json:"last_heartbeat_at"`
+	LastHeartbeatSequence *int64            `json:"last_heartbeat_sequence"`
+	Liveness              string            `json:"liveness"`
+	Maintenance           *NodeMaintenance  `json:"maintenance,omitempty"`
+	Provisioning          *NodeProvisioning `json:"provisioning,omitempty"`
+	// Rack: The rack of the zone the node sits in; null until one is assigned.
+	Rack         *string   `json:"rack,omitempty"`
+	RegisteredAt time.Time `json:"registered_at"`
+	Roles        []string  `json:"roles"`
+	// RolloutCanary: True for a node marked as one of its zone's rollout canaries (`set_node_rollout_canary`).
+	RolloutCanary bool `json:"rollout_canary"`
+	// Schedulable: False unless the maintenance state is active.
+	Schedulable *bool `json:"schedulable,omitempty"`
+	ServerCount int64 `json:"server_count"`
+	// SpecEpoch: Orders the node's specs above their generation; a fence and the uncordon after it raise it.
+	SpecEpoch *int64 `json:"spec_epoch,omitempty"`
+	// Storage: The node's storage policy; null for a node without the storage role.
+	Storage *NodeStoragePolicy `json:"storage,omitempty"`
+	// UnhealthyComponents: The gating components (`kvm`, `boot`) the last heartbeat reported unhealthy.
+	UnhealthyComponents []string       `json:"unhealthy_components"`
+	Usage               FleetNodeUsage `json:"usage"`
+	// Wireguard: The node's identity on the zone's WireGuard underlay; null outside one.
+	Wireguard *WireGuardIdentity `json:"wireguard,omitempty"`
+	Zone      string             `json:"zone"`
+}
+
+// FleetNodeLocalStorage is the FleetNodeLocalStorage schema.
+type FleetNodeLocalStorage struct {
+	// AllocatedGibibytes: The Ankra Local storage pinned to the node.
+	AllocatedGibibytes int64 `json:"allocated_gibibytes"`
+	// DiskTotalBytes: The raw disk capacity the inventory reports; 0 for an agent that reports none.
+	DiskTotalBytes int64 `json:"disk_total_bytes"`
+	// Pool: The node's Ankra Local thin pool; null on a node whose agent reports none (no pool, or an agent older than the report).
+	Pool *FleetLocalPool `json:"pool"`
+}
+
+// FleetNodeUsage is the FleetNodeUsage schema.
+type FleetNodeUsage struct {
+	Cores           FleetNodeUsageCores           `json:"cores"`
+	HasKvm          bool                          `json:"has_kvm"`
+	LocalStorage    FleetNodeLocalStorage         `json:"local_storage"`
+	MemoryMebibytes FleetNodeUsageMemoryMebibytes `json:"memory_mebibytes"`
+}
+
+// FleetNodeUsageCores is an inline object.
+type FleetNodeUsageCores struct {
+	Allocated int64 `json:"allocated"`
+	// Free: Negative on a node allocated past its budget.
+	Free            int64 `json:"free"`
+	Logical         int64 `json:"logical"`
+	OvercommitRatio int64 `json:"overcommit_ratio"`
+	Schedulable     int64 `json:"schedulable"`
+}
+
+// FleetNodeUsageMemoryMebibytes is an inline object.
+type FleetNodeUsageMemoryMebibytes struct {
+	Allocated int64 `json:"allocated"`
+	// Free: Negative on a node allocated past its budget.
+	Free int64 `json:"free"`
+	// Reserved: Kept free for the host OS and the agent.
+	Reserved    int64 `json:"reserved"`
+	Schedulable int64 `json:"schedulable"`
+	Total       int64 `json:"total"`
+}
+
+// FleetRegion is the FleetRegion schema.
+type FleetRegion struct {
+	ControlPlaneEndpoint *string     `json:"control_plane_endpoint"`
+	Country              string      `json:"country"`
+	DisplayName          string      `json:"display_name"`
+	Name                 string      `json:"name"`
+	Rollup               FleetRollup `json:"rollup"`
+	Zones                []FleetZone `json:"zones"`
+}
+
+// FleetRollup is the FleetRollup schema.
+type FleetRollup struct {
+	// Ceph: The replicated storage as the control plane knows it.
+	Ceph  FleetCeph        `json:"ceph"`
+	Cores FleetRollupCores `json:"cores"`
+	// IPv4: Address pools of one family.
+	IPv4 FleetAddressPools `json:"ipv4"`
+	// IPv6: Address pools of one family.
+	IPv6            FleetAddressPools          `json:"ipv6"`
+	LocalStorage    FleetLocalStorage          `json:"local_storage"`
+	MemoryMebibytes FleetRollupMemoryMebibytes `json:"memory_mebibytes"`
+	Nodes           FleetRollupNodes           `json:"nodes"`
+	Servers         int64                      `json:"servers"`
+}
+
+// FleetRollupCores is an inline object.
+type FleetRollupCores struct {
+	Allocated int64 `json:"allocated"`
+	Available int64 `json:"available"`
+	Free      int64 `json:"free"`
+	Logical   int64 `json:"logical"`
+	// Schedulable: Logical CPUs times the overcommit ratio.
+	Schedulable int64 `json:"schedulable"`
+}
+
+// FleetRollupMemoryMebibytes is an inline object.
+type FleetRollupMemoryMebibytes struct {
+	Allocated int64 `json:"allocated"`
+	Available int64 `json:"available"`
+	Free      int64 `json:"free"`
+	// Schedulable: The total less every compute node's host reservation.
+	Schedulable int64 `json:"schedulable"`
+	Total       int64 `json:"total"`
+}
+
+// FleetRollupNodes is an inline object.
+type FleetRollupNodes struct {
+	// Available: Compute nodes that take new servers now (online, schedulable, with KVM).
+	Available int64 `json:"available"`
+	Compute   int64 `json:"compute"`
+	Offline   int64 `json:"offline"`
+	Online    int64 `json:"online"`
+	Pending   int64 `json:"pending"`
+	Suspect   int64 `json:"suspect"`
+	Total     int64 `json:"total"`
+	// Unhealthy: Nodes whose last heartbeat reported a gating component (`kvm`, `boot`) unhealthy.
+	Unhealthy int64 `json:"unhealthy"`
+}
+
+// FleetZone is the FleetZone schema.
+type FleetZone struct {
+	Capabilities FleetZoneCapabilities `json:"capabilities"`
+	// Ceph: The zone's replicated storage (Ankra Storage, the Ceph backend); null when the zone never had one.
+	Ceph *FleetZoneCeph `json:"ceph,omitempty"`
+	// Country: The zone's region's ISO 3166-1 alpha-2 country code.
+	Country   *string   `json:"country,omitempty"`
+	CreatedAt time.Time `json:"created_at"`
+	// CustomerVisible: False for a zone hidden from customers: a customer only sees it, and places new resources in it, when the account may use hidden zones or has private hosts t...
+	CustomerVisible *bool  `json:"customer_visible,omitempty"`
+	DisplayName     string `json:"display_name"`
+	// IsPrivateCloud: True, in a customer's listing, on a zone in which Ankra dedicated compute hosts to the caller's account (its private cloud): the account's servers there run ...
+	IsPrivateCloud *bool       `json:"is_private_cloud,omitempty"`
+	Name           string      `json:"name"`
+	Nodes          []FleetNode `json:"nodes"`
+	// Position: Where the zone is listed, lowest first (then by name); regions follow the position of their first zone.
+	Position *int64      `json:"position,omitempty"`
+	Region   string      `json:"region"`
+	Rollup   FleetRollup `json:"rollup"`
+	// Truncated: The zone has more nodes than the fleet lists; nodes and rollup cover the first 2000 by hostname.
+	Truncated bool `json:"truncated"`
+	// Underlay: How the zone's hosts reach each other (ADR 0004): `fabric` is a private network, `wireguard` the encrypted underlay.
+	Underlay *string `json:"underlay,omitempty"`
+}
+
+// FleetZoneCapabilities is an inline object.
+type FleetZoneCapabilities struct {
+	Features                FleetZoneCapabilitiesFeatures `json:"features"`
+	GatewayRedundancy       string                        `json:"gateway_redundancy"`
+	ObjectStorageDurability string                        `json:"object_storage_durability"`
+	// OffsiteBackups: Whether backups of the zone's volumes go to a backup vault outside the zone.
+	OffsiteBackups bool              `json:"offsite_backups"`
+	Reasons        map[string]string `json:"reasons"`
+	// Recovery: What brings a server back after its host is lost.
+	Recovery          string   `json:"recovery"`
+	Stage             int64    `json:"stage"`
+	StorageBackends   []string `json:"storage_backends"`
+	StorageDurability string   `json:"storage_durability"`
+	UplinkRedundancy  string   `json:"uplink_redundancy"`
+	Warnings          []string `json:"warnings"`
+}
+
+// FleetZoneCapabilitiesFeatures is an inline object.
+type FleetZoneCapabilitiesFeatures struct {
+	Compute        bool `json:"compute"`
+	HARestart      bool `json:"ha_restart"`
+	LiveMigration  bool `json:"live_migration"`
+	LoadBalancerHA bool `json:"load_balancer_ha"`
+	SeparateEdges  bool `json:"separate_edges"`
+}
+
+// FleetZoneCeph is an inline object.
+type FleetZoneCeph struct {
+	// ReplicationSize: Copies kept of each object as the last rebalance converged it; null when unknown.
+	ReplicationSize *int64 `json:"replication_size"`
+	State           string `json:"state"`
 }
 
 // FloatingIP is the FloatingIP schema.
@@ -1056,9 +2760,75 @@ type GatewayList struct {
 	Items []Gateway `json:"items"`
 }
 
+// GatewayUplink is the GatewayUplink schema: A zone gateway's transit to an edge router: the gateway's WireGuard interface dials the edge's interface for it, and two eBGP sessions over the tunnel carry ...
+type GatewayUplink struct {
+	// AcceptedNetworks: What the edge accepts from the gateway and routes to it: the zone's routed pools.
+	AcceptedNetworks []string  `json:"accepted_networks"`
+	CreatedAt        time.Time `json:"created_at"`
+	CreatedBy        string    `json:"created_by"`
+	// EdgeEndpoint: The address:port the gateway dials.
+	EdgeEndpoint   string `json:"edge_endpoint"`
+	EdgeInterface  string `json:"edge_interface"`
+	EdgeLinkLocal  string `json:"edge_link_local"`
+	EdgeListenPort int64  `json:"edge_listen_port"`
+	// EdgePublicKey: The edge interface's key; its private key never leaves the edge.
+	EdgePublicKey           *string `json:"edge_public_key"`
+	EdgeRouterID            string  `json:"edge_router_id"`
+	EdgeRouterName          string  `json:"edge_router_name"`
+	EdgeTransitAddress4     string  `json:"edge_transit_address4"`
+	EdgeTransitAddress6     string  `json:"edge_transit_address6"`
+	GatewayAutonomousSystem int64   `json:"gateway_autonomous_system"`
+	GatewayInterface        string  `json:"gateway_interface"`
+	GatewayName             string  `json:"gateway_name"`
+	GatewayNodeID           *string `json:"gateway_node_id"`
+	GatewayPublicAddress    string  `json:"gateway_public_address"`
+	GatewayPublicKey        string  `json:"gateway_public_key"`
+	// GatewaySSHAddress: Where the control plane reaches the gateway to move its uplink; null when not recorded.
+	GatewaySSHAddress      *string `json:"gateway_ssh_address"`
+	GatewayTransitAddress4 string  `json:"gateway_transit_address4"`
+	GatewayTransitAddress6 string  `json:"gateway_transit_address6"`
+	ID                     string  `json:"id"`
+	// PresentedAutonomousSystem: The AS the gateway expects its upstream to be; null presents the edge's own.
+	PresentedAutonomousSystem *int64 `json:"presented_autonomous_system"`
+	// RollbackTarget: On a zone's uplinks: the standby uplink the gateway was on before its last move and can be rolled back to.
+	RollbackTarget bool `json:"rollback_target"`
+	// State: `active` is the uplink the gateway peers with now; `standby` one it can be moved to.
+	State     string    `json:"state"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Zone      string    `json:"zone"`
+}
+
+// GatewayUplinkMovePlan is the GatewayUplinkMovePlan schema.
+type GatewayUplinkMovePlan struct {
+	AlreadyThere bool      `json:"already_there"`
+	CheckedAt    time.Time `json:"checked_at"`
+	// Current: The peer the gateway has now; null when it could not be read.
+	Current *GatewayUplinkPeer `json:"current"`
+	// Diff: The [Peer] the gateway has against the one it gets.
+	Diff *string `json:"diff"`
+	// Problem: Why the gateway could not be read.
+	Problem *string `json:"problem"`
+	// Refusal: Why the gateway may not be moved to the uplink; null when it may.
+	Refusal        *string           `json:"refusal"`
+	RollbackTarget bool              `json:"rollback_target"`
+	Target         GatewayUplinkPeer `json:"target"`
+}
+
+// GatewayUplinkPeer is the GatewayUplinkPeer schema.
+type GatewayUplinkPeer struct {
+	Endpoint  string `json:"endpoint"`
+	PublicKey string `json:"public_key"`
+}
+
 // GetBackupResponse is an inline object.
 type GetBackupResponse struct {
 	Backup Backup `json:"backup"`
+}
+
+// GetDNSZoneResponse is an inline object.
+type GetDNSZoneResponse struct {
+	// Zone: A hosted DNS zone.
+	Zone DNSZone `json:"zone"`
 }
 
 // GetDatabaseCredentialsResponse is an inline object.
@@ -1071,9 +2841,31 @@ type GetDatabaseResponse struct {
 	Database Database `json:"database"`
 }
 
+// GetDevClusterKubeconfigResponse is an inline object.
+type GetDevClusterKubeconfigResponse struct {
+	ExpiresAt time.Time `json:"expires_at"`
+	// Kubeconfig: The kubeconfig YAML.
+	Kubeconfig string `json:"kubeconfig"`
+}
+
 // GetEdgeResponse is an inline object.
 type GetEdgeResponse struct {
 	Edge Edge `json:"edge"`
+}
+
+// GetEdgeRouterHealthResponse is an inline object.
+type GetEdgeRouterHealthResponse struct {
+	Health EdgeRouterHealth `json:"health"`
+}
+
+// GetEdgeRouterPlanResponse is an inline object.
+type GetEdgeRouterPlanResponse struct {
+	Plan EdgeRouterPlan `json:"plan"`
+}
+
+// GetFleetNodeControlLinkResponse is an inline object.
+type GetFleetNodeControlLinkResponse struct {
+	ControlLink *ControlLink `json:"control_link"`
 }
 
 // GetFloatingIPResponse is an inline object.
@@ -1081,9 +2873,67 @@ type GetFloatingIPResponse struct {
 	FloatingIP FloatingIP `json:"floating_ip"`
 }
 
+// GetGatewayUplinkMovePlanResponse is an inline object.
+type GetGatewayUplinkMovePlanResponse struct {
+	Plan GatewayUplinkMovePlan `json:"plan"`
+}
+
+// GetInfrastructureZoneUnderlayResponse is an inline object.
+type GetInfrastructureZoneUnderlayResponse struct {
+	Underlay UnderlayMesh `json:"underlay"`
+}
+
 // GetInitScriptResponse is an inline object.
 type GetInitScriptResponse struct {
 	InitScript InitScript `json:"init_script"`
+}
+
+// GetKubernetesClusterKubeconfigResponse is an inline object.
+type GetKubernetesClusterKubeconfigResponse struct {
+	ExpiresAt time.Time `json:"expires_at"`
+	// Kubeconfig: The kubeconfig YAML.
+	Kubeconfig string `json:"kubeconfig"`
+}
+
+// GetKubernetesClusterResponse is an inline object.
+type GetKubernetesClusterResponse struct {
+	KubernetesCluster KubernetesCluster `json:"kubernetes_cluster"`
+}
+
+// GetKubernetesHostResponse is an inline object.
+type GetKubernetesHostResponse struct {
+	KubernetesHost KubernetesHost `json:"kubernetes_host"`
+}
+
+// GetKubernetesNodePoolResponse is an inline object.
+type GetKubernetesNodePoolResponse struct {
+	NodePool KubernetesNodePool `json:"node_pool"`
+}
+
+// GetKubernetesOIDCConfigurationResponse is an inline object.
+type GetKubernetesOIDCConfigurationResponse struct {
+	ClaimsSupported                  []string `json:"claims_supported,omitempty"`
+	IDTokenSigningAlgValuesSupported []string `json:"id_token_signing_alg_values_supported"`
+	Issuer                           string   `json:"issuer"`
+	JwksURI                          string   `json:"jwks_uri"`
+	ResponseTypesSupported           []string `json:"response_types_supported"`
+	SubjectTypesSupported            []string `json:"subject_types_supported"`
+}
+
+// GetKubernetesOIDCKeysResponse is an inline object.
+type GetKubernetesOIDCKeysResponse struct {
+	Keys []GetKubernetesOIDCKeysResponseKeysItem `json:"keys"`
+}
+
+// GetKubernetesOIDCKeysResponseKeysItem is an inline object.
+type GetKubernetesOIDCKeysResponseKeysItem struct {
+	Alg string  `json:"alg"`
+	Crv *string `json:"crv,omitempty"`
+	Kid string  `json:"kid"`
+	Kty string  `json:"kty"`
+	Use string  `json:"use"`
+	X   *string `json:"x,omitempty"`
+	Y   *string `json:"y,omitempty"`
 }
 
 // GetLoadBalancerCertificateResponse is an inline object.
@@ -1100,6 +2950,84 @@ type GetLoadBalancerResponse struct {
 // GetObjectStorageCredentialsResponse is an inline object.
 type GetObjectStorageCredentialsResponse struct {
 	Credentials ObjectStorageCredentials `json:"credentials"`
+}
+
+// GetPlatformAccountResponse is an inline object.
+type GetPlatformAccountResponse struct {
+	AccountID string `json:"account_id"`
+	// BillingArrangement: `invoice` when the platform invoices the organisation itself (PUT …/billing-arrangement): then `can_spend` is true without a card.
+	BillingArrangement string `json:"billing_arrangement"`
+	// BillingURL: Where to send a person to add a payment method: the portal's Sign in with Ankra (`/v1/auth/oidc/login?prompt=none&return_to=/settings/billing?account=<accoun...
+	BillingURL            string                `json:"billing_url"`
+	CanSpend              bool                  `json:"can_spend"`
+	CreditsExpireAt       *time.Time            `json:"credits_expire_at"`
+	CreditsRemainingCents *int64                `json:"credits_remaining_cents"`
+	CreditsState          string                `json:"credits_state"`
+	DevClusterTrial       *DevClusterTrialOffer `json:"dev_cluster_trial"`
+	// Reason: Empty while `can_spend` is true.
+	Reason string `json:"reason"`
+}
+
+// GetPlatformBillingCustomerResponse is an inline object.
+type GetPlatformBillingCustomerResponse struct {
+	CustomerID string `json:"customer_id"`
+}
+
+// GetPlatformWorkspaceCredentialResponse is an inline object.
+type GetPlatformWorkspaceCredentialResponse struct {
+	OrganisationID string    `json:"organisation_id"`
+	PlatformUserID string    `json:"platform_user_id"`
+	Role           string    `json:"role"`
+	Token          string    `json:"token"`
+	UserID         string    `json:"user_id"`
+	ValidUntil     time.Time `json:"valid_until"`
+	WorkspaceID    string    `json:"workspace_id"`
+}
+
+// GetPlatformWorkspaceDomainsResponse is an inline object.
+type GetPlatformWorkspaceDomainsResponse struct {
+	Clusters       []GetPlatformWorkspaceDomainsResponseClustersItem `json:"clusters"`
+	OrganisationID string                                            `json:"organisation_id"`
+	Zone           GetPlatformWorkspaceDomainsResponseZone           `json:"zone"`
+}
+
+// GetPlatformWorkspaceDomainsResponseClustersItem is an inline object.
+type GetPlatformWorkspaceDomainsResponseClustersItem struct {
+	ClusterID   string `json:"cluster_id"`
+	ClusterName string `json:"cluster_name"`
+	Fqdn        string `json:"fqdn"`
+	State       string `json:"state"`
+}
+
+// GetPlatformWorkspaceDomainsResponseZone is an inline object.
+type GetPlatformWorkspaceDomainsResponseZone struct {
+	Fqdn  string `json:"fqdn"`
+	State string `json:"state"`
+}
+
+// GetPlatformWorkspaceSyncResponse is an inline object.
+type GetPlatformWorkspaceSyncResponse struct {
+	LastError      *string    `json:"last_error,omitempty"`
+	MemberCount    *int64     `json:"member_count,omitempty"`
+	Name           *string    `json:"name,omitempty"`
+	OrganisationID *string    `json:"organisation_id,omitempty"`
+	Revision       *int64     `json:"revision,omitempty"`
+	State          string     `json:"state"`
+	SyncedAt       *time.Time `json:"synced_at,omitempty"`
+	SyncedRevision *int64     `json:"synced_revision,omitempty"`
+	WorkspaceID    *string    `json:"workspace_id,omitempty"`
+}
+
+// GetPlaygroundKubeconfigResponse is an inline object.
+type GetPlaygroundKubeconfigResponse struct {
+	ExpiresAt time.Time `json:"expires_at"`
+	// Kubeconfig: The kubeconfig YAML.
+	Kubeconfig string `json:"kubeconfig"`
+}
+
+// GetPublicAddressControllerResponse is an inline object.
+type GetPublicAddressControllerResponse struct {
+	Controller PublicAddressController `json:"controller"`
 }
 
 // GetRouterResponse is an inline object.
@@ -1128,6 +3056,34 @@ type GetServerResponse struct {
 	Server Server `json:"server"`
 }
 
+// GetSnapshotResponse is an inline object.
+type GetSnapshotResponse struct {
+	Snapshot Snapshot `json:"snapshot"`
+}
+
+// GetStaffIdentityProviderStatusResponse is an inline object.
+type GetStaffIdentityProviderStatusResponse struct {
+	DisplayName *string `json:"display_name"`
+	Enabled     bool    `json:"enabled"`
+	// PasswordLogin: False when staff sign in with Ankra only; `log_in_staff` then answers 403.
+	PasswordLogin bool `json:"password_login"`
+}
+
+// GetZoneObjectStorageOperatorResponse is an inline object.
+type GetZoneObjectStorageOperatorResponse struct {
+	ObjectStorage ZoneObjectStorage `json:"object_storage"`
+}
+
+// GetZoneObjectStorageResponse is an inline object.
+type GetZoneObjectStorageResponse struct {
+	ObjectStorage ZoneObjectStorage `json:"object_storage"`
+}
+
+// GetZoneUnderlayResponse is an inline object.
+type GetZoneUnderlayResponse struct {
+	Underlay UnderlayMesh `json:"underlay"`
+}
+
 // GrantCreditRequest is the GrantCreditRequest schema.
 type GrantCreditRequest struct {
 	AmountCents int64      `json:"amount_cents"`
@@ -1144,9 +3100,246 @@ type HapolicyBody struct {
 	HAPolicy string `json:"ha_policy"`
 }
 
+// HapolicyResult is the HAPolicyResult schema.
+type HapolicyResult struct {
+	HAPolicy string `json:"ha_policy"`
+	HAStatus string `json:"ha_status"`
+	// HAStatusReason: Why the zone cannot act on the policy yet; null while it can.
+	HAStatusReason *string `json:"ha_status_reason"`
+}
+
 // HealthStatus is the HealthStatus schema.
 type HealthStatus struct {
-	Status string `json:"status"`
+	// Revision: The commit this replica was deployed from.
+	Revision *string `json:"revision,omitempty"`
+	Status   string  `json:"status"`
+}
+
+// Host is the Host schema.
+type Host struct {
+	Address string `json:"address"`
+	// AdoptsNodeID: The registered node the host was added for, to adopt it.
+	AdoptsNodeID *string `json:"adopts_node_id"`
+	AgentVersion *string `json:"agent_version"`
+	// Allocation: The allocation the server registers with; null when it was added without one (public).
+	Allocation *HostAllocation `json:"allocation"`
+	// AutonomousSystem: The fabric AS the join token carries; null leaves it to the installer.
+	AutonomousSystem *int64     `json:"autonomous_system"`
+	CreatedAt        time.Time  `json:"created_at"`
+	CreatedBy        string     `json:"created_by"`
+	Datacenter       *string    `json:"datacenter"`
+	Facts            *HostFacts `json:"facts"`
+	// Gateway: The gateway's link to the internet; the transit and upstream fields are null on a provider_native gateway.
+	Gateway *HostGateway `json:"gateway"`
+	// HostKeyConfirmed: Whether staff confirmed (pinned) the host key.
+	HostKeyConfirmed bool `json:"host_key_confirmed"`
+	// HostKeyFingerprint: SHA256 fingerprint of the host key the last probe was offered.
+	HostKeyFingerprint *string `json:"host_key_fingerprint"`
+	ID                 string  `json:"id"`
+	// InstalledArguments: The `ankra-node install` arguments the server was installed (or last reprovisioned) with, without the join token; rendered from the request for a host that r...
+	InstalledArguments []string `json:"installed_arguments"`
+	NodeHostname       *string  `json:"node_hostname"`
+	NodeID             *string  `json:"node_id"`
+	Rack               *string  `json:"rack"`
+	// Reason: Why the host failed or awaits its network.
+	Reason *string `json:"reason"`
+	// Reprovisionable: Whether the node's roles can be changed: it registered or was adopted and its host key is confirmed.
+	Reprovisionable    bool     `json:"reprovisionable"`
+	Roles              []string `json:"roles"`
+	SkipBurnIn         bool     `json:"skip_burn_in"`
+	SSHAllowedNetworks []string `json:"ssh_allowed_networks"`
+	SSHPort            int64    `json:"ssh_port"`
+	// State: probing → awaiting_confirmation (or awaiting_network) → installing → registered → burn_in → ready; failed with `reason` from any step.
+	State             string      `json:"state"`
+	Storage           HostStorage `json:"storage"`
+	Underlay          *string     `json:"underlay"`
+	UpdatedAt         time.Time   `json:"updated_at"`
+	WireguardEndpoint *string     `json:"wireguard_endpoint"`
+	Zone              string      `json:"zone"`
+}
+
+// HostAllocation is the HostAllocation schema: The allocation an added server registers with: `public` (the region's public offering), `private` (dedicated to `account_id`, a private cloud) or `unassigned...
+type HostAllocation struct {
+	// AccountID: The account a private server is dedicated to; required for private, refused otherwise.
+	AccountID *string `json:"account_id,omitempty"`
+	Kind      string  `json:"kind"`
+}
+
+// HostDetail is the HostDetail schema.
+type HostDetail struct {
+	// ControlLink: The host's control-plane link; null when it has none.
+	ControlLink *ControlLink `json:"control_link"`
+	// Events: The newest operation's events, oldest first (at most 1000).
+	Events []HostOperationEvent `json:"events"`
+	Host   Host                 `json:"host"`
+	// Operations: The host's operations, newest first (at most 10).
+	Operations []HostOperation `json:"operations"`
+}
+
+// HostEnvelope is the HostEnvelope schema.
+type HostEnvelope struct {
+	Host Host `json:"host"`
+}
+
+// HostFacts is the HostFacts schema: What the last probe read; nothing on the server was changed to read it.
+type HostFacts struct {
+	Architecture    string                   `json:"architecture"`
+	CPU             HostFactsCPU             `json:"cpu"`
+	DefaultRoute    *HostFactsDefaultRoute   `json:"default_route,omitempty"`
+	Disks           []HostFactsDisksItem     `json:"disks"`
+	HasCurl         bool                     `json:"has_curl"`
+	Hostname        string                   `json:"hostname"`
+	Kernel          string                   `json:"kernel"`
+	MemoryBytes     int64                    `json:"memory_bytes"`
+	OperatingSystem HostFactsOperatingSystem `json:"operating_system"`
+	ProbedAt        time.Time                `json:"probed_at"`
+	// Reachability: Whether the server opened a TCP connection to each control plane endpoint nodes are given.
+	Reachability []HostFactsReachabilityItem `json:"reachability"`
+}
+
+// HostFactsCPU is an inline object.
+type HostFactsCPU struct {
+	// HardwareVirtualisation: VT-x or AMD-V offered to the node's VMs.
+	HardwareVirtualisation bool `json:"hardware_virtualisation"`
+	// Hypervisor: systemd-detect-virt; none on bare metal.
+	Hypervisor  string `json:"hypervisor"`
+	LogicalCpus int64  `json:"logical_cpus"`
+	Model       string `json:"model"`
+	Sockets     int64  `json:"sockets"`
+}
+
+// HostFactsDefaultRoute is an inline object.
+type HostFactsDefaultRoute struct {
+	Addresses []string `json:"addresses,omitempty"`
+	Gateway   *string  `json:"gateway,omitempty"`
+	Interface string   `json:"interface"`
+}
+
+// HostFactsDisksItem is an inline object.
+type HostFactsDisksItem struct {
+	Children       []string `json:"children,omitempty"`
+	FilesystemType *string  `json:"filesystem_type,omitempty"`
+	Model          *string  `json:"model,omitempty"`
+	Mountpoints    []string `json:"mountpoints,omitempty"`
+	Name           string   `json:"name"`
+	Rotational     bool     `json:"rotational"`
+	Serial         *string  `json:"serial,omitempty"`
+	SizeBytes      int64    `json:"size_bytes"`
+	Type           string   `json:"type"`
+}
+
+// HostFactsOperatingSystem is an inline object.
+type HostFactsOperatingSystem struct {
+	ID         string `json:"id"`
+	PrettyName string `json:"pretty_name"`
+	Supported  bool   `json:"supported"`
+	VersionID  string `json:"version_id"`
+}
+
+// HostFactsReachabilityItem is an inline object.
+type HostFactsReachabilityItem struct {
+	Detail    *string `json:"detail,omitempty"`
+	Reachable bool    `json:"reachable"`
+	Target    string  `json:"target"`
+}
+
+// HostGateway is an inline object: The gateway's link to the internet; the transit and upstream fields are null on a provider_native gateway.
+type HostGateway struct {
+	ProviderGateway6         *string `json:"provider_gateway6"`
+	PublicInterface          string  `json:"public_interface"`
+	TransitAddress           *string `json:"transit_address"`
+	TransitAddress6          *string `json:"transit_address6"`
+	Uplink                   string  `json:"uplink"`
+	UpstreamAutonomousSystem *int64  `json:"upstream_autonomous_system"`
+	UpstreamPeer             *string `json:"upstream_peer"`
+	UpstreamPeer6            *string `json:"upstream_peer6"`
+}
+
+// HostGatewayRequest is the HostGatewayRequest schema: A gateway server's link to the internet; required with the gateway role.
+type HostGatewayRequest struct {
+	// ProviderGateway6: provider_native only: the provider's IPv6 gateway on the public interface (`ankra-node install --provider-gateway6`); the host's IPv6 default route names it ...
+	ProviderGateway6 *string `json:"provider_gateway6,omitempty"`
+	PublicInterface  string  `json:"public_interface"`
+	// TransitAddress: IPv4 in CIDR form; bgp only.
+	TransitAddress *string `json:"transit_address,omitempty"`
+	// TransitAddress6: IPv6 in CIDR form, with upstream_peer6; bgp only.
+	TransitAddress6 *string `json:"transit_address6,omitempty"`
+	// Uplink: The zone's public uplink; bgp when absent.
+	Uplink *string `json:"uplink,omitempty"`
+	// UpstreamAutonomousSystem: bgp only.
+	UpstreamAutonomousSystem *int64 `json:"upstream_autonomous_system,omitempty"`
+	// UpstreamPeer: bgp only.
+	UpstreamPeer  *string `json:"upstream_peer,omitempty"`
+	UpstreamPeer6 *string `json:"upstream_peer6,omitempty"`
+}
+
+// HostList is the HostList schema.
+type HostList struct {
+	Items []Host `json:"items"`
+	// NextCursor: Pass as `?cursor=` for the next page; null on the last page.
+	NextCursor *NextCursor `json:"next_cursor"`
+}
+
+// HostOperation is the HostOperation schema.
+type HostOperation struct {
+	CreatedAt  time.Time  `json:"created_at"`
+	Error      *string    `json:"error"`
+	FinishedAt *time.Time `json:"finished_at"`
+	ID         string     `json:"id"`
+	Kind       string     `json:"kind"`
+	StartedAt  *time.Time `json:"started_at"`
+	Status     string     `json:"status"`
+	// Step: The step it runs next; null once done.
+	Step *string `json:"step"`
+}
+
+// HostOperationEnvelope is the HostOperationEnvelope schema.
+type HostOperationEnvelope struct {
+	Operation HostOperation `json:"operation"`
+}
+
+// HostOperationEvent is the HostOperationEvent schema.
+type HostOperationEvent struct {
+	Data        map[string]any `json:"data"`
+	ID          string         `json:"id"`
+	Kind        string         `json:"kind"`
+	Message     string         `json:"message"`
+	OccurredAt  time.Time      `json:"occurred_at"`
+	OperationID string         `json:"operation_id"`
+}
+
+// HostReprovisionStarted is the HostReprovisionStarted schema.
+type HostReprovisionStarted struct {
+	Host      Host          `json:"host"`
+	Operation HostOperation `json:"operation"`
+}
+
+// HostSshpublicKey is the HostSSHPublicKey schema.
+type HostSshpublicKey struct {
+	AuthorizedKeysPath string `json:"authorized_keys_path"`
+	Fingerprint        string `json:"fingerprint"`
+	// PublicKey: The authorized_keys line.
+	PublicKey string `json:"public_key"`
+}
+
+// HostStorage is an inline object.
+type HostStorage struct {
+	LocalStorageFile          *string `json:"local_storage_file"`
+	LocalStorageSizeGibibytes *int64  `json:"local_storage_size_gibibytes"`
+	Policy                    *string `json:"policy"`
+}
+
+// IdentityProvider is the IdentityProvider schema.
+type IdentityProvider struct {
+	// Connections: The upstream providers this (Auth0) provider offers as one-click buttons of their own; empty for a direct provider.
+	Connections []IdentityProviderConnection `json:"connections"`
+	DisplayName string                       `json:"display_name"`
+	// Icon: The mark on the "Continue with `display_name`" button; absent draws none.
+	Icon *string `json:"icon,omitempty"`
+	// Name: Passed as `provider=` to the login and sign-up routes.
+	Name string `json:"name"`
+	// SilentSignIn: Whether the portal may try a silent sign-in (`prompt=none`) at this provider: a broker with a session other Ankra applications share.
+	SilentSignIn bool `json:"silent_sign_in"`
 }
 
 // IdentityProviderConnection is the IdentityProviderConnection schema.
@@ -1160,10 +3353,16 @@ type IdentityProviderConnection struct {
 // IdentityProviderStatus is the IdentityProviderStatus schema.
 type IdentityProviderStatus struct {
 	Configured bool `json:"configured"`
-	// Connections: The upstream providers offered as one-click buttons, in the order `ANKRA_CLOUD_OIDC_CONNECTIONS` lists them; empty when none are configured or no provider is.
+	// Connections: The first provider's upstream providers offered as one-click buttons, in the order `ANKRA_CLOUD_OIDC_CONNECTIONS` lists them; empty when none are configured ...
 	Connections []IdentityProviderConnection `json:"connections"`
-	// DisplayName: The button label; present when configured.
+	// DisplayName: The first provider's button label; present when configured.
 	DisplayName *string `json:"display_name,omitempty"`
+	// Icon: The mark on the first provider's "Continue with `display_name`" button; `google` when the deployment signs in with Google directly (issuer `https://accounts....
+	Icon *string `json:"icon,omitempty"`
+	// Providers: Every sign-in provider in the order of their buttons (`ANKRA_CLOUD_OIDC_PROVIDERS`); the first is the primary one.
+	Providers []IdentityProvider `json:"providers"`
+	// SilentSignIn: Whether the portal should first try a silent sign-in (`prompt=none`) at the first provider; true for a broker whose session the Ankra platform shares (Auth0)...
+	SilentSignIn *bool `json:"silent_sign_in,omitempty"`
 }
 
 // Impersonation is the Impersonation schema.
@@ -1197,6 +3396,14 @@ type InitScriptList struct {
 type InitScriptRequest struct {
 	Content *string `json:"content,omitempty"`
 	Name    *string `json:"name,omitempty"`
+}
+
+// InstallHostRequest is the InstallHostRequest schema.
+type InstallHostRequest struct {
+	// AgentVersion: An uploaded node agent build; the newest by default.
+	AgentVersion *string `json:"agent_version,omitempty"`
+	// HostKeyFingerprint: The fingerprint staff checked against the server.
+	HostKeyFingerprint string `json:"host_key_fingerprint"`
 }
 
 // Interface is the Interface schema.
@@ -1291,6 +3498,38 @@ type InvoiceList struct {
 	NextCursor *NextCursor `json:"next_cursor"`
 }
 
+// Ippool is the IPPool schema.
+type Ippool struct {
+	CreatedAt time.Time `json:"created_at"`
+	// DelegationPrefixLength: The prefix each server gets from an IPv6 pool: 64 on a routed /44 to /60, 80 on a routed /64 to /72 and on a provider /64 bound to its gateway node; null on ...
+	DelegationPrefixLength *int64   `json:"delegation_prefix_length"`
+	Family                 int64    `json:"family"`
+	FirstAddress           string   `json:"first_address"`
+	Gateway                string   `json:"gateway"`
+	ID                     string   `json:"id"`
+	LastAddress            string   `json:"last_address"`
+	Nameservers            []string `json:"nameservers"`
+	Network                string   `json:"network"`
+	// NodeID: The gateway node whose public interface holds a host-scoped IPv6 pool on-link (ADR 0008), or the gateway node a provider delivers a host-attached IPv4 pool t...
+	NodeID *string `json:"node_id"`
+	State  string  `json:"state"`
+	// VNI: VXLAN network identifier of the public network.
+	VNI  int64  `json:"vni"`
+	Zone string `json:"zone"`
+}
+
+// IppoolEnvelope is the IPPoolEnvelope schema.
+type IppoolEnvelope struct {
+	IPPool Ippool `json:"ip_pool"`
+}
+
+// IppoolList is the IPPoolList schema.
+type IppoolList struct {
+	Items []Ippool `json:"items"`
+	// NextCursor: Pass as `?cursor=` for the next page; null on the last page.
+	NextCursor *NextCursor `json:"next_cursor"`
+}
+
 // IssuedSession is the IssuedSession schema.
 type IssuedSession struct {
 	CSRFToken string `json:"csrf_token"`
@@ -1324,8 +3563,271 @@ type JsonrpcresponseError struct {
 	Message string          `json:"message"`
 }
 
+// KubernetesAddon is the KubernetesAddon schema.
+type KubernetesAddon struct {
+	Name string `json:"name"`
+	// Version: The pinned Helm chart version.
+	Version string `json:"version"`
+}
+
+// KubernetesAutoscaling is the KubernetesAutoscaling schema.
+type KubernetesAutoscaling struct {
+	Max int64 `json:"max"`
+	Min int64 `json:"min"`
+}
+
+// KubernetesCluster is the KubernetesCluster schema.
+type KubernetesCluster struct {
+	ActiveOperation *Operation        `json:"active_operation"`
+	Addons          []KubernetesAddon `json:"addons"`
+	// AvailableUpgrade: The next minor this cluster can upgrade to.
+	AvailableUpgrade *string `json:"available_upgrade"`
+	// ControlPlane: What a cluster's control plane is built for.
+	ControlPlane KubernetesControlPlaneTier `json:"control_plane"`
+	// ControlPlanePriceMonthlyCents: The tier's control-plane fee per month, billed per hour; 0 for development.
+	ControlPlanePriceMonthlyCents int64 `json:"control_plane_price_monthly_cents"`
+	// ControlPlaneReplicas: API server and embedded etcd replicas the control plane runs.
+	ControlPlaneReplicas int64     `json:"control_plane_replicas"`
+	CreatedAt            time.Time `json:"created_at"`
+	// Endpoint: The API server URL on IPv6; null until the control plane is up.
+	Endpoint *string `json:"endpoint"`
+	// EndpointIPv4: The API server URL on IPv4, with the add-on.
+	EndpointIPv4          *string          `json:"endpoint_ipv4"`
+	EtcdSnapshotRetention int64            `json:"etcd_snapshot_retention"`
+	EtcdSnapshotSchedule  string           `json:"etcd_snapshot_schedule"`
+	Health                KubernetesHealth `json:"health"`
+	ID                    string           `json:"id"`
+	// KubernetesVersion: The patch release the control plane runs, e.g. v1.36.5.
+	KubernetesVersion string `json:"kubernetes_version"`
+	// Labels: Keys of 1-63 letters, digits, `.`, `_`, `/` or `-`, starting and ending with a letter or digit; values of at most 255 printable characters.
+	Labels    Labels `json:"labels"`
+	Name      string `json:"name"`
+	NetworkID string `json:"network_id"`
+	// NodePools: Only on get_kubernetes_cluster.
+	NodePools     []KubernetesNodePool `json:"node_pools,omitempty"`
+	OIDCIssuerURL string               `json:"oidc_issuer_url"`
+	// Platform: The cluster's registration in the Ankra platform (ADR 0006).
+	Platform        KubernetesPlatformRegistration `json:"platform"`
+	PrivateEndpoint bool                           `json:"private_endpoint"`
+	// ProductionRecommended: False for a development control plane: no high availability, no service level.
+	ProductionRecommended bool   `json:"production_recommended"`
+	PublicIPv4            bool   `json:"public_ipv4"`
+	Region                string `json:"region"`
+	State                 string `json:"state"`
+	// Version: The minor, e.g. 1.36.
+	Version string `json:"version"`
+	Zone    string `json:"zone"`
+}
+
+// KubernetesControlPlaneOffer is the KubernetesControlPlaneOffer schema.
+type KubernetesControlPlaneOffer struct {
+	// ControlPlane: What a cluster's control plane is built for.
+	ControlPlane     KubernetesControlPlaneTier `json:"control_plane"`
+	Description      string                     `json:"description"`
+	HighAvailability bool                       `json:"high_availability"`
+	IsDefault        bool                       `json:"is_default"`
+	// PriceMonthlyCents: Per cluster, billed per hour; 0 for development.
+	PriceMonthlyCents int64 `json:"price_monthly_cents"`
+	// ProductionRecommended: False for the tier every surface flags as not for production.
+	ProductionRecommended bool `json:"production_recommended"`
+	// Replicas: API server and embedded etcd replicas.
+	Replicas int64 `json:"replicas"`
+}
+
+// KubernetesControlPlaneTier is the KubernetesControlPlaneTier schema: What a cluster's control plane is built for.
+type KubernetesControlPlaneTier = string
+
+// KubernetesEtcdSnapshot is the KubernetesEtcdSnapshot schema.
+type KubernetesEtcdSnapshot struct {
+	Name      string    `json:"name"`
+	SizeBytes int64     `json:"size_bytes"`
+	TakenAt   time.Time `json:"taken_at"`
+}
+
+// KubernetesExecCredential is the KubernetesExecCredential schema.
+type KubernetesExecCredential struct {
+	APIVersion string                         `json:"apiVersion"`
+	Kind       string                         `json:"kind"`
+	Status     KubernetesExecCredentialStatus `json:"status"`
+}
+
+// KubernetesExecCredentialStatus is an inline object.
+type KubernetesExecCredentialStatus struct {
+	ExpirationTimestamp time.Time `json:"expirationTimestamp"`
+	Token               string    `json:"token"`
+}
+
+// KubernetesHealth is the KubernetesHealth schema.
+type KubernetesHealth struct {
+	APIServer        string     `json:"api_server"`
+	Detail           string     `json:"detail"`
+	EtcdMembersReady int64      `json:"etcd_members_ready"`
+	EtcdMembersTotal int64      `json:"etcd_members_total"`
+	HasEtcdQuorum    bool       `json:"has_etcd_quorum"`
+	NodesReady       int64      `json:"nodes_ready"`
+	NodesTotal       int64      `json:"nodes_total"`
+	ObservedAt       *time.Time `json:"observed_at"`
+}
+
+// KubernetesHost is the KubernetesHost schema.
+type KubernetesHost struct {
+	ActiveOperation   *Operation `json:"active_operation"`
+	ControlPlanePlan  string     `json:"control_plane_plan"`
+	CreatedAt         time.Time  `json:"created_at"`
+	Endpoint          *string    `json:"endpoint"`
+	ID                string     `json:"id"`
+	KubernetesVersion string     `json:"kubernetes_version"`
+	// PlatformImport: What the Ankra platform import still needs: the command to run, or empty once the host is ready.
+	PlatformImport string                 `json:"platform_import"`
+	Region         string                 `json:"region"`
+	Servers        []KubernetesHostServer `json:"servers"`
+	State          string                 `json:"state"`
+	TenantClusters int64                  `json:"tenant_clusters"`
+	WorkerPlan     string                 `json:"worker_plan"`
+	Workers        int64                  `json:"workers"`
+}
+
+// KubernetesHostServer is the KubernetesHostServer schema.
+type KubernetesHostServer struct {
+	Hostname string `json:"hostname"`
+	Role     string `json:"role"`
+	ServerID string `json:"server_id"`
+	State    string `json:"state"`
+	Zone     string `json:"zone"`
+}
+
+// KubernetesNode is the KubernetesNode schema.
+type KubernetesNode struct {
+	Hostname string `json:"hostname"`
+	// IsReady: The node reports Ready to the cluster.
+	IsReady bool `json:"is_ready"`
+	// KubeletVersion: Empty until the node joined.
+	KubeletVersion string  `json:"kubelet_version"`
+	PublicIPv4     *string `json:"public_ipv4"`
+	PublicIPv6     *string `json:"public_ipv6"`
+	ServerID       string  `json:"server_id"`
+	// State: The server's state.
+	State string `json:"state"`
+	Zone  string `json:"zone"`
+}
+
+// KubernetesNodePool is the KubernetesNodePool schema.
+type KubernetesNodePool struct {
+	ActiveOperation *Operation             `json:"active_operation"`
+	Autoscaling     *KubernetesAutoscaling `json:"autoscaling"`
+	ClusterID       string                 `json:"cluster_id"`
+	Count           int64                  `json:"count"`
+	CreatedAt       time.Time              `json:"created_at"`
+	ID              string                 `json:"id"`
+	// Labels: Keys of 1-63 letters, digits, `.`, `_`, `/` or `-`, starting and ending with a letter or digit; values of at most 255 printable characters.
+	Labels     Labels            `json:"labels"`
+	Name       string            `json:"name"`
+	Nodes      []KubernetesNode  `json:"nodes"`
+	Plan       string            `json:"plan"`
+	PublicIPv4 bool              `json:"public_ipv4"`
+	State      string            `json:"state"`
+	Taints     []KubernetesTaint `json:"taints"`
+	// Version: The minor its nodes run or are rolling to.
+	Version string   `json:"version"`
+	Zones   []string `json:"zones"`
+}
+
+// KubernetesNodePoolRequest is the KubernetesNodePoolRequest schema.
+type KubernetesNodePoolRequest struct {
+	Autoscaling *KubernetesAutoscaling `json:"autoscaling,omitempty"`
+	Count       int64                  `json:"count"`
+	// Labels: Keys of 1-63 letters, digits, `.`, `_`, `/` or `-`, starting and ending with a letter or digit; values of at most 255 printable characters.
+	Labels Labels `json:"labels,omitempty"`
+	Name   string `json:"name"`
+	// Plan: A server plan from list_plans.
+	Plan string `json:"plan"`
+	// PublicIPv4: Give every node a public IPv4 too (the server add-on).
+	PublicIPv4 *bool             `json:"public_ipv4,omitempty"`
+	Taints     []KubernetesTaint `json:"taints,omitempty"`
+	// Zones: Zones of the cluster's region to spread nodes across; defaults to the cluster's zone.
+	Zones []string `json:"zones,omitempty"`
+}
+
+// KubernetesPlatformRegistration is the KubernetesPlatformRegistration schema: The cluster's registration in the Ankra platform (ADR 0006).
+type KubernetesPlatformRegistration struct {
+	// ClusterID: The platform's identifier of the cluster.
+	ClusterID *string `json:"cluster_id"`
+	// NextAttemptAt: When a pending registration is tried again.
+	NextAttemptAt  *time.Time `json:"next_attempt_at"`
+	OrganisationID *string    `json:"organisation_id"`
+	Reason         string     `json:"reason"`
+	RegisteredAt   *time.Time `json:"registered_at"`
+	State          string     `json:"state"`
+	URL            *string    `json:"url"`
+}
+
+// KubernetesTaint is the KubernetesTaint schema.
+type KubernetesTaint struct {
+	Effect string  `json:"effect"`
+	Key    string  `json:"key"`
+	Value  *string `json:"value,omitempty"`
+}
+
+// KubernetesVersion is the KubernetesVersion schema.
+type KubernetesVersion struct {
+	Addons    []KubernetesAddon `json:"addons"`
+	IsDefault bool              `json:"is_default"`
+	// KubernetesVersion: The patch release this minor runs.
+	KubernetesVersion string `json:"kubernetes_version"`
+	// Version: The minor.
+	Version string `json:"version"`
+}
+
+// KubernetesVersionList is the KubernetesVersionList schema.
+type KubernetesVersionList struct {
+	// ControlPlanePriceMonthlyCents: The default tier's price per cluster, billed per hour; `control_planes` has every tier.
+	ControlPlanePriceMonthlyCents int64 `json:"control_plane_price_monthly_cents"`
+	// ControlPlanes: The control-plane tiers on offer, cheapest first.
+	ControlPlanes []KubernetesControlPlaneOffer `json:"control_planes"`
+	// DefaultControlPlane: What a cluster's control plane is built for.
+	DefaultControlPlane KubernetesControlPlaneTier `json:"default_control_plane"`
+	// IPv4PriceMonthlyCents: The IPv4 API endpoint add-on, billed per hour.
+	IPv4PriceMonthlyCents int64               `json:"ipv4_price_monthly_cents"`
+	Items                 []KubernetesVersion `json:"items"`
+	VclusterChartVersion  string              `json:"vcluster_chart_version"`
+}
+
 // Labels is the Labels schema: Keys of 1-63 letters, digits, `.`, `_`, `/` or `-`, starting and ending with a letter or digit; values of at most 255 printable characters.
 type Labels = map[string]string
+
+// LatencyBudgetProblem is the LatencyBudgetProblem schema: A problem document; a live migration refused by the latency budget adds `latency_budget`.
+type LatencyBudgetProblem struct {
+	Detail        *string                            `json:"detail,omitempty"`
+	LatencyBudget *LatencyBudgetProblemLatencyBudget `json:"latency_budget,omitempty"`
+	Status        int64                              `json:"status"`
+	Title         string                             `json:"title"`
+	Type          string                             `json:"type"`
+}
+
+// LatencyBudgetProblemLatencyBudget is an inline object.
+type LatencyBudgetProblemLatencyBudget struct {
+	BandwidthBitsPerSecond        *int64   `json:"bandwidth_bits_per_second"`
+	MaximumP95RttMs               float64  `json:"maximum_p95_rtt_ms"`
+	Measured                      bool     `json:"measured"`
+	MinimumBandwidthBitsPerSecond int64    `json:"minimum_bandwidth_bits_per_second"`
+	P50RttMs                      *float64 `json:"p50_rtt_ms"`
+	P95RttMs                      *float64 `json:"p95_rtt_ms"`
+	Purpose                       string   `json:"purpose"`
+	SourceDatacenter              *string  `json:"source_datacenter"`
+	SourceNodeID                  string   `json:"source_node_id"`
+	TargetDatacenter              *string  `json:"target_datacenter"`
+	TargetNodeID                  string   `json:"target_node_id"`
+}
+
+// LinkAccountOrganisationRequest is an inline object.
+type LinkAccountOrganisationRequest struct {
+	OrganisationID string `json:"organisation_id"`
+}
+
+// LinkAccountOrganisationResponse is an inline object.
+type LinkAccountOrganisationResponse struct {
+	Link OrganisationLink `json:"link"`
+}
 
 // LinkedIdentity is the LinkedIdentity schema.
 type LinkedIdentity struct {
@@ -1343,6 +3845,19 @@ type LinkedIdentity struct {
 // LinkedIdentityList is the LinkedIdentityList schema.
 type LinkedIdentityList struct {
 	Items []LinkedIdentity `json:"items"`
+	// NextCursor: Pass as `?cursor=` for the next page; null on the last page.
+	NextCursor *NextCursor `json:"next_cursor"`
+}
+
+// ListDNSRecordsResponse is an inline object.
+type ListDNSRecordsResponse struct {
+	Items      []DNSRecord     `json:"items"`
+	NextCursor json.RawMessage `json:"next_cursor"`
+}
+
+// ListDNSZonesResponse is an inline object.
+type ListDNSZonesResponse struct {
+	Items []DNSZone `json:"items"`
 	// NextCursor: Pass as `?cursor=` for the next page; null on the last page.
 	NextCursor *NextCursor `json:"next_cursor"`
 }
@@ -1377,8 +3892,15 @@ type ListDatabasePlansResponseItemsItem struct {
 
 // ListDatabasesResponse is an inline object.
 type ListDatabasesResponse struct {
-	Items      []Database      `json:"items"`
-	NextCursor json.RawMessage `json:"next_cursor"`
+	Items []Database `json:"items"`
+	// NextCursor: Pass as `?cursor=` for the next page; null on the last page.
+	NextCursor *NextCursor `json:"next_cursor"`
+}
+
+// ListEdgeRouterOperationsResponse is an inline object.
+type ListEdgeRouterOperationsResponse struct {
+	Events     []EdgeRouterOperationEvent `json:"events"`
+	Operations []EdgeRouterOperation      `json:"operations"`
 }
 
 // ListEdgesResponse is an inline object.
@@ -1388,16 +3910,104 @@ type ListEdgesResponse struct {
 	NextCursor *NextCursor `json:"next_cursor"`
 }
 
+// ListFleetNodeServersResponse is an inline object.
+type ListFleetNodeServersResponse struct {
+	Items     []ListFleetNodeServersResponseItemsItem `json:"items"`
+	Truncated bool                                    `json:"truncated"`
+}
+
+// ListFleetNodeServersResponseItemsItem is an inline object.
+type ListFleetNodeServersResponseItemsItem struct {
+	Account         ListFleetNodeServersResponseItemsItemAccount `json:"account"`
+	Cores           int64                                        `json:"cores"`
+	ID              string                                       `json:"id"`
+	Lifecycle       string                                       `json:"lifecycle"`
+	ManagedBy       *string                                      `json:"managed_by"`
+	MemoryMebibytes int64                                        `json:"memory_mebibytes"`
+}
+
+// ListFleetNodeServersResponseItemsItemAccount is an inline object.
+type ListFleetNodeServersResponseItemsItemAccount struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+// ListFleetServersResponse is an inline object.
+type ListFleetServersResponse struct {
+	Items      []ListFleetServersResponseItemsItem `json:"items"`
+	NextCursor *string                             `json:"next_cursor"`
+}
+
+// ListFleetServersResponseItemsItem is an inline object.
+type ListFleetServersResponseItemsItem struct {
+	Account         ListFleetServersResponseItemsItemAccount `json:"account"`
+	Cores           int64                                    `json:"cores"`
+	CreatedAt       time.Time                                `json:"created_at"`
+	ID              string                                   `json:"id"`
+	Lifecycle       string                                   `json:"lifecycle"`
+	ManagedBy       *string                                  `json:"managed_by"`
+	MemoryMebibytes int64                                    `json:"memory_mebibytes"`
+	Node            *ListFleetServersResponseItemsItemNode   `json:"node"`
+	Zone            string                                   `json:"zone"`
+}
+
+// ListFleetServersResponseItemsItemAccount is an inline object.
+type ListFleetServersResponseItemsItemAccount struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+// ListFleetServersResponseItemsItemNode is an inline object.
+type ListFleetServersResponseItemsItemNode struct {
+	Hostname string `json:"hostname"`
+	ID       string `json:"id"`
+}
+
+// ListKubernetesClusterEtcdSnapshotsResponse is an inline object.
+type ListKubernetesClusterEtcdSnapshotsResponse struct {
+	Items      []KubernetesEtcdSnapshot `json:"items"`
+	NextCursor json.RawMessage          `json:"next_cursor"`
+	Retention  int64                    `json:"retention"`
+	// Schedule: Cron schedule, UTC.
+	Schedule string `json:"schedule"`
+}
+
+// ListKubernetesClustersResponse is an inline object.
+type ListKubernetesClustersResponse struct {
+	Items      []KubernetesCluster `json:"items"`
+	NextCursor *string             `json:"next_cursor"`
+}
+
+// ListKubernetesHostsResponse is an inline object.
+type ListKubernetesHostsResponse struct {
+	Items      []KubernetesHost `json:"items"`
+	NextCursor json.RawMessage  `json:"next_cursor"`
+}
+
+// ListKubernetesNodePoolsResponse is an inline object.
+type ListKubernetesNodePoolsResponse struct {
+	Items      []KubernetesNodePool `json:"items"`
+	NextCursor json.RawMessage      `json:"next_cursor"`
+}
+
 // ListLoadBalancerCertificatesResponse is an inline object.
 type ListLoadBalancerCertificatesResponse struct {
-	Items      []LoadBalancerCertificate `json:"items"`
-	NextCursor json.RawMessage           `json:"next_cursor"`
+	Items []LoadBalancerCertificate `json:"items"`
+	// NextCursor: Pass as `?cursor=` for the next page; null on the last page.
+	NextCursor *NextCursor `json:"next_cursor"`
 }
 
 // ListLoadBalancersResponse is an inline object.
 type ListLoadBalancersResponse struct {
-	Items      []LoadBalancer  `json:"items"`
-	NextCursor json.RawMessage `json:"next_cursor"`
+	Items []LoadBalancer `json:"items"`
+	// NextCursor: Pass as `?cursor=` for the next page; null on the last page.
+	NextCursor *NextCursor `json:"next_cursor"`
+}
+
+// ListMonitoringTargetsResponseItem is an inline object.
+type ListMonitoringTargetsResponseItem struct {
+	Labels  map[string]string `json:"labels"`
+	Targets []string          `json:"targets"`
 }
 
 // ListObjectStorageResponse is an inline object.
@@ -1406,22 +4016,45 @@ type ListObjectStorageResponse struct {
 	NextCursor json.RawMessage `json:"next_cursor"`
 }
 
+// ListZoneUplinkOperationsResponse is an inline object.
+type ListZoneUplinkOperationsResponse struct {
+	Events     []EdgeRouterOperationEvent `json:"events"`
+	Operations []EdgeRouterOperation      `json:"operations"`
+}
+
+// ListZoneUplinksResponse is an inline object.
+type ListZoneUplinksResponse struct {
+	Items []GatewayUplink `json:"items"`
+}
+
 // LoadBalancer is the LoadBalancer schema.
 type LoadBalancer struct {
 	ActiveOperation *Operation `json:"active_operation"`
-	// Address: The public address; null until allocated.
-	Address                 *string                 `json:"address"`
-	Backends                []LoadBalancerBackend   `json:"backends"`
-	ConfigurationGeneration int64                   `json:"configuration_generation"`
-	CreatedAt               time.Time               `json:"created_at"`
-	Frontends               []LoadBalancerFrontend  `json:"frontends"`
-	ID                      string                  `json:"id"`
-	IsConfigurationApplied  bool                    `json:"is_configuration_applied"`
-	Name                    string                  `json:"name"`
-	NetworkID               string                  `json:"network_id"`
-	Nodes                   []LoadBalancerNodesItem `json:"nodes"`
-	State                   string                  `json:"state"`
-	Zone                    string                  `json:"zone"`
+	// Address: The public IPv4 address, the same as public_ipv4 (kept for older clients); null without the IPv4 add-on or until allocated.
+	Address                 *string                `json:"address"`
+	Backends                []LoadBalancerBackend  `json:"backends"`
+	ConfigurationGeneration int64                  `json:"configuration_generation"`
+	CreatedAt               time.Time              `json:"created_at"`
+	Frontends               []LoadBalancerFrontend `json:"frontends"`
+	// HighAvailability: Two VMs on different compute nodes (true) or one (false).
+	HighAvailability       bool   `json:"high_availability"`
+	ID                     string `json:"id"`
+	IsConfigurationApplied bool   `json:"is_configuration_applied"`
+	// Labels: Keys of 1-63 letters, digits, `.`, `_`, `/` or `-`, starting and ending with a letter or digit; values of at most 255 printable characters.
+	Labels    Labels                  `json:"labels"`
+	Name      string                  `json:"name"`
+	NetworkID string                  `json:"network_id"`
+	Nodes     []LoadBalancerNodesItem `json:"nodes"`
+	// PublicIPv4: The floating IPv4 frontend address (the add-on); null without the add-on or until allocated.
+	PublicIPv4 *string `json:"public_ipv4"`
+	// PublicIPv6: The IPv6 frontend address to publish: the first VM's own address (the first of its public /64).
+	PublicIPv6 *string `json:"public_ipv6"`
+	// PublicIPv6Addresses: Every VM's IPv6 frontend address, in VM order; each VM serves every frontend on its own.
+	PublicIPv6Addresses []string `json:"public_ipv6_addresses"`
+	// Region: The region of the load balancer's zone.
+	Region *string `json:"region,omitempty"`
+	State  string  `json:"state"`
+	Zone   string  `json:"zone"`
 }
 
 // LoadBalancerBackend is the LoadBalancerBackend schema.
@@ -1508,7 +4141,7 @@ type LoadBalancerMember struct {
 type LoadBalancerNodesItem struct {
 	HealthDetail string `json:"health_detail"`
 	ID           string `json:"id"`
-	// IsActive: The VM that holds the load balancer's address (its keepalived master), as its guest last reported.
+	// IsActive: The VM that holds the load balancer's address (the active member of the pair's failover), as its guest last reported.
 	IsActive               bool   `json:"is_active"`
 	IsConfigurationApplied bool   `json:"is_configuration_applied"`
 	IsHealthy              bool   `json:"is_healthy"`
@@ -1535,6 +4168,18 @@ type LookUpInvitationResponse struct {
 	Email       string    `json:"email"`
 	ExpiresAt   time.Time `json:"expires_at"`
 	Role        Role      `json:"role"`
+}
+
+// MarkAllNotificationsReadResponse is an inline object.
+type MarkAllNotificationsReadResponse struct {
+	// BillingIncluded: Whether the billing notifications were marked too.
+	BillingIncluded bool  `json:"billing_included"`
+	Marked          int64 `json:"marked"`
+}
+
+// MarkNotificationReadResponse is an inline object.
+type MarkNotificationReadResponse struct {
+	Notification Notification `json:"notification"`
 }
 
 // Member is the Member schema.
@@ -1577,6 +4222,12 @@ type MetricsSeries struct {
 	StepSeconds int64          `json:"step_seconds"`
 }
 
+// MigrateObjectStorageResponse is an inline object.
+type MigrateObjectStorageResponse struct {
+	ObjectStorage ObjectStorage `json:"object_storage"`
+	Operation     Operation     `json:"operation"`
+}
+
 // MigrateZoneServerRequest is an inline object.
 type MigrateZoneServerRequest struct {
 	TargetNodeID *string `json:"target_node_id,omitempty"`
@@ -1609,8 +4260,56 @@ type MigrationProgress struct {
 	TransferredBytes int64 `json:"transferred_bytes"`
 }
 
+// MonitoringCredential is the MonitoringCredential schema.
+type MonitoringCredential struct {
+	Cluster    string     `json:"cluster"`
+	CreatedAt  time.Time  `json:"created_at"`
+	ExpiresAt  time.Time  `json:"expires_at"`
+	ID         string     `json:"id"`
+	LastUsedAt *time.Time `json:"last_used_at"`
+}
+
+// MonitoringStatus is the MonitoringStatus schema.
+type MonitoringStatus struct {
+	Credentials       []MonitoringCredential     `json:"credentials"`
+	GeneratedAt       time.Time                  `json:"generated_at"`
+	Jobs              []MonitoringStatusJobsItem `json:"jobs"`
+	NetworkConfigured bool                       `json:"network_configured"`
+}
+
+// MonitoringStatusJobsItem is an inline object.
+type MonitoringStatusJobsItem struct {
+	Name        string `json:"name"`
+	TargetCount int64  `json:"target_count"`
+	TargetsPath string `json:"targets_path"`
+}
+
+// MoveGatewayUplinkRequest is an inline object.
+type MoveGatewayUplinkRequest struct {
+	Rollback *bool `json:"rollback,omitempty"`
+}
+
+// MoveGatewayUplinkResponse is an inline object.
+type MoveGatewayUplinkResponse struct {
+	Operation EdgeRouterOperation `json:"operation"`
+}
+
+// MoveStorageRequest is an inline object.
+type MoveStorageRequest struct {
+	// Placement: Where a local-nvme storage lands; other tiers ignore it.
+	Placement *StoragePlacement `json:"placement,omitempty"`
+	Tier      string            `json:"tier"`
+}
+
+// MoveStorageResponse is an inline object.
+type MoveStorageResponse struct {
+	Operation Operation `json:"operation"`
+	Storage   Storage   `json:"storage"`
+}
+
 // Network is the Network schema.
 type Network struct {
+	// CIDR: The IPv4 subnet, shared by every zone the network spans.
 	CIDR      string    `json:"cidr"`
 	CreatedAt time.Time `json:"created_at"`
 	// Gateway: The first host address, reserved for a router.
@@ -1619,8 +4318,14 @@ type Network struct {
 	// Members: Only in `GET /v1/networks/{id}`.
 	Members  []Interface `json:"members,omitempty"`
 	Name     string      `json:"name"`
+	Region   string      `json:"region"`
 	RouterID *string     `json:"router_id"`
-	Zone     string      `json:"zone"`
+	// UlaPrefix: The network's IPv6 ULA /64, the same in every zone it spans.
+	UlaPrefix string `json:"ula_prefix"`
+	// Zone: The home zone, where a router of the network lives.
+	Zone string `json:"zone"`
+	// Zones: Every zone of `region` the network is present in, sorted.
+	Zones []string `json:"zones"`
 }
 
 // NetworkEnvelope is the NetworkEnvelope schema.
@@ -1671,25 +4376,94 @@ type NextCursor = string
 
 // Node is the Node schema.
 type Node struct {
-	AgentVersion string `json:"agent_version"`
+	// AgentBuiltAt: When the node's agent was built.
+	AgentBuiltAt *time.Time `json:"agent_built_at,omitempty"`
+	// AgentCommit: The git commit the node's agent was built from; empty for an older agent.
+	AgentCommit *string `json:"agent_commit,omitempty"`
+	// AgentUpgrade: The upgrade the node's maintenance asks for and what the node last reported; null when neither.
+	AgentUpgrade *NodeAgentUpgrade `json:"agent_upgrade,omitempty"`
+	AgentVersion string            `json:"agent_version"`
 	// Boot: The node's current boot; null until its agent reports a boot id.
 	Boot     *NodeBoot    `json:"boot,omitempty"`
 	Capacity NodeCapacity `json:"capacity"`
 	// Compatibility: What a live migration must match; null until the node's agent reports it.
-	Compatibility         *NodeCompatibility `json:"compatibility,omitempty"`
-	Hostname              string             `json:"hostname"`
-	ID                    string             `json:"id"`
-	LastHeartbeatAt       *time.Time         `json:"last_heartbeat_at"`
-	LastHeartbeatSequence *int64             `json:"last_heartbeat_sequence"`
-	Liveness              string             `json:"liveness"`
-	Maintenance           *NodeMaintenance   `json:"maintenance,omitempty"`
-	RegisteredAt          time.Time          `json:"registered_at"`
-	Roles                 []string           `json:"roles"`
+	Compatibility *NodeCompatibility `json:"compatibility,omitempty"`
+	// Datacenter: The datacenter the node stands in; null until one is recorded.
+	Datacenter *string `json:"datacenter,omitempty"`
+	// Hardware: The key facts of the node's inventory (ADR 0004); zero for an agent that reports none.
+	Hardware              *NodeHardware     `json:"hardware,omitempty"`
+	Hostname              string            `json:"hostname"`
+	ID                    string            `json:"id"`
+	LastHeartbeatAt       *time.Time        `json:"last_heartbeat_at"`
+	LastHeartbeatSequence *int64            `json:"last_heartbeat_sequence"`
+	Liveness              string            `json:"liveness"`
+	Maintenance           *NodeMaintenance  `json:"maintenance,omitempty"`
+	Provisioning          *NodeProvisioning `json:"provisioning,omitempty"`
+	// Rack: The rack of the zone the node sits in; null until one is assigned.
+	Rack         *string   `json:"rack,omitempty"`
+	RegisteredAt time.Time `json:"registered_at"`
+	Roles        []string  `json:"roles"`
 	// Schedulable: False unless the maintenance state is active.
 	Schedulable *bool `json:"schedulable,omitempty"`
 	// SpecEpoch: Orders the node's specs above their generation; a fence and the uncordon after it raise it.
 	SpecEpoch *int64 `json:"spec_epoch,omitempty"`
-	Zone      string `json:"zone"`
+	// Wireguard: The node's identity on the zone's WireGuard underlay; null outside one.
+	Wireguard *WireGuardIdentity `json:"wireguard,omitempty"`
+	Zone      string             `json:"zone"`
+}
+
+// NodeAgentArtifact is the NodeAgentArtifact schema.
+type NodeAgentArtifact struct {
+	Commit string `json:"commit"`
+	// SHA256: Lowercase hex; nodes refuse a download that does not match.
+	SHA256     string    `json:"sha256"`
+	SizeBytes  int64     `json:"size_bytes"`
+	UploadedAt time.Time `json:"uploaded_at"`
+	UploadedBy string    `json:"uploaded_by"`
+	Version    string    `json:"version"`
+}
+
+// NodeAgentArtifactList is the NodeAgentArtifactList schema.
+type NodeAgentArtifactList struct {
+	Items []NodeAgentArtifact `json:"items"`
+	// NextCursor: Pass as `?cursor=` for the next page; null on the last page.
+	NextCursor *NextCursor `json:"next_cursor"`
+}
+
+// NodeAgentUpgrade is the NodeAgentUpgrade schema.
+type NodeAgentUpgrade struct {
+	Detail     string     `json:"detail"`
+	Phase      string     `json:"phase"`
+	Reboot     bool       `json:"reboot"`
+	ReportedAt *time.Time `json:"reported_at"`
+	// ReportedRequestID: The request the node's last report is about.
+	ReportedRequestID string `json:"reported_request_id"`
+	// RequestID: The maintenance operation asking; empty once it is done.
+	RequestID string `json:"request_id"`
+	// Version: The build it installs; empty for a reboot alone.
+	Version string `json:"version"`
+}
+
+// NodeAllocation is the NodeAllocation schema: Who the host's compute capacity is offered to.
+type NodeAllocation struct {
+	// Account: The account a private host is dedicated to; null otherwise.
+	Account *NodeAllocationAccount `json:"account"`
+	// Change: The last staff change; null for a host never changed.
+	Change *NodeAllocationChange `json:"change"`
+	Kind   string                `json:"kind"`
+}
+
+// NodeAllocationAccount is an inline object.
+type NodeAllocationAccount struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+// NodeAllocationChange is an inline object.
+type NodeAllocationChange struct {
+	At      time.Time `json:"at"`
+	Reason  string    `json:"reason"`
+	StaffID *string   `json:"staff_id"`
 }
 
 // NodeBoot is the NodeBoot schema.
@@ -1698,6 +4472,13 @@ type NodeBoot struct {
 	BootedAt *time.Time `json:"booted_at"`
 	// ID: The kernel's boot id.
 	ID string `json:"id"`
+}
+
+// NodeBurnIn is the NodeBurnIn schema.
+type NodeBurnIn struct {
+	Detail     string    `json:"detail"`
+	FinishedAt time.Time `json:"finished_at"`
+	Outcome    string    `json:"outcome"`
 }
 
 // NodeCapacity is the NodeCapacity schema.
@@ -1717,34 +4498,87 @@ type NodeCompatibility struct {
 	HugepagesFree     int64    `json:"hugepages_free"`
 	HugepagesTotal    int64    `json:"hugepages_total"`
 	// HypervisorVersion: The Cloud Hypervisor version the agent runs; a live migration needs the same version on both nodes.
-	HypervisorVersion string    `json:"hypervisor_version"`
-	KernelVersion     string    `json:"kernel_version"`
-	ReportedAt        time.Time `json:"reported_at"`
+	HypervisorVersion string `json:"hypervisor_version"`
+	KernelVersion     string `json:"kernel_version"`
+	// PhysicalAddressBits: The CPU's physical address width; the zone's CPU baseline takes the smallest.
+	PhysicalAddressBits *int64    `json:"physical_address_bits,omitempty"`
+	ReportedAt          time.Time `json:"reported_at"`
 }
 
 // NodeDetail is the NodeDetail schema.
 type NodeDetail struct {
-	AgentVersion string `json:"agent_version"`
+	// AgentBuiltAt: When the node's agent was built.
+	AgentBuiltAt *time.Time `json:"agent_built_at,omitempty"`
+	// AgentCommit: The git commit the node's agent was built from; empty for an older agent.
+	AgentCommit *string `json:"agent_commit,omitempty"`
+	// AgentUpgrade: The upgrade the node's maintenance asks for and what the node last reported; null when neither.
+	AgentUpgrade *NodeAgentUpgrade `json:"agent_upgrade,omitempty"`
+	AgentVersion string            `json:"agent_version"`
 	// Boot: The node's current boot; null until its agent reports a boot id.
 	Boot     *NodeBoot    `json:"boot,omitempty"`
 	Capacity NodeCapacity `json:"capacity"`
 	// Compatibility: What a live migration must match; null until the node's agent reports it.
-	Compatibility         *NodeCompatibility `json:"compatibility,omitempty"`
-	Hostname              string             `json:"hostname"`
-	ID                    string             `json:"id"`
-	LastHeartbeatAt       *time.Time         `json:"last_heartbeat_at"`
-	LastHeartbeatSequence *int64             `json:"last_heartbeat_sequence"`
-	LatestOperation       *Operation         `json:"latest_operation"`
-	Liveness              string             `json:"liveness"`
-	Maintenance           *NodeMaintenance   `json:"maintenance,omitempty"`
-	RegisteredAt          time.Time          `json:"registered_at"`
-	Roles                 []string           `json:"roles"`
+	Compatibility *NodeCompatibility `json:"compatibility,omitempty"`
+	// Datacenter: The datacenter the node stands in; null until one is recorded.
+	Datacenter *string `json:"datacenter,omitempty"`
+	// Hardware: The key facts of the node's inventory (ADR 0004); zero for an agent that reports none.
+	Hardware *NodeHardware `json:"hardware,omitempty"`
+	Hostname string        `json:"hostname"`
+	ID       string        `json:"id"`
+	// Inventory: The node's last inventory document (the agent's NodeInventory as JSON); an empty object before the first.
+	Inventory             map[string]any    `json:"inventory"`
+	LastHeartbeatAt       *time.Time        `json:"last_heartbeat_at"`
+	LastHeartbeatSequence *int64            `json:"last_heartbeat_sequence"`
+	LatestOperation       *Operation        `json:"latest_operation"`
+	Liveness              string            `json:"liveness"`
+	Maintenance           *NodeMaintenance  `json:"maintenance,omitempty"`
+	Provisioning          *NodeProvisioning `json:"provisioning,omitempty"`
+	// Rack: The rack of the zone the node sits in; null until one is assigned.
+	Rack         *string   `json:"rack,omitempty"`
+	RegisteredAt time.Time `json:"registered_at"`
+	Roles        []string  `json:"roles"`
 	// Schedulable: False unless the maintenance state is active.
 	Schedulable *bool    `json:"schedulable,omitempty"`
 	ServerIDs   []string `json:"server_ids"`
 	// SpecEpoch: Orders the node's specs above their generation; a fence and the uncordon after it raise it.
 	SpecEpoch *int64 `json:"spec_epoch,omitempty"`
-	Zone      string `json:"zone"`
+	// Wireguard: The node's identity on the zone's WireGuard underlay; null outside one.
+	Wireguard *WireGuardIdentity `json:"wireguard,omitempty"`
+	Zone      string             `json:"zone"`
+}
+
+// NodeHardware is the NodeHardware schema: The key facts of the node's inventory (ADR 0004); zero for an agent that reports none.
+type NodeHardware struct {
+	// Bmc: The BMC the agent sees; empty when none.
+	Bmc string `json:"bmc"`
+	// CPUCores: Physical cores over every socket.
+	CPUCores       int64 `json:"cpu_cores"`
+	CPUSockets     int64 `json:"cpu_sockets"`
+	DiskCount      int64 `json:"disk_count"`
+	DiskTotalBytes int64 `json:"disk_total_bytes"`
+	// IommuGroups: 0 while the IOMMU is off.
+	IommuGroups int64 `json:"iommu_groups"`
+	// NicCount: Physical network interfaces.
+	NicCount  int64 `json:"nic_count"`
+	NumaNodes int64 `json:"numa_nodes"`
+	// PendingKernelArguments: Kernel arguments the priming wrote that the running kernel was not booted with.
+	PendingKernelArguments []string `json:"pending_kernel_arguments"`
+	// RebootRequired: True while kernel arguments are pending; run the maintenance operation with `reboot: true`.
+	RebootRequired bool `json:"reboot_required"`
+	// Virtualisation: vmx (Intel VT-x), svm (AMD-V), or empty when the CPU exposes neither.
+	Virtualisation string `json:"virtualisation"`
+}
+
+// NodeHostDetail is the NodeHostDetail schema.
+type NodeHostDetail struct {
+	// ControlLink: The host's control-plane link; null when it has none.
+	ControlLink *ControlLink `json:"control_link"`
+	// Events: The newest operation's events, oldest first (at most 1000).
+	Events []HostOperationEvent `json:"events"`
+	// Host: The host that manages the node; null for a node that joined by hand and was never adopted.
+	Host *Host `json:"host"`
+	// Operations: The host's operations, newest first (at most 10).
+	Operations []HostOperation `json:"operations"`
 }
 
 // NodeList is the NodeList schema.
@@ -1765,18 +4599,123 @@ type NodeMaintenance struct {
 	State    string     `json:"state"`
 }
 
+// NodeMaintenanceOperationRequest is the NodeMaintenanceOperationRequest schema.
+type NodeMaintenanceOperationRequest struct {
+	// AgentVersion: A build of the artefact store to upgrade the agent to; empty keeps the running one.
+	AgentVersion *string `json:"agent_version,omitempty"`
+	// Mode: `evacuate` drains the node first.
+	Mode *string `json:"mode,omitempty"`
+	// Reason: One line.
+	Reason *string `json:"reason,omitempty"`
+	// Reboot: Reboot the node once it is drained (and upgraded).
+	Reboot *bool `json:"reboot,omitempty"`
+}
+
 // NodeMaintenanceRequest is the NodeMaintenanceRequest schema.
 type NodeMaintenanceRequest struct {
 	// Reason: One line.
 	Reason *string `json:"reason,omitempty"`
 }
 
+// NodeProvisioning is the NodeProvisioning schema.
+type NodeProvisioning struct {
+	// BurnIn: The last burn-in the node reported; null when it ran none.
+	BurnIn *NodeBurnIn `json:"burn_in"`
+	// State: burn_in: the node stays cordoned until its burn-in passes; failed: its burn-in failed.
+	State string `json:"state"`
+}
+
+// NodeStoragePolicy is the NodeStoragePolicy schema: What a storage node's disks serve.
+type NodeStoragePolicy struct {
+	// CephVolumeGibibytes: The size of the node's Ankra Storage volume with the policy both; null otherwise.
+	CephVolumeGibibytes *int64 `json:"ceph_volume_gibibytes"`
+	Policy              string `json:"policy"`
+}
+
+// NodeStoragePolicyChange is the NodeStoragePolicyChange schema.
+type NodeStoragePolicyChange struct {
+	Node FleetNodeDetail `json:"node"`
+	// Operation: The storage.rebalance_policy operation that applies the policy; null when one already runs (it reads the new policy) or it could not start.
+	Operation *Operation `json:"operation"`
+	// PolicyProblem: Why the zone's storage policy did not start although the change is recorded.
+	PolicyProblem *string `json:"policy_problem"`
+}
+
+// NodeTailnet is the NodeTailnet schema.
+type NodeTailnet struct {
+	// ActionNote: Why neither action is on offer.
+	ActionNote *string `json:"action_note"`
+	CanJoin    bool    `json:"can_join"`
+	CanMove    bool    `json:"can_move"`
+	// Configured: Whether the control plane has a headscale URL and API key.
+	Configured bool `json:"configured"`
+	// Events: The events of that operation, oldest first (at most 200).
+	Events []HostOperationEvent `json:"events"`
+	// HostID: The console record the node was added with; null for a node joined by hand.
+	HostID      *string `json:"host_id"`
+	Hostname    string  `json:"hostname"`
+	LoginServer *string `json:"login_server"`
+	// Members: The headscale entries that joined as the node's hostname, under any user.
+	Members []TailnetMember `json:"members"`
+	NodeID  string          `json:"node_id"`
+	// Operation: The host's newest tailnet operation; null when it has none.
+	Operation *HostOperation `json:"operation"`
+	Region    string         `json:"region"`
+	// RegionUser: The region's headscale user, named after the region.
+	RegionUser string `json:"region_user"`
+	Zone       string `json:"zone"`
+}
+
+// NodeTailnetEnvelope is the NodeTailnetEnvelope schema.
+type NodeTailnetEnvelope struct {
+	Tailnet NodeTailnet `json:"tailnet"`
+}
+
+// Notification is the Notification schema.
+type Notification struct {
+	// Body: The detail under the title; empty when the title says it all.
+	Body      string    `json:"body"`
+	CreatedAt time.Time `json:"created_at"`
+	ID        string    `json:"id"`
+	// Kind: What the notification is about.
+	Kind string `json:"kind"`
+	// ReadAt: When somebody in the account first read it; null while unread.
+	ReadAt *time.Time `json:"read_at"`
+	// ResourceID: The identifier of that resource.
+	ResourceID string `json:"resource_id"`
+	// ResourceType: What the notification is about: `operation`, `invoice` or `account`; empty when it is about nothing in particular.
+	ResourceType string `json:"resource_type"`
+	Severity     string `json:"severity"`
+	Title        string `json:"title"`
+}
+
+// NotificationList is the NotificationList schema.
+type NotificationList struct {
+	Items []Notification `json:"items"`
+	// NextCursor: Pass as `?cursor=` for the next page; null on the last page.
+	NextCursor *NextCursor `json:"next_cursor"`
+}
+
+// NotificationUnreadCount is the NotificationUnreadCount schema.
+type NotificationUnreadCount struct {
+	// Ceiling: Where counting stops (100).
+	Ceiling int64 `json:"ceiling"`
+	// Unread: Unread notifications, at most `ceiling`.
+	Unread int64 `json:"unread"`
+}
+
 // ObjectStorage is the ObjectStorage schema.
 type ObjectStorage struct {
 	AccessKeyID string `json:"access_key_id"`
+	// Backend: `rgw` is replicated object storage on Ankra Storage; `ankra-s3-single`, the single-node S3 server, serves a zone without Ankra Storage, and `migrate_object_s...
+	Backend string `json:"backend"`
+	// BucketPrefix: On ankra-s3-single, every bucket of the account must start with it (its buckets share one namespace).
+	BucketPrefix *string `json:"bucket_prefix"`
 	// CertificateAuthority: PEM of the private CA that signed the endpoint's certificate, for clients to verify it with; null when a public CA signed it or the endpoint is plain HTTP.
 	CertificateAuthority *string   `json:"certificate_authority"`
 	CreatedAt            time.Time `json:"created_at"`
+	// Durability: How many copies the store that holds the account's objects keeps.
+	Durability string `json:"durability"`
 	// Endpoint: The S3 endpoint, an https URL on the zone's DNS name (path-style URLs, SigV4 with any region).
 	Endpoint        string     `json:"endpoint"`
 	ID              string     `json:"id"`
@@ -1849,16 +4788,24 @@ type Operation struct {
 	FloatingIPID *string          `json:"floating_ip_id"`
 	ID           string           `json:"id"`
 	Kind         OperationKind    `json:"kind"`
+	// KubernetesClusterID: Set on the operations of a managed Kubernetes cluster.
+	KubernetesClusterID *string `json:"kubernetes_cluster_id,omitempty"`
+	// KubernetesHostID: Set on a regional host cluster bootstrap (operator only); absent otherwise.
+	KubernetesHostID *string `json:"kubernetes_host_id,omitempty"`
 	// LoadBalancerID: Set on the operations that create and delete a load balancer.
 	LoadBalancerID *string `json:"load_balancer_id,omitempty"`
 	// NodeID: Set on node maintenance operations (operator only); absent otherwise.
 	NodeID *string `json:"node_id,omitempty"`
+	// NodePoolID: Set on the operations of a Kubernetes node pool.
+	NodePoolID *string `json:"node_pool_id,omitempty"`
 	// Progress: Present on `GET /v1/operations/{id}` while a `server.migrate` drives a live transfer.
-	Progress  *MigrationProgress `json:"progress,omitempty"`
-	RouterID  *string            `json:"router_id"`
-	ServerID  *string            `json:"server_id"`
-	StartedAt *time.Time         `json:"started_at"`
-	Status    string             `json:"status"`
+	Progress *MigrationProgress `json:"progress,omitempty"`
+	RouterID *string            `json:"router_id"`
+	ServerID *string            `json:"server_id"`
+	// SnapshotID: Set on the operations that create and delete a snapshot, and on a `storage.create` that clones one.
+	SnapshotID *string    `json:"snapshot_id,omitempty"`
+	StartedAt  *time.Time `json:"started_at"`
+	Status     string     `json:"status"`
 	// Step: Machine name of the current step, e.g. `create_disk` or `transfer_cross_zone`.
 	Step       string  `json:"step"`
 	StepCount  int64   `json:"step_count"`
@@ -1884,11 +4831,88 @@ type OperationEvent struct {
 // OperationKind is the OperationKind schema.
 type OperationKind = string
 
+// OperationList is the OperationList schema.
+type OperationList struct {
+	Items []Operation `json:"items"`
+	// NextCursor: Pass as `?cursor=` for the next page; null on the last page.
+	NextCursor *NextCursor `json:"next_cursor"`
+}
+
+// OrganisationLink is the OrganisationLink schema.
+type OrganisationLink struct {
+	ConfirmedAt time.Time `json:"confirmed_at"`
+	// HasOwnerSeat: The organisation holds the account's ownership (the account was created for it).
+	HasOwnerSeat    bool                 `json:"has_owner_seat"`
+	IsOwnerRetained bool                 `json:"is_owner_retained"`
+	LinkedAt        time.Time            `json:"linked_at"`
+	Organisation    PlatformOrganisation `json:"organisation"`
+}
+
+// OrganisationMember is the OrganisationMember schema.
+type OrganisationMember struct {
+	ConfirmedAt  time.Time `json:"confirmed_at"`
+	Email        string    `json:"email"`
+	IsOwner      bool      `json:"is_owner"`
+	IsStale      bool      `json:"is_stale"`
+	PlatformRole string    `json:"platform_role"`
+	Role         string    `json:"role"`
+	UserID       string    `json:"user_id"`
+}
+
+// OrganisationMembership is the OrganisationMembership schema.
+type OrganisationMembership struct {
+	// AccountID: The organisation's Cloud account when you reach it; absent when opening the organisation creates it or needs a fresh sign-in.
+	AccountID    *string              `json:"account_id,omitempty"`
+	ConfirmedAt  time.Time            `json:"confirmed_at"`
+	IsCurrent    bool                 `json:"is_current"`
+	IsStale      bool                 `json:"is_stale"`
+	Organisation PlatformOrganisation `json:"organisation"`
+	PlatformRole string               `json:"platform_role"`
+	Role         string               `json:"role"`
+}
+
+// PasswordResetAccepted is the PasswordResetAccepted schema.
+type PasswordResetAccepted struct {
+	Detail string `json:"detail"`
+}
+
+// PasswordResetConfirmation is the PasswordResetConfirmation schema.
+type PasswordResetConfirmation struct {
+	Password string `json:"password"`
+	// Token: The `token` query parameter of the reset link.
+	Token string `json:"token"`
+}
+
+// PasswordResetRefusalProblem is the PasswordResetRefusalProblem schema.
+type PasswordResetRefusalProblem struct {
+	// Detail: Written for the customer.
+	Detail *string `json:"detail,omitempty"`
+	Reason string  `json:"reason"`
+	Status int64   `json:"status"`
+	Title  string  `json:"title"`
+	Type   string  `json:"type"`
+}
+
+// PasswordResetRequest is the PasswordResetRequest schema.
+type PasswordResetRequest struct {
+	Email string `json:"email"`
+}
+
+// PasswordResetStatus is the PasswordResetStatus schema.
+type PasswordResetStatus struct {
+	// Available: False when this deployment cannot send email.
+	Available bool `json:"available"`
+}
+
 // PaymentConfiguration is the PaymentConfiguration schema.
 type PaymentConfiguration struct {
-	PaymentsConfigured bool `json:"payments_configured"`
+	// DevClusterTrial: Whether the account may start a free trial dev cluster while it cannot create billable resources; null when the deployment offers no trials.
+	DevClusterTrial    *DevClusterTrialOffer `json:"dev_cluster_trial"`
+	PaymentsConfigured bool                  `json:"payments_configured"`
 	// PublishableKey: Stripe publishable key (pk_…), when configured.
 	PublishableKey *string `json:"publishable_key"`
+	// Standing: Whether the account may create billable resources; a refused create answers 402 with the same `reason`.
+	Standing AccountStanding `json:"standing"`
 }
 
 // PaymentMethod is the PaymentMethod schema.
@@ -1920,10 +4944,12 @@ type Permission = string
 
 // Plan is the Plan schema.
 type Plan struct {
-	Cores           int64  `json:"cores"`
-	Family          string `json:"family"`
-	MemoryMebibytes int64  `json:"memory_mebibytes"`
-	Name            string `json:"name"`
+	Cores int64 `json:"cores"`
+	// CPUPool: The CPU pool every server of the plan is placed in; null lets the scheduler choose.
+	CPUPool         *string `json:"cpu_pool,omitempty"`
+	Family          string  `json:"family"`
+	MemoryMebibytes int64   `json:"memory_mebibytes"`
+	Name            string  `json:"name"`
 	// PriceHourlyMillicents: The monthly price / 730, rounded.
 	PriceHourlyMillicents int64 `json:"price_hourly_millicents"`
 	PriceMonthlyCents     int64 `json:"price_monthly_cents"`
@@ -1937,18 +4963,239 @@ type PlanList struct {
 	NextCursor *NextCursor `json:"next_cursor"`
 }
 
+// PlatformOrganisation is the PlatformOrganisation schema.
+type PlatformOrganisation struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+// Playground is the Playground schema.
+type Playground struct {
+	// AppDomain: The wildcard the playground serves its Ingresses under.
+	AppDomain string     `json:"app_domain"`
+	CreatedAt time.Time  `json:"created_at"`
+	DeletedAt *time.Time `json:"deleted_at"`
+	EndReason *string    `json:"end_reason"`
+	EndedAt   *time.Time `json:"ended_at"`
+	// Endpoint: The API server URL once ready.
+	Endpoint  *string   `json:"endpoint"`
+	ExpiresAt time.Time `json:"expires_at"`
+	// FailureReason: Why a playground that failed to start did.
+	FailureReason *string `json:"failure_reason"`
+	ID            string  `json:"id"`
+	// Limits: What the playground's workloads may use; the control plane's own reservation comes on top.
+	Limits PlaygroundLimits `json:"limits"`
+	// Name: The DNS label, `pg-` and ten hex digits.
+	Name    string     `json:"name"`
+	ReadyAt *time.Time `json:"ready_at"`
+	Region  string     `json:"region"`
+	// State: `provisioning` until the API is ready, `ready` until it expires or is ended, `deleting` until everything it ran is gone, then `deleted`.
+	State PlaygroundState `json:"state"`
+}
+
+// PlaygroundEnvelope is the PlaygroundEnvelope schema.
+type PlaygroundEnvelope struct {
+	Playground Playground `json:"playground"`
+}
+
+// PlaygroundLimits is the PlaygroundLimits schema: What the playground's workloads may use; the control plane's own reservation comes on top.
+type PlaygroundLimits struct {
+	MemoryMebibytes  int64 `json:"memory_mebibytes"`
+	Pods             int64 `json:"pods"`
+	StorageGibibytes int64 `json:"storage_gibibytes"`
+	Vcpus            int64 `json:"vcpus"`
+	Volumes          int64 `json:"volumes"`
+}
+
+// PlaygroundList is the PlaygroundList schema.
+type PlaygroundList struct {
+	Items []Playground `json:"items"`
+	// NextCursor: Pass as `?cursor=` for the next page; null on the last page.
+	NextCursor *NextCursor `json:"next_cursor"`
+}
+
+// PlaygroundOffer is the PlaygroundOffer schema.
+type PlaygroundOffer struct {
+	Active        *Playground `json:"active"`
+	Allowance     int64       `json:"allowance"`
+	AllowanceUsed int64       `json:"allowance_used"`
+	Eligibility   string      `json:"eligibility"`
+	IsAvailable   bool        `json:"is_available"`
+	LifetimeHours int64       `json:"lifetime_hours"`
+	// Limits: What the playground's workloads may use; the control plane's own reservation comes on top.
+	Limits  PlaygroundLimits `json:"limits"`
+	Regions []string         `json:"regions"`
+}
+
+// PlaygroundState is the PlaygroundState schema: `provisioning` until the API is ready, `ready` until it expires or is ended, `deleting` until everything it ran is gone, then `deleted`.
+type PlaygroundState = string
+
+// PowerController is the PowerController schema.
+type PowerController struct {
+	Address                 string    `json:"address"`
+	CertificateAuthorityPem string    `json:"certificate_authority_pem"`
+	Kind                    string    `json:"kind"`
+	NodeID                  string    `json:"node_id"`
+	RedfishSystemPath       string    `json:"redfish_system_path"`
+	UpdatedAt               time.Time `json:"updated_at"`
+	// UpdatedBy: The operator token that set it, as `operator:<name>`.
+	UpdatedBy string `json:"updated_by"`
+	Username  string `json:"username"`
+}
+
+// PowerControllerRequest is the PowerControllerRequest schema.
+type PowerControllerRequest struct {
+	// Address: The BMC's host name or IP address, optionally with a port.
+	Address string `json:"address"`
+	// CertificateAuthorityPem: The authority the Redfish endpoint's certificate is verified against; empty uses the system roots.
+	CertificateAuthorityPem *string `json:"certificate_authority_pem,omitempty"`
+	Kind                    string  `json:"kind"`
+	// Password: Sealed at rest; never answered back.
+	Password string `json:"password"`
+	// RedfishSystemPath: The ComputerSystem to reset, for example /redfish/v1/Systems/1; empty takes the only member of /redfish/v1/Systems.
+	RedfishSystemPath *string `json:"redfish_system_path,omitempty"`
+	Username          string  `json:"username"`
+}
+
 // PrimaryGatewayRequest is the PrimaryGatewayRequest schema.
 type PrimaryGatewayRequest struct {
 	NodeID *string `json:"node_id"`
+}
+
+// PrivateCloudAmounts is the PrivateCloudAmounts schema.
+type PrivateCloudAmounts struct {
+	DiskGigabytes   int64 `json:"disk_gigabytes"`
+	MemoryGibibytes int64 `json:"memory_gibibytes"`
+	Vcpus           int64 `json:"vcpus"`
+}
+
+// PrivateCloudCapacity is the PrivateCloudCapacity schema: Dedicated capacity and what the account's servers on it take.
+type PrivateCloudCapacity struct {
+	DiskGigabytes             int64 `json:"disk_gigabytes"`
+	HostCount                 int64 `json:"host_count"`
+	LocalStorageUsedGibibytes int64 `json:"local_storage_used_gibibytes"`
+	LogicalCpus               int64 `json:"logical_cpus"`
+	MemoryMebibytes           int64 `json:"memory_mebibytes"`
+	MemoryUsedMebibytes       int64 `json:"memory_used_mebibytes"`
+	ServerCount               int64 `json:"server_count"`
+	Vcpus                     int64 `json:"vcpus"`
+	VcpusUsed                 int64 `json:"vcpus_used"`
+}
+
+// PrivateCloudOverview is the PrivateCloudOverview schema.
+type PrivateCloudOverview struct {
+	HasPrivateHosts  bool                  `json:"has_private_hosts"`
+	Maximums         PrivateCloudAmounts   `json:"maximums"`
+	Minimums         PrivateCloudAmounts   `json:"minimums"`
+	OpenRequest      *PrivateCloudRequest  `json:"open_request"`
+	RecentRequests   []PrivateCloudRequest `json:"recent_requests"`
+	Servers          []PrivateCloudServer  `json:"servers"`
+	ServersTruncated bool                  `json:"servers_truncated"`
+	// Totals: Dedicated capacity and what the account's servers on it take.
+	Totals PrivateCloudCapacity `json:"totals"`
+	Zones  []PrivateCloudZone   `json:"zones"`
+}
+
+// PrivateCloudRequest is the PrivateCloudRequest schema.
+type PrivateCloudRequest struct {
+	CreatedAt time.Time `json:"created_at"`
+	// DecidedAt: When the request was fulfilled, declined or withdrawn.
+	DecidedAt        *time.Time `json:"decided_at"`
+	DiskGigabytes    int64      `json:"disk_gigabytes"`
+	ID               string     `json:"id"`
+	MemoryGibibytes  int64      `json:"memory_gibibytes"`
+	Notes            string     `json:"notes"`
+	Region           *string    `json:"region"`
+	RequestedByEmail string     `json:"requested_by_email"`
+	// StaffReason: What staff said when they last moved the request on; a decline always carries one.
+	StaffReason *string `json:"staff_reason"`
+	// State: `open` waits for staff, `in_review` is being worked on, `fulfilled` means the hosts are dedicated, `declined` carries the staff's reason, `withdrawn` was tak...
+	State     PrivateCloudRequestState `json:"state"`
+	UpdatedAt time.Time                `json:"updated_at"`
+	Vcpus     int64                    `json:"vcpus"`
+}
+
+// PrivateCloudRequestEnvelope is the PrivateCloudRequestEnvelope schema.
+type PrivateCloudRequestEnvelope struct {
+	Request PrivateCloudRequest `json:"request"`
+}
+
+// PrivateCloudRequestList is the PrivateCloudRequestList schema.
+type PrivateCloudRequestList struct {
+	Items []PrivateCloudRequest `json:"items"`
+	// NextCursor: Pass as `?cursor=` for the next page; null on the last page.
+	NextCursor *NextCursor `json:"next_cursor"`
+}
+
+// PrivateCloudRequestState is the PrivateCloudRequestState schema: `open` waits for staff, `in_review` is being worked on, `fulfilled` means the hosts are dedicated, `declined` carries the staff's reason, `withdrawn` was tak...
+type PrivateCloudRequestState = string
+
+// PrivateCloudServer is the PrivateCloudServer schema.
+type PrivateCloudServer struct {
+	Cores           int64  `json:"cores"`
+	Hostname        string `json:"hostname"`
+	ID              string `json:"id"`
+	MemoryMebibytes int64  `json:"memory_mebibytes"`
+	Plan            string `json:"plan"`
+	// State: The server state as `get_server` reports it.
+	State string `json:"state"`
+	Title string `json:"title"`
+	Zone  string `json:"zone"`
+}
+
+// PrivateCloudZone is the PrivateCloudZone schema.
+type PrivateCloudZone struct {
+	DiskGigabytes             int64  `json:"disk_gigabytes"`
+	HostCount                 int64  `json:"host_count"`
+	LocalStorageUsedGibibytes int64  `json:"local_storage_used_gibibytes"`
+	LogicalCpus               int64  `json:"logical_cpus"`
+	MemoryMebibytes           int64  `json:"memory_mebibytes"`
+	MemoryUsedMebibytes       int64  `json:"memory_used_mebibytes"`
+	Region                    string `json:"region"`
+	RegionDisplayName         string `json:"region_display_name"`
+	ServerCount               int64  `json:"server_count"`
+	Vcpus                     int64  `json:"vcpus"`
+	VcpusUsed                 int64  `json:"vcpus_used"`
+	Zone                      string `json:"zone"`
+	ZoneDisplayName           string `json:"zone_display_name"`
 }
 
 // Problem is the Problem schema: RFC 7807 problem document.
 type Problem struct {
 	// Detail: Written for the customer.
 	Detail *string `json:"detail,omitempty"`
+	// Reason: A stable, machine-readable cause where a client can act on it: `payment_method_required` and `account_suspended` (402 on a billable create), `read_only_token...
+	Reason *string `json:"reason,omitempty"`
 	Status int64   `json:"status"`
 	Title  string  `json:"title"`
 	Type   string  `json:"type"`
+}
+
+// PublicAddressController is the PublicAddressController schema.
+type PublicAddressController struct {
+	Addresses      []PublicAddressControllerAddressesItem `json:"addresses"`
+	HasCredentials bool                                   `json:"has_credentials"`
+	Provider       string                                 `json:"provider"`
+	UpdatedAt      time.Time                              `json:"updated_at"`
+	Zone           string                                 `json:"zone"`
+}
+
+// PublicAddressControllerAddressesItem is an inline object.
+type PublicAddressControllerAddressesItem struct {
+	Address    string     `json:"address"`
+	Datacenter *string    `json:"datacenter"`
+	LastError  *string    `json:"last_error"`
+	RoutedAt   *time.Time `json:"routed_at"`
+	// RoutedNodeID: The gateway the provider delivers the address to now.
+	RoutedNodeID *string `json:"routed_node_id"`
+	// RoutedTo: That gateway's public address.
+	RoutedTo *string `json:"routed_to"`
+}
+
+// PublicUplink is the PublicUplink schema.
+type PublicUplink struct {
+	PublicUplink string `json:"public_uplink"`
+	Zone         string `json:"zone"`
 }
 
 // Quota is the Quota schema.
@@ -1977,6 +5224,41 @@ type QuotaChange struct {
 	StorageGibibytes *int64 `json:"storage_gibibytes,omitempty"`
 }
 
+// Rack is the Rack schema.
+type Rack struct {
+	CreatedAt time.Time `json:"created_at"`
+	Name      string    `json:"name"`
+	NodeCount int64     `json:"node_count"`
+	Zone      string    `json:"zone"`
+}
+
+// RackEnvelope is the RackEnvelope schema.
+type RackEnvelope struct {
+	Rack Rack `json:"rack"`
+}
+
+// RackList is the RackList schema.
+type RackList struct {
+	Items []Rack `json:"items"`
+	// NextCursor: Pass as `?cursor=` for the next page; null on the last page.
+	NextCursor *NextCursor `json:"next_cursor"`
+}
+
+// RebalanceZoneStorageRequest is an inline object.
+type RebalanceZoneStorageRequest struct {
+	// AllowDegradedReplication: Whether the zone sells Ceph tiers while Ceph replicates below size 3 / min_size 2 on three storage hosts (one or two hosts); recorded before the policy runs.
+	AllowDegradedReplication *bool `json:"allow_degraded_replication,omitempty"`
+	// CephMinHosts: How many storage hosts the zone needs before Ceph starts; recorded before the policy runs.
+	CephMinHosts *int64 `json:"ceph_min_hosts,omitempty"`
+	// SingleHostCeph: Whether a one-host zone runs Ceph; recorded before the policy runs.
+	SingleHostCeph *bool `json:"single_host_ceph,omitempty"`
+}
+
+// RebalanceZoneStorageResponse is an inline object.
+type RebalanceZoneStorageResponse struct {
+	Operation *Operation `json:"operation"`
+}
+
 // RebuildServerRequest is the RebuildServerRequest schema.
 type RebuildServerRequest struct {
 	InitScriptID *string  `json:"init_script_id,omitempty"`
@@ -1986,6 +5268,12 @@ type RebuildServerRequest struct {
 	Template string `json:"template"`
 	// UserData: Replaces the user data; an empty string clears it.
 	UserData *string `json:"user_data,omitempty"`
+}
+
+// RecoveryCodes is the RecoveryCodes schema.
+type RecoveryCodes struct {
+	// RecoveryCodes: Ten single-use codes, shown once.
+	RecoveryCodes []string `json:"recovery_codes"`
 }
 
 // RedeemCouponRequest is the RedeemCouponRequest schema.
@@ -2008,15 +5296,131 @@ type RedeemSupportHandoffResponse struct {
 	User          User          `json:"user"`
 }
 
+// Region is the Region schema.
+type Region struct {
+	// ControlPlaneEndpoint: The regional control plane's API URL; null while the global one serves the region.
+	ControlPlaneEndpoint *string   `json:"control_plane_endpoint"`
+	Country              string    `json:"country"`
+	CreatedAt            time.Time `json:"created_at"`
+	DisplayName          string    `json:"display_name"`
+	// IsPrivateCloud: True, in a customer's listing, when one of the region's zones holds hosts dedicated to the caller's account.
+	IsPrivateCloud *bool  `json:"is_private_cloud,omitempty"`
+	Name           string `json:"name"`
+	// Zones: The region's zones by name.
+	Zones []Zone `json:"zones"`
+}
+
+// RegionEnvelope is the RegionEnvelope schema.
+type RegionEnvelope struct {
+	Region Region `json:"region"`
+}
+
+// RegionList is the RegionList schema.
+type RegionList struct {
+	Items []Region `json:"items"`
+	// NextCursor: Pass as `?cursor=` for the next page; null on the last page.
+	NextCursor *NextCursor `json:"next_cursor"`
+}
+
+// RegionTailnet is the RegionTailnet schema.
+type RegionTailnet struct {
+	Configured bool `json:"configured"`
+	// Elsewhere: The region's nodes on the tailnet under another user (move them).
+	Elsewhere   []TailnetMember `json:"elsewhere"`
+	LoginServer *string         `json:"login_server"`
+	Members     []TailnetMember `json:"members"`
+	// NotOnTailnet: The region's registered nodes no headscale entry matches.
+	NotOnTailnet []RegionTailnetNotOnTailnetItem `json:"not_on_tailnet"`
+	Region       string                          `json:"region"`
+	// User: The region's headscale user.
+	User string `json:"user"`
+	// UserExists: False until the first host of the region joined.
+	UserExists bool `json:"user_exists"`
+}
+
+// RegionTailnetEnvelope is the RegionTailnetEnvelope schema.
+type RegionTailnetEnvelope struct {
+	Tailnet RegionTailnet `json:"tailnet"`
+}
+
+// RegionTailnetNotOnTailnetItem is an inline object.
+type RegionTailnetNotOnTailnetItem struct {
+	Hostname string `json:"hostname"`
+	NodeID   string `json:"node_id"`
+	Zone     string `json:"zone"`
+}
+
+// RemoveAccountMemberResponse is an inline object.
+type RemoveAccountMemberResponse struct {
+	Member StaffUserSummary `json:"member"`
+}
+
+// RemoveServerPublicIPv4Response is an inline object.
+type RemoveServerPublicIPv4Response struct {
+	Operation Operation `json:"operation"`
+	Server    Server    `json:"server"`
+}
+
 // RenameRequest is the RenameRequest schema.
 type RenameRequest struct {
 	Name string `json:"name"`
+}
+
+// ReplaceLoadBalancerMembersRequest is an inline object.
+type ReplaceLoadBalancerMembersRequest struct {
+	Members []ReplaceLoadBalancerMembersRequestMembersItem `json:"members"`
+}
+
+// ReplaceLoadBalancerMembersRequestMembersItem is an inline object.
+type ReplaceLoadBalancerMembersRequestMembersItem struct {
+	// Address: An IPv4 or IPv6 address.
+	Address string `json:"address"`
+	Enabled *bool  `json:"enabled,omitempty"`
+	Name    string `json:"name"`
+	Port    int64  `json:"port"`
+	Weight  *int64 `json:"weight,omitempty"`
+}
+
+// ReplaceLoadBalancerMembersResponse is an inline object.
+type ReplaceLoadBalancerMembersResponse struct {
+	Members []LoadBalancerMember `json:"members"`
+}
+
+// ReprovisionHostRequest is the ReprovisionHostRequest schema.
+type ReprovisionHostRequest struct {
+	// AgentVersion: An uploaded node agent build; the newest by default.
+	AgentVersion *string `json:"agent_version,omitempty"`
+	// Gateway: The gateway's link; required when roles name gateway, refused otherwise.
+	Gateway *HostGatewayRequest `json:"gateway,omitempty"`
+	// PlanOnly: Record the dry run's plan and change nothing (host.reprovision_plan).
+	PlanOnly *bool `json:"plan_only,omitempty"`
+	// Roles: The node's roles after the reprovision, the ones it keeps included.
+	Roles []string `json:"roles"`
 }
 
 // ResetDatabasePasswordResponse is an inline object.
 type ResetDatabasePasswordResponse struct {
 	Credentials DatabaseCredentials `json:"credentials"`
 	Database    Database            `json:"database"`
+}
+
+// ResetStaffPassword is the ResetStaffPassword schema.
+type ResetStaffPassword struct {
+	// Password: The generated password, shown once.
+	Password string `json:"password"`
+	Staff    Staff  `json:"staff"`
+}
+
+// ResetStaffPasswordRequest is the ResetStaffPasswordRequest schema.
+type ResetStaffPasswordRequest struct {
+	// Reason: Why the password is reset; recorded in the platform audit chain.
+	Reason string `json:"reason"`
+}
+
+// ResizeDatabaseRequest is an inline object.
+type ResizeDatabaseRequest struct {
+	// StorageGibibytes: Larger than the current size.
+	StorageGibibytes int64 `json:"storage_gibibytes"`
 }
 
 // ResizeStorageRequest is an inline object.
@@ -2042,6 +5446,20 @@ type RestoreDatabaseResponse struct {
 	Credentials DatabaseCredentials `json:"credentials"`
 	Database    Database            `json:"database"`
 	Operation   Operation           `json:"operation"`
+}
+
+// RestoreKubernetesClusterRequest is an inline object.
+type RestoreKubernetesClusterRequest struct {
+	// Snapshot: The `name` of a snapshot from list_kubernetes_cluster_etcd_snapshots.
+	Snapshot string `json:"snapshot"`
+}
+
+// RetireZoneRequest is the RetireZoneRequest schema.
+type RetireZoneRequest struct {
+	// Reason: Why, one line; recorded in the platform audit chain.
+	Reason string `json:"reason"`
+	// ReleaseServers: Accept that the zone retirement loop force-releases the customer servers left in the zone (their storages stay); a zone that runs any is refused without it.
+	ReleaseServers *bool `json:"release_servers,omitempty"`
 }
 
 // RevokeOtherSessionsResponse is an inline object.
@@ -2070,16 +5488,80 @@ type RouterList struct {
 	NextCursor *NextCursor `json:"next_cursor"`
 }
 
+// SecondFactorChallenge is the SecondFactorChallenge schema.
+type SecondFactorChallenge struct {
+	// Challenge: Signed, short-lived (5 minutes to verify, 15 to set up); opens no session by itself.
+	Challenge   string    `json:"challenge"`
+	ExpiresAt   time.Time `json:"expires_at"`
+	MFARequired bool      `json:"mfa_required"`
+	// MFAStep: `verify` asks for a code or a recovery code; `enroll` sets up an authenticator first, because it is required.
+	MFAStep string `json:"mfa_step"`
+}
+
+// SecondFactorChallengeRequest is the SecondFactorChallengeRequest schema.
+type SecondFactorChallengeRequest struct {
+	Challenge string `json:"challenge"`
+}
+
+// SecondFactorLoginRequest is the SecondFactorLoginRequest schema.
+type SecondFactorLoginRequest struct {
+	Challenge string `json:"challenge"`
+	// Code: Six digits from the authenticator app.
+	Code *string `json:"code,omitempty"`
+	// RecoveryCode: One of the single-use recovery codes (verify only).
+	RecoveryCode *string `json:"recovery_code,omitempty"`
+}
+
+// SecondFactorProof is the SecondFactorProof schema.
+type SecondFactorProof struct {
+	// Code: Six digits from the authenticator app.
+	Code *string `json:"code,omitempty"`
+	// RecoveryCode: One of the single-use recovery codes.
+	RecoveryCode *string `json:"recovery_code,omitempty"`
+}
+
+// SecondFactorSession is the SecondFactorSession schema.
+type SecondFactorSession struct {
+	CSRFToken string `json:"csrf_token"`
+	// EndedSessions: Sign-in only: how many other sessions `end_other_sessions` ended.
+	EndedSessions *int64    `json:"ended_sessions,omitempty"`
+	ExpiresAt     time.Time `json:"expires_at"`
+	// RecoveryCodes: After a setup at sign-in: the ten recovery codes, shown once.
+	RecoveryCodes []string `json:"recovery_codes,omitempty"`
+	// RecoveryCodesRemaining: After a code check: how many unused recovery codes are left.
+	RecoveryCodesRemaining *int64 `json:"recovery_codes_remaining,omitempty"`
+	// ReturnTo: After an identity provider sign-in: where the portal continues.
+	ReturnTo *string `json:"return_to,omitempty"`
+	User     User    `json:"user"`
+}
+
+// SecondFactorStatus is the SecondFactorStatus schema.
+type SecondFactorStatus struct {
+	// Available: False when the control plane has no secret key and cannot seal authenticator secrets.
+	Available              bool       `json:"available"`
+	EnabledAt              *time.Time `json:"enabled_at"`
+	RecoveryCodesRemaining int64      `json:"recovery_codes_remaining"`
+	// RequiredByAccount: The owner requires a second factor of every member; it cannot be turned off.
+	RequiredByAccount bool `json:"required_by_account"`
+	TotpEnabled       bool `json:"totp_enabled"`
+	// TotpPending: A setup was started and waits for its first code.
+	TotpPending bool `json:"totp_pending"`
+}
+
 // Server is the Server schema.
 type Server struct {
 	ActiveOperation *Operation `json:"active_operation"`
 	Cores           int64      `json:"cores"`
-	CreatedAt       time.Time  `json:"created_at"`
-	DesiredPower    string     `json:"desired_power"`
+	// CPUPool: The CPU pool the server was placed in; live migration and HA restart keep it there.
+	CPUPool      *string   `json:"cpu_pool,omitempty"`
+	CreatedAt    time.Time `json:"created_at"`
+	DesiredPower string    `json:"desired_power"`
 	// HAPolicy: What happens when the server's compute node fails.
 	HAPolicy *string `json:"ha_policy,omitempty"`
 	Hostname string  `json:"hostname"`
 	ID       string  `json:"id"`
+	// IPv6RenumberAvailable: Whether the server's /64 is from a draining pool and can move to the zone's active pool with `POST /v1/servers/{id}/renumber-ipv6`.
+	IPv6RenumberAvailable bool `json:"ipv6_renumber_available"`
 	// Labels: Keys of 1-63 letters, digits, `.`, `_`, `/` or `-`, starting and ending with a letter or digit; values of at most 255 printable characters.
 	Labels     Labels `json:"labels"`
 	MACAddress string `json:"mac_address"`
@@ -2093,11 +5575,15 @@ type Server struct {
 	PublicIPv4 *string `json:"public_ipv4"`
 	// PublicIPv6: The first address of the server's /64, e.g. fd64:1:0:2a::1; null without IPv6.
 	PublicIPv6 *string `json:"public_ipv6"`
+	// PublicIPv6IsPrivate: Whether `public_ipv6` is a unique local address (fd00::/8) from a zone's private pool: reachable from inside Ankra Cloud only.
+	PublicIPv6IsPrivate bool `json:"public_ipv6_is_private"`
 	// PublicIPv6Prefix: The server's routed /64, e.g. fd64:1:0:2a::/64.
 	PublicIPv6Prefix *string `json:"public_ipv6_prefix"`
+	// Region: The region of the server's zone.
+	Region *string `json:"region,omitempty"`
 	// ServerGroupID: The anti-affinity group the server was created into.
 	ServerGroupID *string `json:"server_group_id"`
-	// SSHCommand: How to reach the server over SSH (IPv4 directly or through a forwarded port, else IPv6); null without a public address.
+	// SSHCommand: How to reach the server over SSH (IPv4 directly or through a forwarded port, else a public IPv6); null without a public address and for a private (unique loc...
 	SSHCommand *string `json:"ssh_command"`
 	State      string  `json:"state"`
 	// StateDetail: Customer-readable reason, shown when `state` is `error`.
@@ -2118,9 +5604,15 @@ type ServerGroup struct {
 	// Members: Server identifiers, oldest first; only on the single-group read.
 	Members []string `json:"members,omitempty"`
 	Name    string   `json:"name"`
-	// Policy: strict: members never share a compute node; soft: they share one only when no other node has room.
+	// Policy: The same as `strict` (strict: true), kept for older clients.
 	Policy string `json:"policy"`
-	Zone   string `json:"zone"`
+	Region string `json:"region"`
+	// Spread: The failure domain members are kept apart in.
+	Spread string `json:"spread"`
+	// Strict: Placement fails with a clear error rather than share a failure domain.
+	Strict bool `json:"strict"`
+	// Zone: Null for a zone-spread group, whose members live in several zones of `region`.
+	Zone *string `json:"zone"`
 }
 
 // ServerGroupList is the ServerGroupList schema.
@@ -2156,10 +5648,184 @@ type SessionList struct {
 	NextCursor *NextCursor `json:"next_cursor"`
 }
 
+// SetAccountMFAPolicyRequest is an inline object.
+type SetAccountMFAPolicyRequest struct {
+	Required bool `json:"required"`
+}
+
+// SetFleetNodeRackRequest is an inline object.
+type SetFleetNodeRackRequest struct {
+	// Rack: The rack's name; null or empty takes the node out of its rack.
+	Rack *string `json:"rack"`
+}
+
+// SetFleetNodeStoragePolicyRequest is an inline object.
+type SetFleetNodeStoragePolicyRequest struct {
+	// CephVolumeGibibytes: The size of the node's Ankra Storage volume; set exactly with the policy both.
+	CephVolumeGibibytes *int64 `json:"ceph_volume_gibibytes,omitempty"`
+	Policy              string `json:"policy"`
+}
+
+// SetIppoolStateRequest is the SetIPPoolStateRequest schema.
+type SetIppoolStateRequest struct {
+	State string `json:"state"`
+}
+
+// SetNodeDatacenterRequest is an inline object.
+type SetNodeDatacenterRequest struct {
+	Datacenter *string `json:"datacenter"`
+}
+
+// SetNodeDatacenterResponse is an inline object.
+type SetNodeDatacenterResponse struct {
+	Node Node `json:"node"`
+}
+
+// SetNodeRackRequest is an inline object.
+type SetNodeRackRequest struct {
+	Rack *string `json:"rack"`
+}
+
+// SetNodeRackResponse is an inline object.
+type SetNodeRackResponse struct {
+	Node Node `json:"node"`
+}
+
+// SetNodeRolloutCanaryRequest is an inline object.
+type SetNodeRolloutCanaryRequest struct {
+	// Canary: true marks the node as a canary of its zone; false clears the mark.
+	Canary bool `json:"canary"`
+}
+
+// SetNodeRolloutCanaryResponse is an inline object.
+type SetNodeRolloutCanaryResponse struct {
+	Node SetNodeRolloutCanaryResponseNode `json:"node"`
+}
+
+// SetNodeRolloutCanaryResponseNode is an inline object.
+type SetNodeRolloutCanaryResponseNode struct {
+	Hostname      string   `json:"hostname"`
+	ID            string   `json:"id"`
+	Roles         []string `json:"roles"`
+	RolloutCanary bool     `json:"rollout_canary"`
+	Zone          string   `json:"zone"`
+}
+
+// SetPlanCPUPoolRequest is an inline object.
+type SetPlanCPUPoolRequest struct {
+	CPUPool *string `json:"cpu_pool"`
+}
+
+// SetPlatformBillingArrangementRequest is an inline object.
+type SetPlatformBillingArrangementRequest struct {
+	Arrangement string `json:"arrangement"`
+	// Reference: The agreement on the platform, for example the invoicing application id.
+	Reference *string `json:"reference,omitempty"`
+	// SetBy: Who approved it on the platform, for the audit log.
+	SetBy *string `json:"set_by,omitempty"`
+}
+
+// SetPlatformBillingArrangementResponse is an inline object.
+type SetPlatformBillingArrangementResponse struct {
+	AccountID          string     `json:"account_id"`
+	BillingArrangement string     `json:"billing_arrangement"`
+	ChangedAt          *time.Time `json:"changed_at"`
+	Reference          *string    `json:"reference"`
+}
+
+// SetPrivateCloudRequestState is the SetPrivateCloudRequestState schema.
+type SetPrivateCloudRequestState struct {
+	// Reason: Required to decline (10 to 500 characters, one line); the customer sees it.
+	Reason *string `json:"reason,omitempty"`
+	State  string  `json:"state"`
+}
+
+// SetPublicAddressControllerRequest is an inline object.
+type SetPublicAddressControllerRequest struct {
+	Addresses   []SetPublicAddressControllerRequestAddressesItem `json:"addresses"`
+	Credentials *SetPublicAddressControllerRequestCredentials    `json:"credentials,omitempty"`
+	Provider    string                                           `json:"provider"`
+}
+
+// SetPublicAddressControllerRequestAddressesItem is an inline object.
+type SetPublicAddressControllerRequestAddressesItem struct {
+	// Address: An address (a /32 or /128) or a prefix, e.g. "203.0.113.10" or "2a01:4f8:1:2::/64".
+	Address string `json:"address"`
+	// Datacenter: The datacenter the address is served in; empty for any.
+	Datacenter *string `json:"datacenter,omitempty"`
+}
+
+// SetPublicAddressControllerRequestCredentials is an inline object.
+type SetPublicAddressControllerRequestCredentials struct {
+	Password string `json:"password"`
+	Username string `json:"username"`
+}
+
+// SetPublicAddressControllerResponse is an inline object.
+type SetPublicAddressControllerResponse struct {
+	Controller PublicAddressController `json:"controller"`
+}
+
+// SetPublicUplinkRequest is the SetPublicUplinkRequest schema.
+type SetPublicUplinkRequest struct {
+	// Mode: bgp: the gateways announce routed pools upstream over eBGP.
+	Mode string `json:"mode"`
+}
+
 // SetServerMetadataSettingResponse is an inline object.
 type SetServerMetadataSettingResponse struct {
 	Enabled   bool      `json:"enabled"`
 	Operation Operation `json:"operation"`
+}
+
+// SetZoneControlPlaneServiceAddressRequest is an inline object.
+type SetZoneControlPlaneServiceAddressRequest struct {
+	// ServiceAddress: A free address on the control network the members share.
+	ServiceAddress string `json:"service_address"`
+}
+
+// SetZoneUnderlayRequest is the SetZoneUnderlayRequest schema.
+type SetZoneUnderlayRequest struct {
+	Underlay string `json:"underlay"`
+}
+
+// SetZoneUnderlayResponse is an inline object.
+type SetZoneUnderlayResponse struct {
+	Zone Zone `json:"zone"`
+}
+
+// SetupChecklist is the SetupChecklist schema.
+type SetupChecklist struct {
+	GeneratedAt time.Time `json:"generated_at"`
+	// Live: Customers can create servers somewhere.
+	Live  bool                      `json:"live"`
+	Steps []SetupChecklistStepsItem `json:"steps"`
+}
+
+// SetupChecklistStepsItem is an inline object.
+type SetupChecklistStepsItem struct {
+	// Detail: What the step found, in a sentence.
+	Detail string `json:"detail"`
+	Key    string `json:"key"`
+	Status string `json:"status"`
+	// Zones: The zones a per-zone step is not done for (zone_network: the zones without a recorded autonomous system), or the live zones for go_live.
+	Zones []string `json:"zones"`
+}
+
+// ShrinkZoneControlPlaneRequest is an inline object.
+type ShrinkZoneControlPlaneRequest struct {
+	// Force: Allow falling below three members.
+	Force *bool `json:"force,omitempty"`
+	// NodeID: The member to remove.
+	NodeID string `json:"node_id"`
+}
+
+// SignupAccepted is the SignupAccepted schema.
+type SignupAccepted struct {
+	// Detail: The same sentence for every accepted sign-up.
+	Detail string `json:"detail"`
+	// Email: The address as it was stored: trimmed and lowercased.
+	Email string `json:"email"`
 }
 
 // SignupCoupon is the SignupCoupon schema.
@@ -2184,15 +5850,28 @@ type SignupRequest struct {
 	Password string `json:"password"`
 }
 
-// SignupResult is the SignupResult schema.
-type SignupResult struct {
-	// Coupon: Present when the signup carried `coupon_code`.
-	Coupon    *SignupCoupon `json:"coupon,omitempty"`
-	CSRFToken string        `json:"csrf_token"`
-	// EndedSessions: Sign-in only: how many other sessions `end_other_sessions` ended.
-	EndedSessions *int64    `json:"ended_sessions,omitempty"`
-	ExpiresAt     time.Time `json:"expires_at"`
-	User          User      `json:"user"`
+// Snapshot is the Snapshot schema.
+type Snapshot struct {
+	CompletedAt *time.Time `json:"completed_at"`
+	CreatedAt   time.Time  `json:"created_at"`
+	ID          string     `json:"id"`
+	// SizeGibibytes: The storage's size when the snapshot was taken: the least a storage cloned from it has.
+	SizeGibibytes int64 `json:"size_gibibytes"`
+	// State: `available` once it is ready: storages can be cloned from it.
+	State string `json:"state"`
+	// StorageID: The storage the snapshot was taken of.
+	StorageID string `json:"storage_id"`
+	// Tier: The storage's tier when the snapshot was taken, and the default tier of storages cloned from it.
+	Tier  string `json:"tier"`
+	Title string `json:"title"`
+	Zone  string `json:"zone"`
+}
+
+// SnapshotList is the SnapshotList schema.
+type SnapshotList struct {
+	Items []Snapshot `json:"items"`
+	// NextCursor: Pass as `?cursor=` for the next page; null on the last page.
+	NextCursor *NextCursor `json:"next_cursor"`
 }
 
 // Sshkey is the SSHKey schema.
@@ -2219,10 +5898,104 @@ type Staff struct {
 	Email       string     `json:"email"`
 	ID          string     `json:"id"`
 	LastLoginAt *time.Time `json:"last_login_at"`
-	MFAEnforced bool       `json:"mfa_enforced"`
-	Name        string     `json:"name"`
+	// MFAEnforced: No staff session without a second factor (the default).
+	MFAEnforced bool `json:"mfa_enforced"`
+	// MFAEnrolled: The staff member has an active authenticator.
+	MFAEnrolled bool   `json:"mfa_enrolled"`
+	Name        string `json:"name"`
 	// Role: `support` views accounts and opens read-only support sessions; `admin` also changes quotas, credits, coupons and staff and opens elevated sessions.
 	Role StaffRole `json:"role"`
+}
+
+// StaffAccountBilling is the StaffAccountBilling schema.
+type StaffAccountBilling struct {
+	AccountID string `json:"account_id"`
+	// BillingApproval: Whether the organisation owner must approve paid usage beyond credits, and when, by whom and on which terms they did.
+	BillingApproval StaffAccountBillingBillingApproval `json:"billing_approval"`
+	Credits         StaffAccountBillingCredits         `json:"credits"`
+	DevClusterTrial StaffAccountBillingDevClusterTrial `json:"dev_cluster_trial"`
+	Invoices        StaffAccountBillingInvoices        `json:"invoices"`
+	// PaymentMethodOnFile: Whether a default payment method was seen.
+	PaymentMethodOnFile      bool       `json:"payment_method_on_file"`
+	PaymentMethodOnFileSince *time.Time `json:"payment_method_on_file_since"`
+	PaymentsConfigured       bool       `json:"payments_configured"`
+	// PlatformOrganisation: The Ankra platform organisation the account is linked to; null without one.
+	PlatformOrganisation *StaffAccountBillingPlatformOrganisation `json:"platform_organisation"`
+	Resources            StaffAccountBillingResources             `json:"resources"`
+	// RunningWithoutPaymentMethod: No payment method on file while holding servers the meter charges; nothing can be charged once the credit runs out.
+	RunningWithoutPaymentMethod bool `json:"running_without_payment_method"`
+	// Standing: Whether the account may create billable resources; a refused create answers 402 with the same `reason`.
+	Standing AccountStanding `json:"standing"`
+	// StripeCustomerID: The Stripe customer (cus_…), once the account used payments.
+	StripeCustomerID *string `json:"stripe_customer_id"`
+	// StripeDashboardURL: The customer in the Stripe dashboard of the configured key's mode.
+	StripeDashboardURL *string `json:"stripe_dashboard_url"`
+	// Suspension: What suspends an account.
+	Suspension StaffAccountSuspension `json:"suspension"`
+}
+
+// StaffAccountBillingBillingApproval is an inline object: Whether the organisation owner must approve paid usage beyond credits, and when, by whom and on which terms they did.
+type StaffAccountBillingBillingApproval struct {
+	ApprovedAt *time.Time `json:"approved_at"`
+	ApprovedBy *string    `json:"approved_by"`
+	// Pending: Required and not given yet.
+	Pending      bool    `json:"pending"`
+	Required     bool    `json:"required"`
+	TermsVersion *string `json:"terms_version"`
+}
+
+// StaffAccountBillingCredits is an inline object.
+type StaffAccountBillingCredits struct {
+	NextExpiry     *time.Time `json:"next_expiry"`
+	RemainingCents int64      `json:"remaining_cents"`
+}
+
+// StaffAccountBillingDevClusterTrial is an inline object.
+type StaffAccountBillingDevClusterTrial struct {
+	// ConvertedCount: Trials kept as paid clusters after the account saved a card.
+	ConvertedCount int64 `json:"converted_count"`
+	// Offer: Whether the account may start a trial dev cluster now; null when the deployment offers no trials.
+	Offer                 *DevClusterTrialOffer `json:"offer"`
+	RunningTrialExpiresAt *time.Time            `json:"running_trial_expires_at"`
+	RunningTrialID        *string               `json:"running_trial_id"`
+	// StartedCount: Every trial dev cluster the account started.
+	StartedCount int64 `json:"started_count"`
+}
+
+// StaffAccountBillingInvoices is an inline object.
+type StaffAccountBillingInvoices struct {
+	Currency string `json:"currency"`
+	// LastPushError: The most recent push failure of those invoices, as the provider reported it.
+	LastPushError    *string    `json:"last_push_error"`
+	LastPushFailedAt *time.Time `json:"last_push_failed_at"`
+	// NextPushAttemptAt: When the earliest of those invoices is pushed again.
+	NextPushAttemptAt  *time.Time `json:"next_push_attempt_at"`
+	OldestOverdueSince *time.Time `json:"oldest_overdue_since"`
+	OpenCount          int64      `json:"open_count"`
+	// OutstandingCents: What open and overdue invoices still charge after credits.
+	OutstandingCents int64 `json:"outstanding_cents"`
+	OverdueCount     int64 `json:"overdue_count"`
+	// PushFailingCount: Unbilled invoices whose last push to Stripe failed; each is retried after a delay that doubles with every failure, up to a day.
+	PushFailingCount int64 `json:"push_failing_count"`
+}
+
+// StaffAccountBillingPlatformOrganisation is an inline object.
+type StaffAccountBillingPlatformOrganisation struct {
+	ConfirmedAt *time.Time `json:"confirmed_at"`
+	ID          string     `json:"id"`
+	LinkedAt    *time.Time `json:"linked_at"`
+	Name        *string    `json:"name"`
+	// ProvisionedAt: Set when the Ankra platform created the account rather than a person.
+	ProvisionedAt *time.Time `json:"provisioned_at"`
+}
+
+// StaffAccountBillingResources is an inline object.
+type StaffAccountBillingResources struct {
+	// BillableServerCount: Undeleted servers the meter charges.
+	BillableServerCount int64 `json:"billable_server_count"`
+	DevClusterCount     int64 `json:"dev_cluster_count"`
+	// ServerCount: Undeleted servers, managed service VMs and trial dev cluster servers included.
+	ServerCount int64 `json:"server_count"`
 }
 
 // StaffAccountDetail is the StaffAccountDetail schema.
@@ -2252,13 +6025,35 @@ type StaffAccountDetailUsersItem struct {
 
 // StaffAccountSummary is the StaffAccountSummary schema.
 type StaffAccountSummary struct {
-	CreatedAt time.Time `json:"created_at"`
-	ID        string    `json:"id"`
-	Name      string    `json:"name"`
+	// BillableServerCount: Undeleted servers the meter charges (a trial dev cluster's server is not).
+	BillableServerCount int64 `json:"billable_server_count"`
+	// BillingStatus: The account's billing posture from the database alone, in the order the spending gate refuses: a staff suspension, an overdue-invoice suspension, no payment ...
+	BillingStatus string    `json:"billing_status"`
+	CreatedAt     time.Time `json:"created_at"`
+	// CreditRemainingCents: What unvoided, unexpired credits have left, before uninvoiced usage is reserved against them.
+	CreditRemainingCents int64 `json:"credit_remaining_cents"`
+	// DevClusterCount: Undeleted dev clusters.
+	DevClusterCount   int64  `json:"dev_cluster_count"`
+	HasStripeCustomer bool   `json:"has_stripe_customer"`
+	ID                string `json:"id"`
+	Name              string `json:"name"`
+	// PaymentMethodOnFileSince: When a default payment method was first seen; null without one.
+	PaymentMethodOnFileSince *time.Time `json:"payment_method_on_file_since"`
+	// PlatformOrganisation: The Ankra platform organisation the account is linked to; null without one.
+	PlatformOrganisation *StaffPlatformOrganisationSummary `json:"platform_organisation"`
+	// PlatformProvisionedAt: Set when the Ankra platform created the account rather than a person.
+	PlatformProvisionedAt *time.Time `json:"platform_provisioned_at"`
 	// PrimaryEmail: The email of the account's oldest user.
 	PrimaryEmail string `json:"primary_email"`
-	ServerCount  int64  `json:"server_count"`
-	UserCount    int64  `json:"user_count"`
+	// RunningTrialExpiresAt: When the live trial is deleted unless the account saves a card first.
+	RunningTrialExpiresAt *time.Time `json:"running_trial_expires_at"`
+	// RunningTrialID: The account's live trial dev cluster.
+	RunningTrialID *string `json:"running_trial_id"`
+	// RunningWithoutPaymentMethod: No payment method on file while holding servers the meter charges; nothing can be charged once the credit runs out.
+	RunningWithoutPaymentMethod bool `json:"running_without_payment_method"`
+	// ServerCount: Undeleted servers, managed service VMs and trial dev cluster servers included.
+	ServerCount int64 `json:"server_count"`
+	UserCount   int64 `json:"user_count"`
 }
 
 // StaffAccountSummaryList is the StaffAccountSummaryList schema.
@@ -2268,9 +6063,83 @@ type StaffAccountSummaryList struct {
 	NextCursor *NextCursor `json:"next_cursor"`
 }
 
+// StaffAccountSuspension is the StaffAccountSuspension schema: What suspends an account.
+type StaffAccountSuspension struct {
+	AccountID       string       `json:"account_id"`
+	AccountName     string       `json:"account_name"`
+	StaffSuspension *StaffAction `json:"staff_suspension"`
+	// Suspended: Whether anything suspends the account.
+	Suspended             bool       `json:"suspended"`
+	SuspendedForPaymentAt *time.Time `json:"suspended_for_payment_at"`
+}
+
+// StaffAction is the StaffAction schema: A suspension or disablement staff placed; `staff_id` and `staff_email` are null once the staff member was deleted.
+type StaffAction struct {
+	At         time.Time `json:"at"`
+	Reason     string    `json:"reason"`
+	StaffEmail *string   `json:"staff_email"`
+	StaffID    *string   `json:"staff_id"`
+}
+
+// StaffEnrollmentConfirmRequest is the StaffEnrollmentConfirmRequest schema.
+type StaffEnrollmentConfirmRequest struct {
+	Challenge string `json:"challenge"`
+	// Code: Six digits from the authenticator app.
+	Code *string `json:"code,omitempty"`
+	// Invite: The same enrolment invite as the setup step.
+	Invite *string `json:"invite,omitempty"`
+}
+
+// StaffEnrollmentInvite is the StaffEnrollmentInvite schema.
+type StaffEnrollmentInvite struct {
+	ExpiresAt time.Time `json:"expires_at"`
+	// InviteURL: The admin console's enrolment page with the invite in the fragment.
+	InviteURL string `json:"invite_url"`
+}
+
+// StaffEnrollmentRequest is the StaffEnrollmentRequest schema.
+type StaffEnrollmentRequest struct {
+	Challenge string `json:"challenge"`
+	// Invite: The enrolment invite from the link an admin sent (the `invite` of its fragment).
+	Invite *string `json:"invite,omitempty"`
+}
+
 // StaffEnvelope is the StaffEnvelope schema.
 type StaffEnvelope struct {
 	Staff Staff `json:"staff"`
+}
+
+// StaffInvoice is the StaffInvoice schema.
+type StaffInvoice struct {
+	// AmountDueCents: What is charged: `total_cents - credit_applied_cents`.
+	AmountDueCents *int64    `json:"amount_due_cents,omitempty"`
+	CreatedAt      time.Time `json:"created_at"`
+	// CreditAppliedCents: The part of the total account credits paid.
+	CreditAppliedCents *int64 `json:"credit_applied_cents,omitempty"`
+	Currency           string `json:"currency"`
+	// HostedInvoiceURL: Stripe's page to view and pay the invoice.
+	HostedInvoiceURL *string       `json:"hosted_invoice_url,omitempty"`
+	ID               string        `json:"id"`
+	Lines            []InvoiceLine `json:"lines"`
+	// PaymentStatus: `unbilled` until Stripe has the invoice (or when payments are not configured or it totals nothing); `overdue` after a failed charge.
+	PaymentStatus          *string    `json:"payment_status,omitempty"`
+	PaymentStatusChangedAt *time.Time `json:"payment_status_changed_at"`
+	Period                 string     `json:"period"`
+	PeriodEnd              time.Time  `json:"period_end"`
+	PeriodStart            time.Time  `json:"period_start"`
+	// StripeDashboardURL: The invoice in the Stripe dashboard.
+	StripeDashboardURL *string `json:"stripe_dashboard_url"`
+	// StripeInvoiceID: The Stripe invoice (in_…), once Stripe has it.
+	StripeInvoiceID *string `json:"stripe_invoice_id"`
+	// TotalCents: The usage total, before credits.
+	TotalCents int64 `json:"total_cents"`
+}
+
+// StaffInvoiceList is the StaffInvoiceList schema.
+type StaffInvoiceList struct {
+	Items []StaffInvoice `json:"items"`
+	// NextCursor: Pass as `?cursor=` for the next page; null on the last page.
+	NextCursor *NextCursor `json:"next_cursor"`
 }
 
 // StaffList is the StaffList schema.
@@ -2286,8 +6155,176 @@ type StaffLoginRequest struct {
 	Password string `json:"password"`
 }
 
+// StaffMemberRoleChange is the StaffMemberRoleChange schema.
+type StaffMemberRoleChange struct {
+	Changed bool             `json:"changed"`
+	Member  StaffUserSummary `json:"member"`
+	// PreviousOwner: Set when the member became the owner; the previous owner, now an admin.
+	PreviousOwner *StaffUserSummary `json:"previous_owner"`
+	PreviousRole  string            `json:"previous_role"`
+}
+
+// StaffNodeActionRequest is the StaffNodeActionRequest schema.
+type StaffNodeActionRequest struct {
+	// Reason: Why; one line.
+	Reason string `json:"reason"`
+}
+
+// StaffNodeAgentUpgradeRequest is the StaffNodeAgentUpgradeRequest schema.
+type StaffNodeAgentUpgradeRequest struct {
+	// Reason: Why; one line.
+	Reason string `json:"reason"`
+	// Version: A build of the artefact store (see `list_agent_builds`).
+	Version string `json:"version"`
+}
+
+// StaffNodeAllocationAnswer is the StaffNodeAllocationAnswer schema.
+type StaffNodeAllocationAnswer struct {
+	Node FleetNodeDetail `json:"node"`
+	// ServersOutsideAllocation: Servers still running on the host that the new allocation would not place there; draining the host moves them.
+	ServersOutsideAllocation int64 `json:"servers_outside_allocation"`
+}
+
+// StaffNodeAllocationRequest is the StaffNodeAllocationRequest schema.
+type StaffNodeAllocationRequest struct {
+	// AccountID: The account a private host is dedicated to; required for private, refused otherwise.
+	AccountID *string `json:"account_id,omitempty"`
+	Kind      string  `json:"kind"`
+	// Reason: Why; one line.
+	Reason string `json:"reason"`
+}
+
+// StaffNodeMaintenanceRequest is the StaffNodeMaintenanceRequest schema.
+type StaffNodeMaintenanceRequest struct {
+	// AgentVersion: A build of the artefact store to upgrade the agent to; empty keeps the running one.
+	AgentVersion *string `json:"agent_version,omitempty"`
+	// Mode: As `start_zone_node_maintenance` takes it; absent chooses evacuate when every server can move.
+	Mode *string `json:"mode,omitempty"`
+	// Reason: Why; one line.
+	Reason string `json:"reason"`
+	// Reboot: Reboot the node once it is drained (and upgraded).
+	Reboot *bool `json:"reboot,omitempty"`
+}
+
+// StaffPlatformOrganisationSummary is the StaffPlatformOrganisationSummary schema.
+type StaffPlatformOrganisationSummary struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+// StaffPlayground is the StaffPlayground schema.
+type StaffPlayground struct {
+	AccountID   string `json:"account_id"`
+	AccountName string `json:"account_name"`
+	// AppDomain: The wildcard the playground serves its Ingresses under.
+	AppDomain      string     `json:"app_domain"`
+	CreatedAt      time.Time  `json:"created_at"`
+	CreatedByEmail string     `json:"created_by_email"`
+	DeletedAt      *time.Time `json:"deleted_at"`
+	EndReason      *string    `json:"end_reason"`
+	EndedAt        *time.Time `json:"ended_at"`
+	// Endpoint: The API server URL once ready.
+	Endpoint  *string   `json:"endpoint"`
+	ExpiresAt time.Time `json:"expires_at"`
+	// FailureReason: Why a playground that failed to start did.
+	FailureReason *string `json:"failure_reason"`
+	ID            string  `json:"id"`
+	// Limits: What the playground's workloads may use; the control plane's own reservation comes on top.
+	Limits PlaygroundLimits `json:"limits"`
+	// Name: The DNS label, `pg-` and ten hex digits.
+	Name    string     `json:"name"`
+	ReadyAt *time.Time `json:"ready_at"`
+	Region  string     `json:"region"`
+	// StaffReason: What staff said when they ended it.
+	StaffReason *string `json:"staff_reason"`
+	// State: `provisioning` until the API is ready, `ready` until it expires or is ended, `deleting` until everything it ran is gone, then `deleted`.
+	State PlaygroundState `json:"state"`
+}
+
+// StaffPlaygroundEnvelope is the StaffPlaygroundEnvelope schema.
+type StaffPlaygroundEnvelope struct {
+	Playground StaffPlayground `json:"playground"`
+}
+
+// StaffPlaygroundList is the StaffPlaygroundList schema.
+type StaffPlaygroundList struct {
+	Items []StaffPlayground `json:"items"`
+	// NextCursor: Pass as `?cursor=` for the next page; null on the last page.
+	NextCursor *NextCursor `json:"next_cursor"`
+}
+
+// StaffPrivateCloudRequest is the StaffPrivateCloudRequest schema.
+type StaffPrivateCloudRequest struct {
+	AccountID   string    `json:"account_id"`
+	AccountName string    `json:"account_name"`
+	CreatedAt   time.Time `json:"created_at"`
+	// DecidedAt: When the request was fulfilled, declined or withdrawn.
+	DecidedAt *time.Time `json:"decided_at"`
+	// DecidedByStaffEmail: The staff member who last moved the request on.
+	DecidedByStaffEmail *string `json:"decided_by_staff_email"`
+	DiskGigabytes       int64   `json:"disk_gigabytes"`
+	ID                  string  `json:"id"`
+	MemoryGibibytes     int64   `json:"memory_gibibytes"`
+	Notes               string  `json:"notes"`
+	Region              *string `json:"region"`
+	RequestedByEmail    string  `json:"requested_by_email"`
+	// StaffReason: What staff said when they last moved the request on; a decline always carries one.
+	StaffReason *string `json:"staff_reason"`
+	// State: `open` waits for staff, `in_review` is being worked on, `fulfilled` means the hosts are dedicated, `declined` carries the staff's reason, `withdrawn` was tak...
+	State     PrivateCloudRequestState `json:"state"`
+	UpdatedAt time.Time                `json:"updated_at"`
+	Vcpus     int64                    `json:"vcpus"`
+}
+
+// StaffPrivateCloudRequestDetail is the StaffPrivateCloudRequestDetail schema.
+type StaffPrivateCloudRequestDetail struct {
+	// PrivateHostCount: Compute hosts dedicated to the account today.
+	PrivateHostCount int64                    `json:"private_host_count"`
+	Request          StaffPrivateCloudRequest `json:"request"`
+}
+
+// StaffPrivateCloudRequestEnvelope is the StaffPrivateCloudRequestEnvelope schema.
+type StaffPrivateCloudRequestEnvelope struct {
+	Request StaffPrivateCloudRequest `json:"request"`
+}
+
+// StaffPrivateCloudRequestList is the StaffPrivateCloudRequestList schema.
+type StaffPrivateCloudRequestList struct {
+	Items []StaffPrivateCloudRequest `json:"items"`
+	// NextCursor: Pass as `?cursor=` for the next page; null on the last page.
+	NextCursor *NextCursor `json:"next_cursor"`
+}
+
+// StaffReasonRequest is the StaffReasonRequest schema.
+type StaffReasonRequest struct {
+	// Reason: Why; written to the customer's audit log.
+	Reason string `json:"reason"`
+}
+
 // StaffRole is the StaffRole schema: `support` views accounts and opens read-only support sessions; `admin` also changes quotas, credits, coupons and staff and opens elevated sessions.
 type StaffRole = string
+
+// StaffSecondFactorSession is the StaffSecondFactorSession schema.
+type StaffSecondFactorSession struct {
+	// CSRFToken: Send it as X-CSRF-Token on unsafe admin requests.
+	CSRFToken string `json:"csrf_token"`
+	// RecoveryCodes: After a setup at sign-in: the ten recovery codes, shown once.
+	RecoveryCodes []string `json:"recovery_codes,omitempty"`
+	// RecoveryCodesRemaining: After a code check: how many unused recovery codes are left.
+	RecoveryCodesRemaining *int64 `json:"recovery_codes_remaining,omitempty"`
+	Staff                  Staff  `json:"staff"`
+}
+
+// StaffSecondFactorStatus is the StaffSecondFactorStatus schema.
+type StaffSecondFactorStatus struct {
+	Available bool       `json:"available"`
+	EnabledAt *time.Time `json:"enabled_at"`
+	// Enforced: MFA is enforced for the staff member; it cannot be turned off.
+	Enforced               bool  `json:"enforced"`
+	RecoveryCodesRemaining int64 `json:"recovery_codes_remaining"`
+	TotpEnabled            bool  `json:"totp_enabled"`
+	TotpPending            bool  `json:"totp_pending"`
+}
 
 // StaffSession is the StaffSession schema.
 type StaffSession struct {
@@ -2296,23 +6333,221 @@ type StaffSession struct {
 	Staff     Staff  `json:"staff"`
 }
 
+// StaffUser is the StaffUser schema.
+type StaffUser struct {
+	// AccountID: The user's own account.
+	AccountID   string    `json:"account_id"`
+	AccountName string    `json:"account_name"`
+	CreatedAt   time.Time `json:"created_at"`
+	// Disabled: Set while staff have the user disabled.
+	Disabled        *StaffAction `json:"disabled"`
+	Email           string       `json:"email"`
+	EmailVerifiedAt *time.Time   `json:"email_verified_at"`
+	ID              string       `json:"id"`
+	LastLoginAt     *time.Time   `json:"last_login_at"`
+	MFA             StaffUserMFA `json:"mfa"`
+	Name            *string      `json:"name"`
+	// Role: The user's role in their own account.
+	Role string `json:"role"`
+}
+
+// StaffUserDetail is the StaffUserDetail schema.
+type StaffUserDetail struct {
+	User       StaffUser            `json:"user"`
+	Workspaces []StaffUserWorkspace `json:"workspaces"`
+}
+
+// StaffUserMFA is an inline object.
+type StaffUserMFA struct {
+	Enrolled               bool       `json:"enrolled"`
+	EnrolledAt             *time.Time `json:"enrolled_at"`
+	RecoveryCodesRemaining int64      `json:"recovery_codes_remaining"`
+	// RequiredByAccount: Whether the user's own account requires a second factor of every member.
+	RequiredByAccount bool `json:"required_by_account"`
+}
+
+// StaffUserSummary is the StaffUserSummary schema.
+type StaffUserSummary struct {
+	// AccountID: The user's own account.
+	AccountID   string    `json:"account_id"`
+	AccountName string    `json:"account_name"`
+	CreatedAt   time.Time `json:"created_at"`
+	// Disabled: Set while staff have the user disabled.
+	Disabled    *StaffAction `json:"disabled"`
+	Email       string       `json:"email"`
+	ID          string       `json:"id"`
+	LastLoginAt *time.Time   `json:"last_login_at"`
+	Name        *string      `json:"name"`
+	// Role: The user's role in their own account.
+	Role string `json:"role"`
+}
+
+// StaffUserSummaryList is the StaffUserSummaryList schema.
+type StaffUserSummaryList struct {
+	Items []StaffUserSummary `json:"items"`
+	// NextCursor: Pass as `?cursor=` for the next page; null on the last page.
+	NextCursor *NextCursor `json:"next_cursor"`
+}
+
+// StaffUserWorkspace is the StaffUserWorkspace schema: One account the user reaches, with their role in it.
+type StaffUserWorkspace struct {
+	AccountID    string     `json:"account_id"`
+	AccountName  string     `json:"account_name"`
+	ConfirmedAt  *time.Time `json:"confirmed_at"`
+	IsOwnAccount bool       `json:"is_own_account"`
+	// IsOwnerRetained: The user holds the owner seat although the platform no longer lists them.
+	IsOwnerRetained bool `json:"is_owner_retained"`
+	// IsStale: The last sign-in could not confirm the membership.
+	IsStale      bool                  `json:"is_stale"`
+	Organisation *PlatformOrganisation `json:"organisation"`
+	// PlatformRole: The role the Ankra platform gave the user in the organisation.
+	PlatformRole *string `json:"platform_role"`
+	Role         string  `json:"role"`
+}
+
+// StaffZone is the StaffZone schema.
+type StaffZone struct {
+	// AutonomousSystem: The zone's private ASN, carried by every join token for the zone; null when nobody recorded it, and hosts added there then join with the installer's default ...
+	AutonomousSystem *int64 `json:"autonomous_system"`
+	// Country: The zone's region's ISO 3166-1 alpha-2 country code.
+	Country   *string   `json:"country,omitempty"`
+	CreatedAt time.Time `json:"created_at"`
+	// CustomerVisible: False for a zone hidden from customers: a customer only sees it, and places new resources in it, when the account may use hidden zones or has private hosts t...
+	CustomerVisible *bool  `json:"customer_visible,omitempty"`
+	DisplayName     string `json:"display_name"`
+	// IsPrivateCloud: True, in a customer's listing, on a zone in which Ankra dedicated compute hosts to the caller's account (its private cloud): the account's servers there run ...
+	IsPrivateCloud *bool  `json:"is_private_cloud,omitempty"`
+	Name           string `json:"name"`
+	// Nat64: The zone's effective NAT64 and where each part comes from.
+	Nat64 ZoneNat64 `json:"nat64"`
+	// Nat64EgressAddresses: The NAT64 egress IPv4 addresses recorded on the zone; empty when the zone's NAT64 comes from `ANKRA_CLOUD_ZONE_NAT64_EGRESS_ADDRESSES` (or it has none).
+	Nat64EgressAddresses []string `json:"nat64_egress_addresses"`
+	// Nat64PortsPerClient: The source ports each client /64 gets from the zone's NAT64, set on the zone; null leaves it to `ANKRA_CLOUD_ZONE_NAT64_PORTS_PER_CLIENT`.
+	Nat64PortsPerClient *int64 `json:"nat64_ports_per_client"`
+	// Position: Where the zone is listed, lowest first (then by name); regions follow the position of their first zone.
+	Position *int64 `json:"position,omitempty"`
+	// PublicUplink: How the zone's gateways reach the internet (ADR 0008).
+	PublicUplink string `json:"public_uplink"`
+	Region       string `json:"region"`
+	// RetiredAt: When the zone was retired; null while it is in service.
+	RetiredAt *time.Time `json:"retired_at"`
+	// Underlay: How the zone's hosts reach each other (ADR 0004): `fabric` is a private network, `wireguard` the encrypted underlay.
+	Underlay *string `json:"underlay,omitempty"`
+}
+
+// StaffZoneEnvelope is the StaffZoneEnvelope schema.
+type StaffZoneEnvelope struct {
+	Zone StaffZone `json:"zone"`
+}
+
+// StaffZoneList is the StaffZoneList schema.
+type StaffZoneList struct {
+	Items []StaffZone `json:"items"`
+	// NextCursor: Pass as `?cursor=` for the next page; null on the last page.
+	NextCursor *NextCursor `json:"next_cursor"`
+}
+
+// StartAgentRolloutRequest is the StartAgentRolloutRequest schema.
+type StartAgentRolloutRequest struct {
+	// AllowWithoutCanary: Take zones that have no canary node instead of refusing them.
+	AllowWithoutCanary *bool `json:"allow_without_canary,omitempty"`
+	// AutoPromoteAfterSeconds: How long each zone's canaries soak, healthy, before the rollout continues on its own.
+	AutoPromoteAfterSeconds *int64 `json:"auto_promote_after_seconds,omitempty"`
+	// Reason: Why; one line.
+	Reason string `json:"reason"`
+	// Version: A build of the artefact store (see `list_agent_builds`).
+	Version string `json:"version"`
+	// Zones: Limit the rollout to these zones; absent or empty takes every zone.
+	Zones []string `json:"zones,omitempty"`
+}
+
+// StartEdgeRouterApplyRequest is an inline object.
+type StartEdgeRouterApplyRequest struct {
+	// Digest: The digest of the plan that was compared with the edge.
+	Digest string `json:"digest"`
+}
+
+// StartEdgeRouterApplyResponse is an inline object.
+type StartEdgeRouterApplyResponse struct {
+	Operation EdgeRouterOperation `json:"operation"`
+}
+
+// StartPlatformWorkspaceSyncResponse is an inline object.
+type StartPlatformWorkspaceSyncResponse struct {
+	State json.RawMessage `json:"state"`
+}
+
+// StartPlayground is the StartPlayground schema.
+type StartPlayground struct {
+	// Region: A region from `regions` of `get_playground_offer`; the first when absent.
+	Region *string `json:"region,omitempty"`
+}
+
 // Storage is the Storage schema.
 type Storage struct {
 	ActiveOperation *Operation  `json:"active_operation"`
 	BackupRule      *BackupRule `json:"backup_rule"`
 	CreatedAt       time.Time   `json:"created_at"`
 	DeviceIndex     *int64      `json:"device_index"`
-	ID              string      `json:"id"`
-	NextBackupAt    *time.Time  `json:"next_backup_at"`
-	ServerID        *string     `json:"server_id"`
-	SizeGibibytes   int64       `json:"size_gibibytes"`
-	SourceTemplate  *string     `json:"source_template"`
+	// DeviceSerial: The virtio serial the storage's disk carries in every server it is attached to: the first 20 characters of `id`.
+	DeviceSerial string     `json:"device_serial"`
+	ID           string     `json:"id"`
+	NextBackupAt *time.Time `json:"next_backup_at"`
+	// NodeID: The node a local-nvme storage lives on; it attaches only to servers running there.
+	NodeID *string `json:"node_id"`
+	// Region: The region of the storage's zone.
+	Region   *string `json:"region,omitempty"`
+	ServerID *string `json:"server_id"`
+	// SingleCopyAcknowledgedAt: When the account acknowledged running the storage without a backup rule in a zone that keeps one copy of every volume (`acknowledge_single_copy_without_backu...
+	SingleCopyAcknowledgedAt *time.Time `json:"single_copy_acknowledged_at,omitempty"`
+	SizeGibibytes            int64      `json:"size_gibibytes"`
+	SourceTemplate           *string    `json:"source_template"`
 	// State: `maintenance` while an operation runs.
 	State     string    `json:"state"`
 	Tier      string    `json:"tier"`
 	Title     string    `json:"title"`
 	UpdatedAt time.Time `json:"updated_at"`
 	Zone      string    `json:"zone"`
+}
+
+// StorageBackend is the StorageBackend schema.
+type StorageBackend struct {
+	Backend string `json:"backend"`
+	Hosts   int64  `json:"hosts"`
+	// NodeID: Ceph: the storage node that administers the cluster.
+	NodeID         *string                    `json:"node_id"`
+	Replication    *StorageBackendReplication `json:"replication"`
+	SingleHostCeph bool                       `json:"single_host_ceph"`
+	State          string                     `json:"state"`
+	UpdatedAt      *time.Time                 `json:"updated_at"`
+}
+
+// StorageBackendOverview is the StorageBackendOverview schema.
+type StorageBackendOverview struct {
+	// AllowDegradedReplication: Whether the zone sells Ceph tiers below size 3 / min_size 2 on three hosts (the operator override).
+	AllowDegradedReplication bool             `json:"allow_degraded_replication"`
+	Backends                 []StorageBackend `json:"backends"`
+	CephMinHosts             int64            `json:"ceph_min_hosts"`
+	// CephTiersOffered: Whether new volumes and server boot disks may use the Ceph tiers.
+	CephTiersOffered bool `json:"ceph_tiers_offered"`
+	// CephTiersUnavailableReason: Why the Ceph tiers are not offered: Ceph is inactive, or replicates below size 3 / min_size 2 on three hosts without the override.
+	CephTiersUnavailableReason *string `json:"ceph_tiers_unavailable_reason"`
+	// CephWitnesses: The zone's ceph-witness nodes: one monitor each, no OSDs.
+	CephWitnesses []StorageNode `json:"ceph_witnesses"`
+	Nodes         []StorageNode `json:"nodes"`
+	// StorageCopies: How many copies of a volume the replicated storage keeps and where, as the policy last converged it.
+	StorageCopies           *string `json:"storage_copies,omitempty"`
+	StorageDurability       string  `json:"storage_durability"`
+	StorageDurabilityReason *string `json:"storage_durability_reason"`
+}
+
+// StorageBackendReplication is an inline object.
+type StorageBackendReplication struct {
+	FailureDomain string `json:"failure_domain"`
+	Managers      int64  `json:"managers"`
+	MinSize       int64  `json:"min_size"`
+	Monitors      int64  `json:"monitors"`
+	Size          int64  `json:"size"`
 }
 
 // StorageEnvelope is the StorageEnvelope schema.
@@ -2327,11 +6562,38 @@ type StorageList struct {
 	NextCursor *NextCursor `json:"next_cursor"`
 }
 
+// StorageNode is the StorageNode schema.
+type StorageNode struct {
+	// CephVolumeGibibytes: The size of the node's Ankra Storage volume with the storage policy both; null otherwise.
+	CephVolumeGibibytes *int64 `json:"ceph_volume_gibibytes,omitempty"`
+	Compute             bool   `json:"compute"`
+	Hostname            string `json:"hostname"`
+	LocalGibibytes      int64  `json:"local_gibibytes"`
+	NodeID              string `json:"node_id"`
+	Online              bool   `json:"online"`
+	// OsdHost: Whether the node held an OSD when the storage policy last read the cluster.
+	OsdHost *bool `json:"osd_host,omitempty"`
+	// StoragePolicy: What the storage node's disks serve (absent for a ceph-witness node).
+	StoragePolicy *string `json:"storage_policy,omitempty"`
+}
+
+// StoragePlacement is the StoragePlacement schema: Where a local-nvme storage lands; other tiers ignore it.
+type StoragePlacement struct {
+	// NodeID: On this storage and compute node.
+	NodeID *string `json:"node_id,omitempty"`
+	// ServerID: On the node that runs this server (preferred).
+	ServerID *string `json:"server_id,omitempty"`
+}
+
 // StorageTier is the StorageTier schema.
 type StorageTier struct {
-	BandwidthMebibytesPerSecond       int64  `json:"bandwidth_mebibytes_per_second"`
-	DisplayName                       string `json:"display_name"`
-	IOPSLimit                         int64  `json:"iops_limit"`
+	// Backend: `ceph` tiers are Ankra Storage, replicated, and exist once the zone has Ankra Storage; `ankra-local` volumes are one copy on one node's disks and pin their s...
+	Backend                     string `json:"backend"`
+	BandwidthMebibytesPerSecond int64  `json:"bandwidth_mebibytes_per_second"`
+	DisplayName                 string `json:"display_name"`
+	IOPSLimit                   int64  `json:"iops_limit"`
+	// IsOffered: False for a retired tier.
+	IsOffered                         bool   `json:"is_offered"`
 	Name                              string `json:"name"`
 	PricePerGibibyteMonthlyMillicents int64  `json:"price_per_gibibyte_monthly_millicents"`
 }
@@ -2393,6 +6655,59 @@ type SupportSessionList struct {
 	NextCursor *NextCursor `json:"next_cursor"`
 }
 
+// SwitchAccountRequest is an inline object.
+type SwitchAccountRequest struct {
+	AccountID *string `json:"account_id,omitempty"`
+	// OrganisationID: The Ankra platform organisation to open.
+	OrganisationID *string `json:"organisation_id,omitempty"`
+}
+
+// SwitchAccountResponse is an inline object.
+type SwitchAccountResponse struct {
+	Account SwitchableAccount `json:"account"`
+}
+
+// SwitchableAccount is the SwitchableAccount schema.
+type SwitchableAccount struct {
+	ConfirmedAt  *time.Time `json:"confirmed_at"`
+	ID           string     `json:"id"`
+	IsActive     bool       `json:"is_active"`
+	IsOwnAccount bool       `json:"is_own_account"`
+	// IsOwnerRetained: You hold the owner seat although the platform no longer lists you; nobody else could take it.
+	IsOwnerRetained bool `json:"is_owner_retained"`
+	// IsStale: The last sign-in could not confirm this membership because the platform did not answer.
+	IsStale      bool                  `json:"is_stale"`
+	Name         string                `json:"name"`
+	Organisation *PlatformOrganisation `json:"organisation"`
+	// PlatformRole: The role the platform gives you in the organisation; empty for your own account.
+	PlatformRole string `json:"platform_role"`
+	Role         string `json:"role"`
+}
+
+// SyncDNSZoneResponse is an inline object.
+type SyncDNSZoneResponse struct {
+	// Zone: A hosted DNS zone.
+	Zone DNSZone `json:"zone"`
+}
+
+// TailnetMember is the TailnetMember schema: A machine headscale knows.
+type TailnetMember struct {
+	Addresses []string `json:"addresses"`
+	// GivenName: Its MagicDNS name.
+	GivenName string `json:"given_name"`
+	// ID: headscale's node id.
+	ID       string     `json:"id"`
+	LastSeen *time.Time `json:"last_seen"`
+	// Name: The hostname it joined with.
+	Name string `json:"name"`
+	// NodeID: The registered node it is; null for a machine that is not one.
+	NodeID *string `json:"node_id"`
+	Online bool    `json:"online"`
+	// User: The headscale user it is registered under.
+	User string  `json:"user"`
+	Zone *string `json:"zone"`
+}
+
 // Template is the Template schema.
 type Template struct {
 	DisplayName string `json:"display_name"`
@@ -2427,9 +6742,86 @@ type TemplatizeStorageResponse struct {
 // TokenScope is the TokenScope schema: `read` (any read the role allows, no writes), `read_write` (everything the role allows), or a comma-separated list of permissions from read, operate, billing...
 type TokenScope = string
 
+// UnderlayMesh is the UnderlayMesh schema.
+type UnderlayMesh struct {
+	Datacenters []Datacenter `json:"datacenters"`
+	// GuestMtu: The overlay MTU of the zone's guests, taps and bridges: 1370 on WireGuard, 1450 on a fabric.
+	GuestMtu      int64                   `json:"guest_mtu"`
+	LatencyBudget []DatacenterLink        `json:"latency_budget"`
+	Links         []UnderlayMeshLinksItem `json:"links"`
+	Nodes         []UnderlayMeshNodesItem `json:"nodes"`
+	// Prefixes: The zone's fabric and storage underlay prefixes (reserved against customer networks).
+	Prefixes []string `json:"prefixes"`
+	Underlay string   `json:"underlay"`
+	Zone     string   `json:"zone"`
+}
+
+// UnderlayMeshLinksItem is an inline object.
+type UnderlayMeshLinksItem struct {
+	BandwidthBitsPerSecond *int64     `json:"bandwidth_bits_per_second"`
+	BandwidthMeasuredAt    *time.Time `json:"bandwidth_measured_at"`
+	LastHandshakeAt        *time.Time `json:"last_handshake_at"`
+	LossRatio              float64    `json:"loss_ratio"`
+	MeasuredAt             time.Time  `json:"measured_at"`
+	NodeID                 string     `json:"node_id"`
+	P50RttMs               float64    `json:"p50_rtt_ms"`
+	P95RttMs               float64    `json:"p95_rtt_ms"`
+	PeerNodeID             string     `json:"peer_node_id"`
+	Samples                int64      `json:"samples"`
+}
+
+// UnderlayMeshNodesItem is an inline object.
+type UnderlayMeshNodesItem struct {
+	Datacenter *string  `json:"datacenter"`
+	Hostname   string   `json:"hostname"`
+	Liveness   string   `json:"liveness"`
+	NodeID     string   `json:"node_id"`
+	Roles      []string `json:"roles"`
+	// UnderlayAddresses: The addresses assigned to a node that joined with the WireGuard underlay.
+	UnderlayAddresses *UnderlayMeshNodesItemUnderlayAddresses `json:"underlay_addresses"`
+	Wireguard         *WireGuardIdentity                      `json:"wireguard"`
+}
+
+// UnderlayMeshNodesItemUnderlayAddresses is an inline object: The addresses assigned to a node that joined with the WireGuard underlay.
+type UnderlayMeshNodesItemUnderlayAddresses struct {
+	Fabric  string `json:"fabric"`
+	Storage string `json:"storage"`
+}
+
 // UnlinkAccountIdentityResponse is an inline object.
 type UnlinkAccountIdentityResponse struct {
 	Identity LinkedIdentity `json:"identity"`
+}
+
+// UnlinkAccountOrganisationRequest is an inline object.
+type UnlinkAccountOrganisationRequest struct {
+	Reason string `json:"reason"`
+}
+
+// UnlinkAccountOrganisationResponse is an inline object.
+type UnlinkAccountOrganisationResponse struct {
+	Link OrganisationLink `json:"link"`
+}
+
+// UnretireZoneRequest is the UnretireZoneRequest schema.
+type UnretireZoneRequest struct {
+	// Reason: Why, one line; recorded in the platform audit chain.
+	Reason string `json:"reason"`
+}
+
+// UpdateDNSRecordRequest is an inline object.
+type UpdateDNSRecordRequest struct {
+	// Comment: An empty string clears the comment.
+	Comment  *string `json:"comment,omitempty"`
+	Content  *string `json:"content,omitempty"`
+	Name     *string `json:"name,omitempty"`
+	Priority *int64  `json:"priority,omitempty"`
+	TTL      *int64  `json:"ttl,omitempty"`
+}
+
+// UpdateDNSRecordResponse is an inline object.
+type UpdateDNSRecordResponse struct {
+	Record DNSRecord `json:"record"`
 }
 
 // UpdateEdgeRequest is an inline object.
@@ -2449,6 +6841,21 @@ type UpdateEdgeResponse struct {
 // UpdateInitScriptResponse is an inline object.
 type UpdateInitScriptResponse struct {
 	InitScript InitScript `json:"init_script"`
+}
+
+// UpdateKubernetesNodePoolRequest is an inline object.
+type UpdateKubernetesNodePoolRequest struct {
+	Autoscaling *KubernetesAutoscaling `json:"autoscaling,omitempty"`
+	Count       *int64                 `json:"count,omitempty"`
+	// Labels: Keys of 1-63 letters, digits, `.`, `_`, `/` or `-`, starting and ending with a letter or digit; values of at most 255 printable characters.
+	Labels Labels            `json:"labels,omitempty"`
+	Taints []KubernetesTaint `json:"taints,omitempty"`
+}
+
+// UpdateKubernetesNodePoolResponse is an inline object.
+type UpdateKubernetesNodePoolResponse struct {
+	NodePool  KubernetesNodePool `json:"node_pool"`
+	Operation Operation          `json:"operation"`
 }
 
 // UpdateLoadBalancerBackendRequest is an inline object.
@@ -2472,6 +6879,38 @@ type UpdateLoadBalancerMemberRequest struct {
 // UpdateLoadBalancerMemberResponse is an inline object.
 type UpdateLoadBalancerMemberResponse struct {
 	Member LoadBalancerMember `json:"member"`
+}
+
+// UpdateLoadBalancerRequest is an inline object.
+type UpdateLoadBalancerRequest struct {
+	// Labels: Keys of 1-63 letters, digits, `.`, `_`, `/` or `-`, starting and ending with a letter or digit; values of at most 255 printable characters.
+	Labels Labels  `json:"labels,omitempty"`
+	Name   *string `json:"name,omitempty"`
+}
+
+// UpdateLoadBalancerResponse is an inline object.
+type UpdateLoadBalancerResponse struct {
+	LoadBalancer LoadBalancer `json:"load_balancer"`
+}
+
+// UpdateNetworkRequest is an inline object.
+type UpdateNetworkRequest struct {
+	Zones []string `json:"zones"`
+}
+
+// UpdateNetworkResponse is an inline object.
+type UpdateNetworkResponse struct {
+	Network   Network   `json:"network"`
+	Operation Operation `json:"operation"`
+}
+
+// UpdateRegionRequest is the UpdateRegionRequest schema.
+type UpdateRegionRequest struct {
+	// ControlPlaneEndpoint: An https URL, or empty for the global control plane.
+	ControlPlaneEndpoint *string `json:"control_plane_endpoint,omitempty"`
+	// Country: ISO 3166-1 alpha-2; upper-cased.
+	Country     *string `json:"country,omitempty"`
+	DisplayName *string `json:"display_name,omitempty"`
 }
 
 // UpdateRouterRequest is an inline object.
@@ -2512,9 +6951,75 @@ type UpdateStaffRequest struct {
 
 // UpdateStorageRequest is an inline object.
 type UpdateStorageRequest struct {
+	// AcknowledgeSingleCopyWithoutBackup: Lets `backup_rule: null` remove the backup rule of a storage that is a single copy on one host; the storage records when (`single_copy_acknowledged_at`).
+	AcknowledgeSingleCopyWithoutBackup *bool `json:"acknowledge_single_copy_without_backup,omitempty"`
 	// BackupRule: `null` removes the schedule; leaving the field out keeps it.
 	BackupRule *BackupRule `json:"backup_rule,omitempty"`
 	Title      *string     `json:"title,omitempty"`
+}
+
+// UpdateZoneObjectStorageOperatorResponse is an inline object.
+type UpdateZoneObjectStorageOperatorResponse struct {
+	ObjectStorage ZoneObjectStorage `json:"object_storage"`
+	// Operation: The `storage.rebalance_policy` operation that applies the change to the serving node; null when the change needs none or one already runs.
+	Operation *Operation `json:"operation"`
+	// PolicyProblem: Why the storage policy did not start although the change is recorded; start it with `rebalance_zone_storage`.
+	PolicyProblem *string `json:"policy_problem"`
+}
+
+// UpdateZoneObjectStorageRequest is the UpdateZoneObjectStorageRequest schema.
+type UpdateZoneObjectStorageRequest struct {
+	// Certificate: The certificate chain (PEM, leaf first) and its unencrypted private key (PEM); both empty removes the recorded certificate.
+	Certificate *UpdateZoneObjectStorageRequestCertificate `json:"certificate,omitempty"`
+	// Endpoint: An http or https URL of a host with an optional port, for example `https://s3.eu-north.ankra.cloud`; empty hands the zone back to `ANKRA_CLOUD_OBJECT_STORAGE...
+	Endpoint *string `json:"endpoint,omitempty"`
+	// ListenAddresses: The named node's own public addresses with the endpoint's port, IPv6 in brackets (`[2001:db8::10]:443`, `203.0.113.10:443`); empty hands the node back to its...
+	ListenAddresses []string `json:"listen_addresses,omitempty"`
+	// NodeID: A storage node of the zone; empty leaves the choice to the storage policy.
+	NodeID *string `json:"node_id,omitempty"`
+}
+
+// UpdateZoneObjectStorageRequestCertificate is an inline object: The certificate chain (PEM, leaf first) and its unencrypted private key (PEM); both empty removes the recorded certificate.
+type UpdateZoneObjectStorageRequestCertificate struct {
+	ChainPem      string `json:"chain_pem"`
+	PrivateKeyPem string `json:"private_key_pem"`
+}
+
+// UpdateZoneObjectStorageResponse is an inline object.
+type UpdateZoneObjectStorageResponse struct {
+	ObjectStorage ZoneObjectStorage `json:"object_storage"`
+	// Operation: The `storage.rebalance_policy` operation that applies the change to the serving node; null when the change needs none or one already runs.
+	Operation *Operation `json:"operation"`
+	// PolicyProblem: Why the storage policy did not start although the change is recorded; start it with `rebalance_zone_storage`.
+	PolicyProblem *string `json:"policy_problem"`
+}
+
+// UpdateZoneRequest is the UpdateZoneRequest schema.
+type UpdateZoneRequest struct {
+	// AllowSingleCopyWithoutVault: With `customer_visible: true`, lists the zone for customers although it keeps one copy of every volume and no backup vault outside the zone holds their backups.
+	AllowSingleCopyWithoutVault *bool `json:"allow_single_copy_without_vault,omitempty"`
+	// AutonomousSystem: A private ASN (64512 to 65534 or 4200000000 to 4294967294).
+	AutonomousSystem *int64  `json:"autonomous_system,omitempty"`
+	CustomerVisible  *bool   `json:"customer_visible,omitempty"`
+	DisplayName      *string `json:"display_name,omitempty"`
+	// Nat64EgressAddresses: The zone's NAT64 egress IPv4 addresses; an empty list hands the zone's NAT64 back to the environment.
+	Nat64EgressAddresses []string `json:"nat64_egress_addresses,omitempty"`
+	// Nat64PortsPerClient: Source ports per client /64 in the zone, 64 to 64512; 0 hands them back to the environment.
+	Nat64PortsPerClient *int64 `json:"nat64_ports_per_client,omitempty"`
+	// OverrideReason: Why the single-copy gate is overridden, one line.
+	OverrideReason *string `json:"override_reason,omitempty"`
+	Position       *int64  `json:"position,omitempty"`
+}
+
+// UpgradeKubernetesClusterRequest is an inline object.
+type UpgradeKubernetesClusterRequest struct {
+	Version string `json:"version"`
+}
+
+// UpgradeKubernetesClusterResponse is an inline object.
+type UpgradeKubernetesClusterResponse struct {
+	KubernetesCluster KubernetesCluster `json:"kubernetes_cluster"`
+	Operation         Operation         `json:"operation"`
 }
 
 // UsageDay is the UsageDay schema.
@@ -2525,8 +7030,10 @@ type UsageDay struct {
 
 // UsageResource is the UsageResource schema.
 type UsageResource struct {
-	AmountCents           int64  `json:"amount_cents"`
-	CapCents              int64  `json:"cap_cents"`
+	AmountCents int64 `json:"amount_cents"`
+	CapCents    int64 `json:"cap_cents"`
+	// EstimatedMonthCents: The resource's projected cost for the whole month: metered so far plus, while it still exists, its hourly price for the hours left, never above `cap_cents` (...
+	EstimatedMonthCents   int64  `json:"estimated_month_cents"`
 	HourlyPriceMillicents int64  `json:"hourly_price_millicents"`
 	Hours                 int64  `json:"hours"`
 	IsActive              bool   `json:"is_active"`
@@ -2574,12 +7081,143 @@ type WebhookReceipt struct {
 	Received bool   `json:"received"`
 }
 
+// WireGuardIdentity is the WireGuardIdentity schema.
+type WireGuardIdentity struct {
+	// AlternatePublicKey: The second key peers accept during a key rotation (the new key before the switch, the previous one after it).
+	AlternatePublicKey *string    `json:"alternate_public_key"`
+	Endpoint           *string    `json:"endpoint"`
+	KeySince           *time.Time `json:"key_since"`
+	// PublicKey: The key peers route the node's underlay addresses to (base64).
+	PublicKey string `json:"public_key"`
+	// Rotation: Key rotations the control plane asked for; keys rotate every 30 days with a 10-minute overlap.
+	Rotation int64 `json:"rotation"`
+	// UnderlayAddresses: The fabric and storage addresses routed to the node over the mesh.
+	UnderlayAddresses []string `json:"underlay_addresses"`
+}
+
 // Zone is the Zone schema.
 type Zone struct {
-	CreatedAt   time.Time `json:"created_at"`
-	DisplayName string    `json:"display_name"`
-	Name        string    `json:"name"`
-	Region      string    `json:"region"`
+	// Country: The zone's region's ISO 3166-1 alpha-2 country code.
+	Country   *string   `json:"country,omitempty"`
+	CreatedAt time.Time `json:"created_at"`
+	// CustomerVisible: False for a zone hidden from customers: a customer only sees it, and places new resources in it, when the account may use hidden zones or has private hosts t...
+	CustomerVisible *bool  `json:"customer_visible,omitempty"`
+	DisplayName     string `json:"display_name"`
+	// IsPrivateCloud: True, in a customer's listing, on a zone in which Ankra dedicated compute hosts to the caller's account (its private cloud): the account's servers there run ...
+	IsPrivateCloud *bool  `json:"is_private_cloud,omitempty"`
+	Name           string `json:"name"`
+	// Position: Where the zone is listed, lowest first (then by name); regions follow the position of their first zone.
+	Position *int64 `json:"position,omitempty"`
+	Region   string `json:"region"`
+	// Underlay: How the zone's hosts reach each other (ADR 0004): `fabric` is a private network, `wireguard` the encrypted underlay.
+	Underlay *string `json:"underlay,omitempty"`
+}
+
+// ZoneCapabilities is the ZoneCapabilities schema.
+type ZoneCapabilities struct {
+	// BackupTargets: `ceph` is the zone's Ankra Storage, `vault` the region's off-host backup vault, `zone-object-store` the zone's single-node S3 server.
+	BackupTargets []string `json:"backup_targets,omitempty"`
+	// CephTiersOffered: Whether new storages and server disks may use the Ankra Storage tiers (`backend: ceph`) in the zone.
+	CephTiersOffered bool `json:"ceph_tiers_offered"`
+	// CephTiersUnavailableReason: Why the Ankra Storage tiers are not offered: Ankra Storage is not active yet, or replicates below size 3 / min_size 2 on three hosts without the operator ove...
+	CephTiersUnavailableReason *string `json:"ceph_tiers_unavailable_reason"`
+	// ComputeNodes: The hypervisor hosts servers are placed on; 0 in a network-only location.
+	ComputeNodes *int64 `json:"compute_nodes,omitempty"`
+	// CPUPools: The compute nodes grouped by exact CPU; servers are placed in one and migrate within it.
+	CPUPools []ZoneCapabilitiesCPUPoolsItem `json:"cpu_pools,omitempty"`
+	// Datacenters: Where the zone's nodes stand.
+	Datacenters []Datacenter `json:"datacenters"`
+	// DefaultBackup: The backup rule a new server disk or storage gets in the zone when its request names none: a zone that keeps one copy of every volume backs each new one up t...
+	DefaultBackup *ZoneCapabilitiesDefaultBackup `json:"default_backup,omitempty"`
+	// DefaultStorageTier: The tier a new server's disk or a new storage gets in the zone when the request names none: `standard` once the zone offers the Ankra Storage tiers, `local-n...
+	DefaultStorageTier string                   `json:"default_storage_tier"`
+	Features           ZoneCapabilitiesFeatures `json:"features"`
+	// GatewayRedundancy: `single`: the zone has one gateway, and its public networking stops while that host is down.
+	GatewayRedundancy       *string `json:"gateway_redundancy,omitempty"`
+	GatewayRedundancyReason *string `json:"gateway_redundancy_reason,omitempty"`
+	Gateways                int64   `json:"gateways"`
+	// LatencyBudget: Every pair of the zone's datacenters (a datacenter with itself included) rated against the budget measured over the underlay: Ankra Storage replicates across...
+	LatencyBudget []DatacenterLink `json:"latency_budget"`
+	// LocalStorage: Whether the zone's Ankra Local (`local-nvme`) storage takes new volumes now.
+	LocalStorage *ZoneCapabilitiesLocalStorage `json:"local_storage,omitempty"`
+	// ObjectStorageDurability: How many copies of an object survive a host loss: `single_copy` on the zone's single-node S3 server, Ankra Storage's durability once the zone serves objects ...
+	ObjectStorageDurability *string `json:"object_storage_durability,omitempty"`
+	// OffsiteBackups: Whether backups of the zone's volumes go to a backup vault outside the zone.
+	OffsiteBackups *bool `json:"offsite_backups,omitempty"`
+	// OffsiteBackupsReason: Why backups do not leave the zone.
+	OffsiteBackupsReason *string `json:"offsite_backups_reason,omitempty"`
+	// PublicIPv4: The zone's public IPv4 addresses for a server's IPv4 add-on: `total` is what the pools an allocation takes from span, `free` what no server, floating IP or N...
+	PublicIPv4 *ZoneCapabilitiesPublicIPv4 `json:"public_ipv4,omitempty"`
+	// Reasons: Why the zone lacks each feature that is false, keyed by the feature's name.
+	Reasons map[string]string `json:"reasons,omitempty"`
+	// Recovery: What brings a server back after its host is lost.
+	Recovery *string `json:"recovery,omitempty"`
+	// RecoveryReason: Why recovery is not a restart.
+	RecoveryReason *string `json:"recovery_reason,omitempty"`
+	// Servers: Nodes with a gateway, storage or compute role.
+	Servers int64 `json:"servers"`
+	// Stage: 1 for one server, 2 for two, 3 from three on; 0 before any server registered.
+	Stage int64 `json:"stage"`
+	// StorageBackends: `ankra-local` is Local NVMe on the storage nodes, `ceph` is Ankra Storage, `ankra-s3-single` the single-node S3 server.
+	StorageBackends []string `json:"storage_backends"`
+	// StorageCopies: How many copies of a volume on the zone's replicated tiers its storage keeps and where, as its policy last converged: "3 copies, one per host" from three sto...
+	StorageCopies *string `json:"storage_copies,omitempty"`
+	// StorageDurability: `replicated` is Ankra Storage on three or more hosts; `degraded` is Ankra Storage on two hosts (a zone that set ceph_min_hosts to 2): two copies, and writes ...
+	StorageDurability *string `json:"storage_durability,omitempty"`
+	// StorageDurabilityReason: Why the durability is not replicated.
+	StorageDurabilityReason *string `json:"storage_durability_reason,omitempty"`
+	// Underlay: How the zone's hosts reach each other (ADR 0004): `fabric` is a private network, `wireguard` the encrypted underlay.
+	Underlay string `json:"underlay"`
+	// UplinkRedundancy: `redundant`: at least two gateways each reach the internet through a different edge router.
+	UplinkRedundancy       *string `json:"uplink_redundancy,omitempty"`
+	UplinkRedundancyReason *string `json:"uplink_redundancy_reason,omitempty"`
+	// Warnings: What limits the zone's durability, such as a backup target on the same host as the volumes, or local storage pools that take no new volumes.
+	Warnings []string `json:"warnings,omitempty"`
+}
+
+// ZoneCapabilitiesCPUPoolsItem is an inline object.
+type ZoneCapabilitiesCPUPoolsItem struct {
+	Family    int64  `json:"family"`
+	FlagCount int64  `json:"flag_count"`
+	Model     string `json:"model"`
+	Name      string `json:"name"`
+	Nodes     int64  `json:"nodes"`
+	Vendor    string `json:"vendor"`
+}
+
+// ZoneCapabilitiesDefaultBackup is an inline object.
+type ZoneCapabilitiesDefaultBackup struct {
+	Interval      string `json:"interval"`
+	RetentionDays int64  `json:"retention_days"`
+}
+
+// ZoneCapabilitiesFeatures is an inline object.
+type ZoneCapabilitiesFeatures struct {
+	// Compute: False in a network-only location: the zone has no compute node and runs no servers.
+	Compute        bool `json:"compute"`
+	HARestart      bool `json:"ha_restart"`
+	LiveMigration  bool `json:"live_migration"`
+	LoadBalancerHA bool `json:"load_balancer_ha"`
+	SeparateEdges  bool `json:"separate_edges"`
+}
+
+// ZoneCapabilitiesLocalStorage is an inline object: Whether the zone's Ankra Local (`local-nvme`) storage takes new volumes now.
+type ZoneCapabilitiesLocalStorage struct {
+	// AcceptsNewVolumes: False when every Ankra Local thin pool of the zone is too full or too overcommitted for a new volume.
+	AcceptsNewVolumes bool `json:"accepts_new_volumes"`
+	// Reason: Why some or all of the zone's pools take no new volumes; null when every pool does.
+	Reason *string `json:"reason"`
+}
+
+// ZoneCapabilitiesPublicIPv4 is an inline object: The zone's public IPv4 addresses for a server's IPv4 add-on: `total` is what the pools an allocation takes from span, `free` what no server, floating IP or N...
+type ZoneCapabilitiesPublicIPv4 struct {
+	Free  int64 `json:"free"`
+	Total int64 `json:"total"`
+}
+
+// ZoneEnvelope is the ZoneEnvelope schema.
+type ZoneEnvelope struct {
+	Zone Zone `json:"zone"`
 }
 
 // ZoneList is the ZoneList schema.
@@ -2589,12 +7227,115 @@ type ZoneList struct {
 	NextCursor *NextCursor `json:"next_cursor"`
 }
 
+// ZoneNat64 is the ZoneNAT64 schema: The zone's effective NAT64 and where each part comes from.
+type ZoneNat64 struct {
+	ConnectionsPerClient int64 `json:"connections_per_client"`
+	// EgressAddresses: The addresses the zone's gateways translate to.
+	EgressAddresses []string `json:"egress_addresses"`
+	// EnvironmentEgressAddresses: The zone's `ANKRA_CLOUD_ZONE_NAT64_EGRESS_ADDRESSES` entry, the fallback.
+	EnvironmentEgressAddresses []string `json:"environment_egress_addresses"`
+	// EnvironmentPortsPerClient: `ANKRA_CLOUD_ZONE_NAT64_PORTS_PER_CLIENT`, the fallback.
+	EnvironmentPortsPerClient int64 `json:"environment_ports_per_client"`
+	NewConnectionsPerSecond   int64 `json:"new_connections_per_second"`
+	// PortsPerClient: The source ports each client /64 gets.
+	PortsPerClient       int64  `json:"ports_per_client"`
+	PortsPerClientSource string `json:"ports_per_client_source"`
+	// Source: Where the egress addresses come from; none: the zone's gateways serve no NAT64.
+	Source string `json:"source"`
+}
+
+// ZoneObjectStorage is the ZoneObjectStorage schema.
+type ZoneObjectStorage struct {
+	// Backend: Where a new account's objects go.
+	Backend string `json:"backend"`
+	// Certificate: The uploaded certificate the node's S3 gateway serves; null leaves the node on its `node.toml`.
+	Certificate *ZoneObjectStorageCertificate `json:"certificate"`
+	// Durability: How many copies that store keeps; the single-node S3 server keeps one copy on one host.
+	Durability string `json:"durability"`
+	// Endpoint: The S3 endpoint in effect; null when neither the zone nor the environment names one (the zone then offers no object storage).
+	Endpoint *string `json:"endpoint"`
+	// EndpointSource: Whether staff recorded the endpoint on the zone or `ANKRA_CLOUD_OBJECT_STORAGE_ENDPOINTS` sets it.
+	EndpointSource string `json:"endpoint_source"`
+	// EnvironmentEndpoint: The zone's `ANKRA_CLOUD_OBJECT_STORAGE_ENDPOINTS` entry, the fallback.
+	EnvironmentEndpoint *string `json:"environment_endpoint"`
+	// ListenAddresses: The serving node's own addresses, with the port, its S3 front listens on (`[2001:db8::10]:443`); empty leaves the node on its `node.toml`.
+	ListenAddresses []string `json:"listen_addresses"`
+	// NodeID: The storage node staff named to serve the zone's single-node S3 server; null leaves the choice to the storage policy.
+	NodeID *string `json:"node_id"`
+	// Nodes: The zone's storage nodes, the candidates to serve its single-node S3 server.
+	Nodes []ZoneObjectStorageNodesItem `json:"nodes"`
+	// RecordedEndpoint: What staff recorded on the zone.
+	RecordedEndpoint *string `json:"recorded_endpoint"`
+	// Served: Whether that store runs.
+	Served bool `json:"served"`
+	// ServingNodeID: The node the single-node S3 server runs on now; null while it runs nowhere.
+	ServingNodeID *string    `json:"serving_node_id"`
+	UpdatedAt     *time.Time `json:"updated_at"`
+	// UpdatedBy: The staff member who last changed the settings.
+	UpdatedBy *string `json:"updated_by"`
+	Zone      string  `json:"zone"`
+}
+
+// ZoneObjectStorageCertificate is the ZoneObjectStorageCertificate schema.
+type ZoneObjectStorageCertificate struct {
+	CommonName string   `json:"common_name"`
+	DNSNames   []string `json:"dns_names"`
+	// FingerprintSHA256: SHA-256 of the leaf certificate, hexadecimal.
+	FingerprintSHA256 string    `json:"fingerprint_sha256"`
+	NotAfter          time.Time `json:"not_after"`
+	NotBefore         time.Time `json:"not_before"`
+}
+
+// ZoneObjectStorageNodesItem is an inline object.
+type ZoneObjectStorageNodesItem struct {
+	Hostname string `json:"hostname"`
+	NodeID   string `json:"node_id"`
+	Online   bool   `json:"online"`
+}
+
+// ZoneRetirementOutcome is the ZoneRetirementOutcome schema.
+type ZoneRetirementOutcome struct {
+	// ActiveServers: The customer servers the zone runs (a retirement releases them).
+	ActiveServers int64 `json:"active_servers"`
+	// Changed: False when the zone already was as asked; nothing is then recorded.
+	Changed bool      `json:"changed"`
+	Zone    StaffZone `json:"zone"`
+}
+
 // AcceptInvitation calls POST /v1/auth/accept-invitation (accept_invitation): Accept an invitation, create the user and sign them in.
 func (client *Client) AcceptInvitation(ctx context.Context, body AcceptInvitationRequest) (*IssuedSession, error) {
 	pathParameters := map[string]string{}
 	query := url.Values{}
 	var result IssuedSession
 	if callError := client.decode(ctx, Operations["accept_invitation"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// AddServerPublicIPv4Parameters are the path and query parameters of add_server_public_ipv4.
+type AddServerPublicIPv4Parameters struct {
+	ID string
+}
+
+// AddServerPublicIPv4 calls POST /v1/servers/{id}/public-ipv4 (add_server_public_ipv4): Add a public IPv4 to an existing server.
+func (client *Client) AddServerPublicIPv4(ctx context.Context, parameters AddServerPublicIPv4Parameters) (*AddServerPublicIPv4Response, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result AddServerPublicIPv4Response
+	if callError := client.decode(ctx, Operations["add_server_public_ipv4"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// AdoptEdgeRouter calls POST /admin/v1/edge-routers (adopt_edge_router): Record an edge router that runs already, with its prefixes and uplinks (admin staff).
+func (client *Client) AdoptEdgeRouter(ctx context.Context, body AdoptEdgeRouterRequest) (*EdgeRouterDetail, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result EdgeRouterDetail
+	if callError := client.decode(ctx, Operations["adopt_edge_router"], pathParameters, query, body, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -2667,7 +7408,7 @@ type AttachStorageParameters struct {
 	ID string
 }
 
-// AttachStorage calls POST /v1/storages/{id}/attach (attach_storage): Attach a storage to a stopped server in the same zone.
+// AttachStorage calls POST /v1/storages/{id}/attach (attach_storage): Attach a storage to a running or stopped server in the same zone.
 func (client *Client) AttachStorage(ctx context.Context, parameters AttachStorageParameters, body AttachStorageRequest) (*OperationEnvelope, error) {
 	pathParameters := map[string]string{}
 	query := url.Values{}
@@ -2691,6 +7432,110 @@ func (client *Client) BackUpStorage(ctx context.Context, parameters BackUpStorag
 	pathParameters["id"] = fmt.Sprint(parameters.ID)
 	var result BackUpStorageResponse
 	if callError := client.decode(ctx, Operations["back_up_storage"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// BootstrapRegionKubernetesHostParameters are the path and query parameters of bootstrap_region_kubernetes_host.
+type BootstrapRegionKubernetesHostParameters struct {
+	Region string
+}
+
+// BootstrapRegionKubernetesHost calls POST /v1/regions/{region}/kubernetes-host (bootstrap_region_kubernetes_host): Bootstrap the region's host cluster for managed Kubernetes (operator only).
+func (client *Client) BootstrapRegionKubernetesHost(ctx context.Context, parameters BootstrapRegionKubernetesHostParameters, body BootstrapRegionKubernetesHostRequest) (*BootstrapRegionKubernetesHostResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["region"] = fmt.Sprint(parameters.Region)
+	var result BootstrapRegionKubernetesHostResponse
+	if callError := client.decode(ctx, Operations["bootstrap_region_kubernetes_host"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// BulkDeleteDNSRecordsParameters are the path and query parameters of bulk_delete_dns_records.
+type BulkDeleteDNSRecordsParameters struct {
+	ID string
+}
+
+// BulkDeleteDNSRecords calls POST /v1/dns/zones/{id}/records/bulk-delete (bulk_delete_dns_records): Delete up to 500 records of a zone at once.
+func (client *Client) BulkDeleteDNSRecords(ctx context.Context, parameters BulkDeleteDNSRecordsParameters, body BulkDeleteDNSRecordsRequest) (*BulkDeleteDNSRecordsResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result BulkDeleteDNSRecordsResponse
+	if callError := client.decode(ctx, Operations["bulk_delete_dns_records"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// CancelAgentRolloutParameters are the path and query parameters of cancel_agent_rollout.
+type CancelAgentRolloutParameters struct {
+	ID string
+}
+
+// CancelAgentRollout calls POST /admin/v1/agent-rollouts/{id}/cancel (cancel_agent_rollout): Stop a rollout before its next node (admin staff).
+func (client *Client) CancelAgentRollout(ctx context.Context, parameters CancelAgentRolloutParameters, body StaffNodeActionRequest) (*AgentRolloutEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result AgentRolloutEnvelope
+	if callError := client.decode(ctx, Operations["cancel_agent_rollout"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// CancelPrivateCloudRequestParameters are the path and query parameters of cancel_private_cloud_request.
+type CancelPrivateCloudRequestParameters struct {
+	ID string
+}
+
+// CancelPrivateCloudRequest calls DELETE /v1/private-cloud/requests/{id} (cancel_private_cloud_request): Withdraw an open private cloud request.
+func (client *Client) CancelPrivateCloudRequest(ctx context.Context, parameters CancelPrivateCloudRequestParameters) (*PrivateCloudRequestEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result PrivateCloudRequestEnvelope
+	if callError := client.decode(ctx, Operations["cancel_private_cloud_request"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ChangeAccountMemberRoleParameters are the path and query parameters of change_account_member_role.
+type ChangeAccountMemberRoleParameters struct {
+	ID   string
+	User string
+}
+
+// ChangeAccountMemberRole calls PUT /admin/v1/accounts/{id}/members/{user} (change_account_member_role): Change a member's role (admin staff).
+func (client *Client) ChangeAccountMemberRole(ctx context.Context, parameters ChangeAccountMemberRoleParameters, body ChangeAccountMemberRoleRequest) (*StaffMemberRoleChange, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	pathParameters["user"] = fmt.Sprint(parameters.User)
+	var result StaffMemberRoleChange
+	if callError := client.decode(ctx, Operations["change_account_member_role"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ChangeDatabasePlanParameters are the path and query parameters of change_database_plan.
+type ChangeDatabasePlanParameters struct {
+	ID string
+}
+
+// ChangeDatabasePlan calls POST /v1/databases/{id}/plan (change_database_plan): Scale a running database up or down to another plan.
+func (client *Client) ChangeDatabasePlan(ctx context.Context, parameters ChangeDatabasePlanParameters, body ChangeDatabasePlanRequest) (*OperationEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result OperationEnvelope
+	if callError := client.decode(ctx, Operations["change_database_plan"], pathParameters, query, body, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -2728,6 +7573,14 @@ func (client *Client) ChangeServerPlan(ctx context.Context, parameters ChangeSer
 		return nil, callError
 	}
 	return &result, nil
+}
+
+// ChangeStaffPassword calls PUT /admin/v1/auth/password (change_staff_password): Change the signed-in staff member's password.
+func (client *Client) ChangeStaffPassword(ctx context.Context, body ChangeStaffPasswordRequest) error {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	_, callError := client.send(ctx, Operations["change_staff_password"], pathParameters, query, body)
+	return callError
 }
 
 // CheckLiveness calls GET /healthz (check_liveness): Liveness probe.
@@ -2769,6 +7622,23 @@ func (client *Client) CopyCustomImage(ctx context.Context, parameters CopyCustom
 	return &result, nil
 }
 
+// CordonFleetNodeParameters are the path and query parameters of cordon_fleet_node.
+type CordonFleetNodeParameters struct {
+	ID string
+}
+
+// CordonFleetNode calls POST /admin/v1/fleet/nodes/{id}/cordon (cordon_fleet_node): Stop a node from taking new servers (admin staff).
+func (client *Client) CordonFleetNode(ctx context.Context, parameters CordonFleetNodeParameters, body StaffNodeActionRequest) (*OperationEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result OperationEnvelope
+	if callError := client.decode(ctx, Operations["cordon_fleet_node"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // CordonZoneNodeParameters are the path and query parameters of cordon_zone_node.
 type CordonZoneNodeParameters struct {
 	ID   string
@@ -2799,6 +7669,17 @@ func (client *Client) CreateAPIToken(ctx context.Context, body CreateAPITokenReq
 	return &result, nil
 }
 
+// CreateBackupVault calls POST /v1/backup-vaults (create_backup_vault): Configure a region's off-host backup vault (operator only).
+func (client *Client) CreateBackupVault(ctx context.Context, body CreateBackupVaultRequest) (*BackupVault, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result BackupVault
+	if callError := client.decode(ctx, Operations["create_backup_vault"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // CreateCoupon calls POST /admin/v1/coupons (create_coupon): Create a coupon code (admin staff).
 func (client *Client) CreateCoupon(ctx context.Context, body CreateCouponRequest) (*Coupon, error) {
 	pathParameters := map[string]string{}
@@ -2821,6 +7702,62 @@ func (client *Client) CreateDatabase(ctx context.Context, body CreateDatabaseReq
 	return &result, nil
 }
 
+// CreateDevCluster calls POST /v1/dev-clusters (create_dev_cluster): Create a dev cluster.
+func (client *Client) CreateDevCluster(ctx context.Context, body CreateDevCluster) (*DevClusterEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result DevClusterEnvelope
+	if callError := client.decode(ctx, Operations["create_dev_cluster"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// CreateDNSRecordParameters are the path and query parameters of create_dns_record.
+type CreateDNSRecordParameters struct {
+	ID string
+}
+
+// CreateDNSRecord calls POST /v1/dns/zones/{id}/records (create_dns_record): Add a record to a zone.
+func (client *Client) CreateDNSRecord(ctx context.Context, parameters CreateDNSRecordParameters, body CreateDNSRecordRequest) (*CreateDNSRecordResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result CreateDNSRecordResponse
+	if callError := client.decode(ctx, Operations["create_dns_record"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// CreateDNSSubzoneParameters are the path and query parameters of create_dns_subzone.
+type CreateDNSSubzoneParameters struct {
+	ID string
+}
+
+// CreateDNSSubzone calls POST /v1/dns/zones/{id}/subzones (create_dns_subzone): Host <label>.<zone> as a zone of its own, delegated from this zone.
+func (client *Client) CreateDNSSubzone(ctx context.Context, parameters CreateDNSSubzoneParameters, body CreateDNSSubzoneRequest) (*CreateDNSSubzoneResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result CreateDNSSubzoneResponse
+	if callError := client.decode(ctx, Operations["create_dns_subzone"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// CreateDNSZone calls POST /v1/dns/zones (create_dns_zone): Host a DNS zone on the Ankra Cloud nameservers.
+func (client *Client) CreateDNSZone(ctx context.Context, body CreateDNSZoneRequest) (*CreateDNSZoneResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result CreateDNSZoneResponse
+	if callError := client.decode(ctx, Operations["create_dns_zone"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // CreateEdge calls POST /v1/edges (create_edge): Attach a bastion, NAT gateway or load balancer to a private network.
 func (client *Client) CreateEdge(ctx context.Context, body CreateEdgeRequest) (*CreateEdgeResponse, error) {
 	pathParameters := map[string]string{}
@@ -2832,12 +7769,85 @@ func (client *Client) CreateEdge(ctx context.Context, body CreateEdgeRequest) (*
 	return &result, nil
 }
 
+// CreateHost calls POST /admin/v1/hosts (create_host): Add a blank server (admin staff).
+func (client *Client) CreateHost(ctx context.Context, body CreateHostRequest) (*HostEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result HostEnvelope
+	if callError := client.decode(ctx, Operations["create_host"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // CreateInitScript calls POST /v1/init-scripts (create_init_script): Add an init script.
 func (client *Client) CreateInitScript(ctx context.Context, body InitScriptRequest) (*CreateInitScriptResponse, error) {
 	pathParameters := map[string]string{}
 	query := url.Values{}
 	var result CreateInitScriptResponse
 	if callError := client.decode(ctx, Operations["create_init_script"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// CreateIPPoolParameters are the path and query parameters of create_ip_pool.
+type CreateIPPoolParameters struct {
+	Zone string
+}
+
+// CreateIPPool calls POST /admin/v1/zones/{zone}/ip-pools (create_ip_pool): Register a zone's routed public address range (admin staff).
+func (client *Client) CreateIPPool(ctx context.Context, parameters CreateIPPoolParameters, body CreateIppoolRequest) (*IppoolEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result IppoolEnvelope
+	if callError := client.decode(ctx, Operations["create_ip_pool"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// CreateKubernetesCluster calls POST /v1/kubernetes-clusters (create_kubernetes_cluster): Create a managed Kubernetes cluster.
+func (client *Client) CreateKubernetesCluster(ctx context.Context, body CreateKubernetesClusterRequest) (*CreateKubernetesClusterResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result CreateKubernetesClusterResponse
+	if callError := client.decode(ctx, Operations["create_kubernetes_cluster"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// CreateKubernetesClusterEtcdSnapshotParameters are the path and query parameters of create_kubernetes_cluster_etcd_snapshot.
+type CreateKubernetesClusterEtcdSnapshotParameters struct {
+	ID string
+}
+
+// CreateKubernetesClusterEtcdSnapshot calls POST /v1/kubernetes-clusters/{id}/etcd-snapshots (create_kubernetes_cluster_etcd_snapshot): Take an etcd snapshot now.
+func (client *Client) CreateKubernetesClusterEtcdSnapshot(ctx context.Context, parameters CreateKubernetesClusterEtcdSnapshotParameters) (*OperationEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result OperationEnvelope
+	if callError := client.decode(ctx, Operations["create_kubernetes_cluster_etcd_snapshot"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// CreateKubernetesNodePoolParameters are the path and query parameters of create_kubernetes_node_pool.
+type CreateKubernetesNodePoolParameters struct {
+	ID string
+}
+
+// CreateKubernetesNodePool calls POST /v1/kubernetes-clusters/{id}/node-pools (create_kubernetes_node_pool): Add a node pool to a cluster.
+func (client *Client) CreateKubernetesNodePool(ctx context.Context, parameters CreateKubernetesNodePoolParameters, body KubernetesNodePoolRequest) (*CreateKubernetesNodePoolResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result CreateKubernetesNodePoolResponse
+	if callError := client.decode(ctx, Operations["create_kubernetes_node_pool"], pathParameters, query, body, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -2918,6 +7928,17 @@ func (client *Client) CreateLoadBalancerMember(ctx context.Context, parameters C
 	return &result, nil
 }
 
+// CreateMonitoringCredential calls POST /admin/v1/monitoring/credentials (create_monitoring_credential): Mint the read-only scrape credential for the cluster whose Prometheus scrapes the cloud (admin staff).
+func (client *Client) CreateMonitoringCredential(ctx context.Context, body CreateMonitoringCredentialRequest) (*CreateMonitoringCredentialResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result CreateMonitoringCredentialResponse
+	if callError := client.decode(ctx, Operations["create_monitoring_credential"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // CreateNetwork calls POST /v1/networks (create_network): Create a private network.
 func (client *Client) CreateNetwork(ctx context.Context, body CreateNetworkRequest) (*NetworkEnvelope, error) {
 	pathParameters := map[string]string{}
@@ -2929,12 +7950,101 @@ func (client *Client) CreateNetwork(ctx context.Context, body CreateNetworkReque
 	return &result, nil
 }
 
+// CreateNodeAgentArtifactParameters are the path and query parameters of create_node_agent_artifact.
+type CreateNodeAgentArtifactParameters struct {
+	Version string
+	Commit  string
+}
+
+// CreateNodeAgentArtifact calls PUT /v1/node-agent-artifacts/{version} (create_node_agent_artifact): Upload an ankra-node build for the maintenance operation to install (operator only).
+func (client *Client) CreateNodeAgentArtifact(ctx context.Context, parameters CreateNodeAgentArtifactParameters, body []byte) (*NodeAgentArtifact, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["version"] = fmt.Sprint(parameters.Version)
+	query.Set("commit", fmt.Sprint(parameters.Commit))
+	var result NodeAgentArtifact
+	if callError := client.decode(ctx, Operations["create_node_agent_artifact"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // CreatePaymentSetupSession calls POST /v1/account/billing/setup-session (create_payment_setup_session): Start Stripe's hosted page for saving a payment method.
 func (client *Client) CreatePaymentSetupSession(ctx context.Context) (*PaymentSetupSession, error) {
 	pathParameters := map[string]string{}
 	query := url.Values{}
 	var result PaymentSetupSession
 	if callError := client.decode(ctx, Operations["create_payment_setup_session"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// CreatePlatformBillingApprovalParameters are the path and query parameters of create_platform_billing_approval.
+type CreatePlatformBillingApprovalParameters struct {
+	OrganisationID string
+}
+
+// CreatePlatformBillingApproval calls POST /platform/v1/organisations/{organisation_id}/billing-approval (create_platform_billing_approval): Apply a verified organisation owner's approval of paid usage.
+func (client *Client) CreatePlatformBillingApproval(ctx context.Context, parameters CreatePlatformBillingApprovalParameters, body CreatePlatformBillingApprovalRequest) error {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["organisation_id"] = fmt.Sprint(parameters.OrganisationID)
+	_, callError := client.send(ctx, Operations["create_platform_billing_approval"], pathParameters, query, body)
+	return callError
+}
+
+// CreatePlatformBillingCustomerParameters are the path and query parameters of create_platform_billing_customer.
+type CreatePlatformBillingCustomerParameters struct {
+	OrganisationID string
+}
+
+// CreatePlatformBillingCustomer calls POST /platform/v1/organisations/{organisation_id}/billing-customer (create_platform_billing_customer): Ensure one billing customer for Cloud and Platform.
+func (client *Client) CreatePlatformBillingCustomer(ctx context.Context, parameters CreatePlatformBillingCustomerParameters) (*CreatePlatformBillingCustomerResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["organisation_id"] = fmt.Sprint(parameters.OrganisationID)
+	var result CreatePlatformBillingCustomerResponse
+	if callError := client.decode(ctx, Operations["create_platform_billing_customer"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// CreatePlatformCredentialParameters are the path and query parameters of create_platform_credential.
+type CreatePlatformCredentialParameters struct {
+	OrganisationID string
+}
+
+// CreatePlatformCredential calls POST /platform/v1/organisations/{organisation_id}/credential (create_platform_credential): Issue the Ankra platform an API token for its organisation's Cloud account.
+func (client *Client) CreatePlatformCredential(ctx context.Context, parameters CreatePlatformCredentialParameters, body CreatePlatformCredentialRequest) (*CreatePlatformCredentialResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["organisation_id"] = fmt.Sprint(parameters.OrganisationID)
+	var result CreatePlatformCredentialResponse
+	if callError := client.decode(ctx, Operations["create_platform_credential"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// CreatePrivateCloudRequest calls POST /v1/private-cloud/requests (create_private_cloud_request): Ask Ankra for a private cloud, or for more private capacity.
+func (client *Client) CreatePrivateCloudRequest(ctx context.Context, body CreatePrivateCloudRequest) (*PrivateCloudRequestEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result PrivateCloudRequestEnvelope
+	if callError := client.decode(ctx, Operations["create_private_cloud_request"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// CreateRegion calls POST /admin/v1/regions (create_region): Create a region (admin staff).
+func (client *Client) CreateRegion(ctx context.Context, body CreateRegionRequest) (*RegionEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result RegionEnvelope
+	if callError := client.decode(ctx, Operations["create_region"], pathParameters, query, body, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -2973,6 +8083,23 @@ func (client *Client) CreateServerGroup(ctx context.Context, body CreateServerGr
 	return &result, nil
 }
 
+// CreateSnapshotParameters are the path and query parameters of create_snapshot.
+type CreateSnapshotParameters struct {
+	ID string
+}
+
+// CreateSnapshot calls POST /v1/storages/{id}/snapshots (create_snapshot): Take a crash-consistent snapshot of a storage, also of a running server's.
+func (client *Client) CreateSnapshot(ctx context.Context, parameters CreateSnapshotParameters, body CreateSnapshotRequest) (*CreateSnapshotResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result CreateSnapshotResponse
+	if callError := client.decode(ctx, Operations["create_snapshot"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // CreateSSHKey calls POST /v1/ssh-keys (create_ssh_key): Add an SSH key.
 func (client *Client) CreateSSHKey(ctx context.Context, body CreateSshkeyRequest) (*CreateSSHKeyResponse, error) {
 	pathParameters := map[string]string{}
@@ -2995,7 +8122,24 @@ func (client *Client) CreateStaff(ctx context.Context, body CreateStaffRequest) 
 	return &result, nil
 }
 
-// CreateStorage calls POST /v1/storages (create_storage): Create an empty storage, clone a storage, or restore a backup as a new storage.
+// CreateStaffEnrollmentInviteParameters are the path and query parameters of create_staff_enrollment_invite.
+type CreateStaffEnrollmentInviteParameters struct {
+	ID string
+}
+
+// CreateStaffEnrollmentInvite calls POST /admin/v1/staff/{id}/enrollment-invites (create_staff_enrollment_invite): Mint a one-time second-factor enrolment link for a staff member (admin staff).
+func (client *Client) CreateStaffEnrollmentInvite(ctx context.Context, parameters CreateStaffEnrollmentInviteParameters) (*StaffEnrollmentInvite, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result StaffEnrollmentInvite
+	if callError := client.decode(ctx, Operations["create_staff_enrollment_invite"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// CreateStorage calls POST /v1/storages (create_storage): Create an empty storage, clone a storage or a snapshot, or restore a backup as a new storage.
 func (client *Client) CreateStorage(ctx context.Context, body CreateStorageRequest) (*CreateStorageResponse, error) {
 	pathParameters := map[string]string{}
 	query := url.Values{}
@@ -3012,6 +8156,51 @@ func (client *Client) CreateSupportConsent(ctx context.Context, body CreateSuppo
 	query := url.Values{}
 	var result CreateSupportConsentResponse
 	if callError := client.decode(ctx, Operations["create_support_consent"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// CreateZone calls POST /admin/v1/zones (create_zone): Create a zone in a region (admin staff).
+func (client *Client) CreateZone(ctx context.Context, body CreateZoneRequest) (*StaffZoneEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result StaffZoneEnvelope
+	if callError := client.decode(ctx, Operations["create_zone"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// CreateZoneRackParameters are the path and query parameters of create_zone_rack.
+type CreateZoneRackParameters struct {
+	Zone string
+}
+
+// CreateZoneRack calls POST /v1/zones/{zone}/racks (create_zone_rack): Create a rack in a zone (operator only).
+func (client *Client) CreateZoneRack(ctx context.Context, parameters CreateZoneRackParameters, body CreateZoneRackRequest) (*RackEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result RackEnvelope
+	if callError := client.decode(ctx, Operations["create_zone_rack"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// CreateZoneRackForStaffParameters are the path and query parameters of create_zone_rack_for_staff.
+type CreateZoneRackForStaffParameters struct {
+	Zone string
+}
+
+// CreateZoneRackForStaff calls POST /admin/v1/zones/{zone}/racks (create_zone_rack_for_staff): Add a rack to a zone (admin staff).
+func (client *Client) CreateZoneRackForStaff(ctx context.Context, parameters CreateZoneRackForStaffParameters, body CreateZoneRackForStaffRequest) (*RackEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result RackEnvelope
+	if callError := client.decode(ctx, Operations["create_zone_rack_for_staff"], pathParameters, query, body, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -3051,6 +8240,20 @@ func (client *Client) DeleteBackup(ctx context.Context, parameters DeleteBackupP
 	return &result, nil
 }
 
+// DeleteBackupVaultParameters are the path and query parameters of delete_backup_vault.
+type DeleteBackupVaultParameters struct {
+	ID string
+}
+
+// DeleteBackupVault calls DELETE /v1/backup-vaults/{id} (delete_backup_vault): Retire a backup vault (operator only).
+func (client *Client) DeleteBackupVault(ctx context.Context, parameters DeleteBackupVaultParameters) error {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	_, callError := client.send(ctx, Operations["delete_backup_vault"], pathParameters, query, nil)
+	return callError
+}
+
 // DeleteCustomImageParameters are the path and query parameters of delete_custom_image.
 type DeleteCustomImageParameters struct {
 	ID string
@@ -3085,6 +8288,53 @@ func (client *Client) DeleteDatabase(ctx context.Context, parameters DeleteDatab
 	return &result, nil
 }
 
+// DeleteDevClusterParameters are the path and query parameters of delete_dev_cluster.
+type DeleteDevClusterParameters struct {
+	ID string
+}
+
+// DeleteDevCluster calls DELETE /v1/dev-clusters/{id} (delete_dev_cluster): Delete a dev cluster with its server.
+func (client *Client) DeleteDevCluster(ctx context.Context, parameters DeleteDevClusterParameters) (*DevClusterEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result DevClusterEnvelope
+	if callError := client.decode(ctx, Operations["delete_dev_cluster"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// DeleteDNSRecordParameters are the path and query parameters of delete_dns_record.
+type DeleteDNSRecordParameters struct {
+	ID       string
+	RecordID string
+}
+
+// DeleteDNSRecord calls DELETE /v1/dns/zones/{id}/records/{record_id} (delete_dns_record): Delete a record.
+func (client *Client) DeleteDNSRecord(ctx context.Context, parameters DeleteDNSRecordParameters) error {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	pathParameters["record_id"] = fmt.Sprint(parameters.RecordID)
+	_, callError := client.send(ctx, Operations["delete_dns_record"], pathParameters, query, nil)
+	return callError
+}
+
+// DeleteDNSZoneParameters are the path and query parameters of delete_dns_zone.
+type DeleteDNSZoneParameters struct {
+	ID string
+}
+
+// DeleteDNSZone calls DELETE /v1/dns/zones/{id} (delete_dns_zone): Stop hosting a zone and delete its records.
+func (client *Client) DeleteDNSZone(ctx context.Context, parameters DeleteDNSZoneParameters) error {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	_, callError := client.send(ctx, Operations["delete_dns_zone"], pathParameters, query, nil)
+	return callError
+}
+
 // DeleteEdgeParameters are the path and query parameters of delete_edge.
 type DeleteEdgeParameters struct {
 	ID string
@@ -3114,6 +8364,42 @@ func (client *Client) DeleteInitScript(ctx context.Context, parameters DeleteIni
 	pathParameters["id"] = fmt.Sprint(parameters.ID)
 	_, callError := client.send(ctx, Operations["delete_init_script"], pathParameters, query, nil)
 	return callError
+}
+
+// DeleteKubernetesClusterParameters are the path and query parameters of delete_kubernetes_cluster.
+type DeleteKubernetesClusterParameters struct {
+	ID string
+}
+
+// DeleteKubernetesCluster calls DELETE /v1/kubernetes-clusters/{id} (delete_kubernetes_cluster): Delete a Kubernetes cluster with its nodes, volumes, load balancers and etcd snapshots.
+func (client *Client) DeleteKubernetesCluster(ctx context.Context, parameters DeleteKubernetesClusterParameters) (*OperationEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result OperationEnvelope
+	if callError := client.decode(ctx, Operations["delete_kubernetes_cluster"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// DeleteKubernetesNodePoolParameters are the path and query parameters of delete_kubernetes_node_pool.
+type DeleteKubernetesNodePoolParameters struct {
+	ID   string
+	Pool string
+}
+
+// DeleteKubernetesNodePool calls DELETE /v1/kubernetes-clusters/{id}/node-pools/{pool} (delete_kubernetes_node_pool): Delete a node pool.
+func (client *Client) DeleteKubernetesNodePool(ctx context.Context, parameters DeleteKubernetesNodePoolParameters) (*OperationEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	pathParameters["pool"] = fmt.Sprint(parameters.Pool)
+	var result OperationEnvelope
+	if callError := client.decode(ctx, Operations["delete_kubernetes_node_pool"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
 }
 
 // DeleteLoadBalancerParameters are the path and query parameters of delete_load_balancer.
@@ -3211,6 +8497,20 @@ func (client *Client) DeleteNetwork(ctx context.Context, parameters DeleteNetwor
 	return callError
 }
 
+// DeletePublicAddressControllerParameters are the path and query parameters of delete_public_address_controller.
+type DeletePublicAddressControllerParameters struct {
+	Zone string
+}
+
+// DeletePublicAddressController calls DELETE /v1/zones/{zone}/public-address-controller (delete_public_address_controller): Forget a zone's public address controller and its credentials (operator only).
+func (client *Client) DeletePublicAddressController(ctx context.Context, parameters DeletePublicAddressControllerParameters) error {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	_, callError := client.send(ctx, Operations["delete_public_address_controller"], pathParameters, query, nil)
+	return callError
+}
+
 // DeleteRouterParameters are the path and query parameters of delete_router.
 type DeleteRouterParameters struct {
 	ID string
@@ -3263,6 +8563,23 @@ func (client *Client) DeleteServerGroup(ctx context.Context, parameters DeleteSe
 	return callError
 }
 
+// DeleteSnapshotParameters are the path and query parameters of delete_snapshot.
+type DeleteSnapshotParameters struct {
+	ID string
+}
+
+// DeleteSnapshot calls DELETE /v1/snapshots/{id} (delete_snapshot): Delete a snapshot.
+func (client *Client) DeleteSnapshot(ctx context.Context, parameters DeleteSnapshotParameters) (*OperationEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result OperationEnvelope
+	if callError := client.decode(ctx, Operations["delete_snapshot"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // DeleteSSHKeyParameters are the path and query parameters of delete_ssh_key.
 type DeleteSSHKeyParameters struct {
 	ID string
@@ -3292,6 +8609,22 @@ func (client *Client) DeleteStorage(ctx context.Context, parameters DeleteStorag
 		return nil, callError
 	}
 	return &result, nil
+}
+
+// DeleteZoneNodePowerControllerParameters are the path and query parameters of delete_zone_node_power_controller.
+type DeleteZoneNodePowerControllerParameters struct {
+	ID   string
+	Zone string
+}
+
+// DeleteZoneNodePowerController calls DELETE /v1/zones/{zone}/nodes/{id}/power-controller (delete_zone_node_power_controller): Forget the node's BMC; fencing falls back to the command hook (operator only).
+func (client *Client) DeleteZoneNodePowerController(ctx context.Context, parameters DeleteZoneNodePowerControllerParameters) error {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	_, callError := client.send(ctx, Operations["delete_zone_node_power_controller"], pathParameters, query, nil)
+	return callError
 }
 
 // DetachRouterNetworkParameters are the path and query parameters of detach_router_network.
@@ -3337,7 +8670,7 @@ type DetachStorageParameters struct {
 	ID string
 }
 
-// DetachStorage calls POST /v1/storages/{id}/detach (detach_storage): Detach a storage from its stopped server.
+// DetachStorage calls POST /v1/storages/{id}/detach (detach_storage): Detach a storage from its running or stopped server.
 func (client *Client) DetachStorage(ctx context.Context, parameters DetachStorageParameters) (*OperationEnvelope, error) {
 	pathParameters := map[string]string{}
 	query := url.Values{}
@@ -3347,6 +8680,14 @@ func (client *Client) DetachStorage(ctx context.Context, parameters DetachStorag
 		return nil, callError
 	}
 	return &result, nil
+}
+
+// DisableAccountTotp calls DELETE /v1/account/mfa/totp (disable_account_totp): Turn the authenticator app off.
+func (client *Client) DisableAccountTotp(ctx context.Context, body SecondFactorProof) error {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	_, callError := client.send(ctx, Operations["disable_account_totp"], pathParameters, query, body)
+	return callError
 }
 
 // DisableStaffParameters are the path and query parameters of disable_staff.
@@ -3361,6 +8702,65 @@ func (client *Client) DisableStaff(ctx context.Context, parameters DisableStaffP
 	pathParameters["id"] = fmt.Sprint(parameters.ID)
 	var result StaffEnvelope
 	if callError := client.decode(ctx, Operations["disable_staff"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// DisableStaffTotp calls DELETE /admin/v1/auth/mfa/totp (disable_staff_totp): Turn the staff member's authenticator off (only without enforcement).
+func (client *Client) DisableStaffTotp(ctx context.Context, body SecondFactorProof) error {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	_, callError := client.send(ctx, Operations["disable_staff_totp"], pathParameters, query, body)
+	return callError
+}
+
+// DisableUserParameters are the path and query parameters of disable_user.
+type DisableUserParameters struct {
+	ID string
+}
+
+// DisableUser calls POST /admin/v1/users/{id}/disabled (disable_user): Disable a user (admin staff).
+func (client *Client) DisableUser(ctx context.Context, parameters DisableUserParameters, body StaffReasonRequest) (*DisableUserResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result DisableUserResponse
+	if callError := client.decode(ctx, Operations["disable_user"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// DrainFleetNodeParameters are the path and query parameters of drain_fleet_node.
+type DrainFleetNodeParameters struct {
+	ID string
+}
+
+// DrainFleetNode calls POST /admin/v1/fleet/nodes/{id}/drain (drain_fleet_node): Cordon a compute node and move every server off it, one at a time (admin staff).
+func (client *Client) DrainFleetNode(ctx context.Context, parameters DrainFleetNodeParameters, body StaffNodeActionRequest) (*OperationEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result OperationEnvelope
+	if callError := client.decode(ctx, Operations["drain_fleet_node"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// DrainFleetNodeStorageParameters are the path and query parameters of drain_fleet_node_storage.
+type DrainFleetNodeStorageParameters struct {
+	ID string
+}
+
+// DrainFleetNodeStorage calls POST /admin/v1/fleet/nodes/{id}/storage-drain (drain_fleet_node_storage): Drain a storage node's OSDs from the zone's replicated storage (admin staff).
+func (client *Client) DrainFleetNodeStorage(ctx context.Context, parameters DrainFleetNodeStorageParameters) (*OperationEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result OperationEnvelope
+	if callError := client.decode(ctx, Operations["drain_fleet_node_storage"], pathParameters, query, nil, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -3396,12 +8796,63 @@ func (client *Client) EnableObjectStorage(ctx context.Context, body EnableObject
 	return &result, nil
 }
 
+// EnableUserParameters are the path and query parameters of enable_user.
+type EnableUserParameters struct {
+	ID string
+}
+
+// EnableUser calls DELETE /admin/v1/users/{id}/disabled (enable_user): Enable a disabled user (admin staff).
+func (client *Client) EnableUser(ctx context.Context, parameters EnableUserParameters, body StaffReasonRequest) (*EnableUserResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result EnableUserResponse
+	if callError := client.decode(ctx, Operations["enable_user"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // EndImpersonation calls POST /v1/auth/end-impersonation (end_impersonation): End a support session and hand the environment back to staff.
 func (client *Client) EndImpersonation(ctx context.Context) (*EndImpersonationResponse, error) {
 	pathParameters := map[string]string{}
 	query := url.Values{}
 	var result EndImpersonationResponse
 	if callError := client.decode(ctx, Operations["end_impersonation"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// EndPlaygroundParameters are the path and query parameters of end_playground.
+type EndPlaygroundParameters struct {
+	ID string
+}
+
+// EndPlayground calls DELETE /v1/playgrounds/{id} (end_playground): End the account's playground before it expires.
+func (client *Client) EndPlayground(ctx context.Context, parameters EndPlaygroundParameters) (*PlaygroundEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result PlaygroundEnvelope
+	if callError := client.decode(ctx, Operations["end_playground"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// EndPlaygroundForStaffParameters are the path and query parameters of end_playground_for_staff.
+type EndPlaygroundForStaffParameters struct {
+	ID string
+}
+
+// EndPlaygroundForStaff calls POST /admin/v1/playgrounds/{id}/end (end_playground_for_staff): End any account's playground with a reason (admin staff).
+func (client *Client) EndPlaygroundForStaff(ctx context.Context, parameters EndPlaygroundForStaffParameters, body EndPlaygroundForStaff) (*StaffPlaygroundEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result StaffPlaygroundEnvelope
+	if callError := client.decode(ctx, Operations["end_playground_for_staff"], pathParameters, query, body, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -3419,6 +8870,23 @@ func (client *Client) EndSupportSession(ctx context.Context, parameters EndSuppo
 	pathParameters["id"] = fmt.Sprint(parameters.ID)
 	_, callError := client.send(ctx, Operations["end_support_session"], pathParameters, query, nil)
 	return callError
+}
+
+// ExpandZoneControlPlaneParameters are the path and query parameters of expand_zone_control_plane.
+type ExpandZoneControlPlaneParameters struct {
+	Zone string
+}
+
+// ExpandZoneControlPlane calls POST /v1/zones/{zone}/control-plane/expand (expand_zone_control_plane): Turn the zone's control plane into the highly available form (operator only).
+func (client *Client) ExpandZoneControlPlane(ctx context.Context, parameters ExpandZoneControlPlaneParameters, body ExpandZoneControlPlaneRequest) (*OperationEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result OperationEnvelope
+	if callError := client.decode(ctx, Operations["expand_zone_control_plane"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
 }
 
 // ExportAuditEntriesParameters are the path and query parameters of export_audit_entries.
@@ -3440,16 +8908,98 @@ func (client *Client) ExportAuditEntries(ctx context.Context, parameters ExportA
 	return client.send(ctx, Operations["export_audit_entries"], pathParameters, query, nil)
 }
 
+// FinishAccountTotpSetup calls POST /v1/account/mfa/totp/confirm (finish_account_totp_setup): Activate the authenticator app with its first code.
+func (client *Client) FinishAccountTotpSetup(ctx context.Context, body AuthenticatorCodeRequest) (*RecoveryCodes, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result RecoveryCodes
+	if callError := client.decode(ctx, Operations["finish_account_totp_setup"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // FinishIdentityProviderLoginParameters are the path and query parameters of finish_identity_provider_login.
 type FinishIdentityProviderLoginParameters struct {
+	Code             *string
+	Error            *string
+	ErrorDescription *string
+	Provider         *string
+	State            *string
+}
+
+// FinishIdentityProviderLogin calls GET /v1/auth/oidc/callback (finish_identity_provider_login): The identity providers' callback.
+func (client *Client) FinishIdentityProviderLogin(ctx context.Context, parameters FinishIdentityProviderLoginParameters) (RawResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	if parameters.Code != nil {
+		query.Set("code", fmt.Sprint(*parameters.Code))
+	}
+	if parameters.Error != nil {
+		query.Set("error", fmt.Sprint(*parameters.Error))
+	}
+	if parameters.ErrorDescription != nil {
+		query.Set("error_description", fmt.Sprint(*parameters.ErrorDescription))
+	}
+	if parameters.Provider != nil {
+		query.Set("provider", fmt.Sprint(*parameters.Provider))
+	}
+	if parameters.State != nil {
+		query.Set("state", fmt.Sprint(*parameters.State))
+	}
+	return client.send(ctx, Operations["finish_identity_provider_login"], pathParameters, query, nil)
+}
+
+// FinishIdentityProviderLoginAtProviderParameters are the path and query parameters of finish_identity_provider_login_at_provider.
+type FinishIdentityProviderLoginAtProviderParameters struct {
+	Provider         string
 	Code             *string
 	Error            *string
 	ErrorDescription *string
 	State            *string
 }
 
-// FinishIdentityProviderLogin calls GET /v1/auth/oidc/callback (finish_identity_provider_login): The identity provider's callback.
-func (client *Client) FinishIdentityProviderLogin(ctx context.Context, parameters FinishIdentityProviderLoginParameters) (RawResponse, error) {
+// FinishIdentityProviderLoginAtProvider calls GET /v1/auth/oidc/callback/{provider} (finish_identity_provider_login_at_provider): The callback of one identity provider.
+func (client *Client) FinishIdentityProviderLoginAtProvider(ctx context.Context, parameters FinishIdentityProviderLoginAtProviderParameters) (RawResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["provider"] = fmt.Sprint(parameters.Provider)
+	if parameters.Code != nil {
+		query.Set("code", fmt.Sprint(*parameters.Code))
+	}
+	if parameters.Error != nil {
+		query.Set("error", fmt.Sprint(*parameters.Error))
+	}
+	if parameters.ErrorDescription != nil {
+		query.Set("error_description", fmt.Sprint(*parameters.ErrorDescription))
+	}
+	if parameters.State != nil {
+		query.Set("state", fmt.Sprint(*parameters.State))
+	}
+	return client.send(ctx, Operations["finish_identity_provider_login_at_provider"], pathParameters, query, nil)
+}
+
+// FinishLoginSecondFactorSetup calls POST /v1/auth/login/mfa/enroll/confirm (finish_login_second_factor_setup): Activate the new authenticator with its first code and sign in.
+func (client *Client) FinishLoginSecondFactorSetup(ctx context.Context, body SecondFactorLoginRequest) (*SecondFactorSession, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result SecondFactorSession
+	if callError := client.decode(ctx, Operations["finish_login_second_factor_setup"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// FinishStaffIdentityProviderLoginParameters are the path and query parameters of finish_staff_identity_provider_login.
+type FinishStaffIdentityProviderLoginParameters struct {
+	Code             *string
+	Error            *string
+	ErrorDescription *string
+	State            *string
+}
+
+// FinishStaffIdentityProviderLogin calls GET /admin/v1/auth/oidc/callback (finish_staff_identity_provider_login): Finish a staff sign-in with the Ankra account.
+func (client *Client) FinishStaffIdentityProviderLogin(ctx context.Context, parameters FinishStaffIdentityProviderLoginParameters) (RawResponse, error) {
 	pathParameters := map[string]string{}
 	query := url.Values{}
 	if parameters.Code != nil {
@@ -3464,7 +9014,29 @@ func (client *Client) FinishIdentityProviderLogin(ctx context.Context, parameter
 	if parameters.State != nil {
 		query.Set("state", fmt.Sprint(*parameters.State))
 	}
-	return client.send(ctx, Operations["finish_identity_provider_login"], pathParameters, query, nil)
+	return client.send(ctx, Operations["finish_staff_identity_provider_login"], pathParameters, query, nil)
+}
+
+// FinishStaffLoginSecondFactorSetup calls POST /admin/v1/auth/login/mfa/enroll/confirm (finish_staff_login_second_factor_setup): Activate the staff member's authenticator with its first code and sign in.
+func (client *Client) FinishStaffLoginSecondFactorSetup(ctx context.Context, body StaffEnrollmentConfirmRequest) (*StaffSecondFactorSession, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result StaffSecondFactorSession
+	if callError := client.decode(ctx, Operations["finish_staff_login_second_factor_setup"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// FinishStaffTotpSetup calls POST /admin/v1/auth/mfa/totp/confirm (finish_staff_totp_setup): Activate the staff member's authenticator with its first code.
+func (client *Client) FinishStaffTotpSetup(ctx context.Context, body AuthenticatorCodeRequest) (*RecoveryCodes, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result RecoveryCodes
+	if callError := client.decode(ctx, Operations["finish_staff_totp_setup"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
 }
 
 // ForceReleaseZoneServerParameters are the path and query parameters of force_release_zone_server.
@@ -3503,6 +9075,45 @@ func (client *Client) GetAccount(ctx context.Context, parameters GetAccountParam
 	return &result, nil
 }
 
+// GetAccountBillingForStaffParameters are the path and query parameters of get_account_billing_for_staff.
+type GetAccountBillingForStaffParameters struct {
+	ID string
+}
+
+// GetAccountBillingForStaff calls GET /admin/v1/accounts/{id}/billing (get_account_billing_for_staff): An account's payment standing.
+func (client *Client) GetAccountBillingForStaff(ctx context.Context, parameters GetAccountBillingForStaffParameters) (*StaffAccountBilling, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result StaffAccountBilling
+	if callError := client.decode(ctx, Operations["get_account_billing_for_staff"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetAccountMFA calls GET /v1/account/mfa (get_account_mfa): Your second factor and whether the account requires one.
+func (client *Client) GetAccountMFA(ctx context.Context) (*SecondFactorStatus, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result SecondFactorStatus
+	if callError := client.decode(ctx, Operations["get_account_mfa"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetAccountOrganisation calls GET /v1/account/organisation (get_account_organisation): The Ankra organisation this account belongs to.
+func (client *Client) GetAccountOrganisation(ctx context.Context) (*AccountOrganisation, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result AccountOrganisation
+	if callError := client.decode(ctx, Operations["get_account_organisation"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // GetAccountUsageParameters are the path and query parameters of get_account_usage.
 type GetAccountUsageParameters struct {
 	ID string
@@ -3515,6 +9126,23 @@ func (client *Client) GetAccountUsage(ctx context.Context, parameters GetAccount
 	pathParameters["id"] = fmt.Sprint(parameters.ID)
 	var result UsageSummary
 	if callError := client.decode(ctx, Operations["get_account_usage"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetAgentRolloutParameters are the path and query parameters of get_agent_rollout.
+type GetAgentRolloutParameters struct {
+	ID string
+}
+
+// GetAgentRollout calls GET /admin/v1/agent-rollouts/{id} (get_agent_rollout): One rollout with its nodes (staff).
+func (client *Client) GetAgentRollout(ctx context.Context, parameters GetAgentRolloutParameters) (*AgentRolloutEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result AgentRolloutEnvelope
+	if callError := client.decode(ctx, Operations["get_agent_rollout"], pathParameters, query, nil, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -3611,6 +9239,95 @@ func (client *Client) GetDatabaseCredentials(ctx context.Context, parameters Get
 	return &result, nil
 }
 
+// GetDatabaseMetricsParameters are the path and query parameters of get_database_metrics.
+type GetDatabaseMetricsParameters struct {
+	ID     string
+	Period *string
+}
+
+// GetDatabaseMetrics calls GET /v1/databases/{id}/metrics (get_database_metrics): CPU, memory, disk and query time of a database.
+func (client *Client) GetDatabaseMetrics(ctx context.Context, parameters GetDatabaseMetricsParameters) (*DatabaseMetricsSeries, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	if parameters.Period != nil {
+		query.Set("period", fmt.Sprint(*parameters.Period))
+	}
+	var result DatabaseMetricsSeries
+	if callError := client.decode(ctx, Operations["get_database_metrics"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetDevClusterParameters are the path and query parameters of get_dev_cluster.
+type GetDevClusterParameters struct {
+	ID string
+}
+
+// GetDevCluster calls GET /v1/dev-clusters/{id} (get_dev_cluster): One of the account's dev clusters.
+func (client *Client) GetDevCluster(ctx context.Context, parameters GetDevClusterParameters) (*DevClusterEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result DevClusterEnvelope
+	if callError := client.decode(ctx, Operations["get_dev_cluster"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetDevClusterKubeconfigParameters are the path and query parameters of get_dev_cluster_kubeconfig.
+type GetDevClusterKubeconfigParameters struct {
+	ID string
+}
+
+// GetDevClusterKubeconfig calls GET /v1/dev-clusters/{id}/kubeconfig (get_dev_cluster_kubeconfig): A kubeconfig with a short-lived cluster-admin credential of a running dev cluster (audited).
+func (client *Client) GetDevClusterKubeconfig(ctx context.Context, parameters GetDevClusterKubeconfigParameters) (*GetDevClusterKubeconfigResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result GetDevClusterKubeconfigResponse
+	if callError := client.decode(ctx, Operations["get_dev_cluster_kubeconfig"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetDevClusterTokenParameters are the path and query parameters of get_dev_cluster_token.
+type GetDevClusterTokenParameters struct {
+	ID string
+}
+
+// GetDevClusterToken calls GET /v1/dev-clusters/{id}/token (get_dev_cluster_token): An OIDC token for the dev cluster's API, as a client.authentication.k8s.io ExecCredential.
+func (client *Client) GetDevClusterToken(ctx context.Context, parameters GetDevClusterTokenParameters) (*KubernetesExecCredential, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result KubernetesExecCredential
+	if callError := client.decode(ctx, Operations["get_dev_cluster_token"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetDNSZoneParameters are the path and query parameters of get_dns_zone.
+type GetDNSZoneParameters struct {
+	ID string
+}
+
+// GetDNSZone calls GET /v1/dns/zones/{id} (get_dns_zone): Get a hosted DNS zone.
+func (client *Client) GetDNSZone(ctx context.Context, parameters GetDNSZoneParameters) (*GetDNSZoneResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result GetDNSZoneResponse
+	if callError := client.decode(ctx, Operations["get_dns_zone"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // GetEdgeParameters are the path and query parameters of get_edge.
 type GetEdgeParameters struct {
 	ID string
@@ -3623,6 +9340,138 @@ func (client *Client) GetEdge(ctx context.Context, parameters GetEdgeParameters)
 	pathParameters["id"] = fmt.Sprint(parameters.ID)
 	var result GetEdgeResponse
 	if callError := client.decode(ctx, Operations["get_edge"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetEdgeRouterParameters are the path and query parameters of get_edge_router.
+type GetEdgeRouterParameters struct {
+	ID string
+}
+
+// GetEdgeRouter calls GET /admin/v1/edge-routers/{id} (get_edge_router): An edge router with its gateway uplinks (staff).
+func (client *Client) GetEdgeRouter(ctx context.Context, parameters GetEdgeRouterParameters) (*EdgeRouterDetail, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result EdgeRouterDetail
+	if callError := client.decode(ctx, Operations["get_edge_router"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetEdgeRouterHealthParameters are the path and query parameters of get_edge_router_health.
+type GetEdgeRouterHealthParameters struct {
+	ID string
+}
+
+// GetEdgeRouterHealth calls GET /admin/v1/edge-routers/{id}/health (get_edge_router_health): What an edge router reports now (staff).
+func (client *Client) GetEdgeRouterHealth(ctx context.Context, parameters GetEdgeRouterHealthParameters) (*GetEdgeRouterHealthResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result GetEdgeRouterHealthResponse
+	if callError := client.decode(ctx, Operations["get_edge_router_health"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetEdgeRouterPlanParameters are the path and query parameters of get_edge_router_plan.
+type GetEdgeRouterPlanParameters struct {
+	ID string
+}
+
+// GetEdgeRouterPlan calls GET /admin/v1/edge-routers/{id}/plan (get_edge_router_plan): What applying an edge router's configuration would change (staff, read only).
+func (client *Client) GetEdgeRouterPlan(ctx context.Context, parameters GetEdgeRouterPlanParameters) (*GetEdgeRouterPlanResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result GetEdgeRouterPlanResponse
+	if callError := client.decode(ctx, Operations["get_edge_router_plan"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetFleet calls GET /admin/v1/fleet (get_fleet): Every region, zone and node with its health and capacity (staff).
+func (client *Client) GetFleet(ctx context.Context) (*Fleet, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result Fleet
+	if callError := client.decode(ctx, Operations["get_fleet"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetFleetNodeParameters are the path and query parameters of get_fleet_node.
+type GetFleetNodeParameters struct {
+	ID string
+}
+
+// GetFleetNode calls GET /admin/v1/fleet/nodes/{id} (get_fleet_node): One node of the fleet with its health and capacity (staff).
+func (client *Client) GetFleetNode(ctx context.Context, parameters GetFleetNodeParameters) (*FleetNodeDetail, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result FleetNodeDetail
+	if callError := client.decode(ctx, Operations["get_fleet_node"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetFleetNodeControlLinkParameters are the path and query parameters of get_fleet_node_control_link.
+type GetFleetNodeControlLinkParameters struct {
+	ID string
+}
+
+// GetFleetNodeControlLink calls GET /admin/v1/fleet/nodes/{id}/control-link (get_fleet_node_control_link): The control-plane link a node reaches the management network through (staff).
+func (client *Client) GetFleetNodeControlLink(ctx context.Context, parameters GetFleetNodeControlLinkParameters) (*GetFleetNodeControlLinkResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result GetFleetNodeControlLinkResponse
+	if callError := client.decode(ctx, Operations["get_fleet_node_control_link"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetFleetNodeHostParameters are the path and query parameters of get_fleet_node_host.
+type GetFleetNodeHostParameters struct {
+	ID string
+}
+
+// GetFleetNodeHost calls GET /admin/v1/fleet/nodes/{id}/host (get_fleet_node_host): The host that manages a node over SSH (staff).
+func (client *Client) GetFleetNodeHost(ctx context.Context, parameters GetFleetNodeHostParameters) (*NodeHostDetail, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result NodeHostDetail
+	if callError := client.decode(ctx, Operations["get_fleet_node_host"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetFleetNodeOperationParameters are the path and query parameters of get_fleet_node_operation.
+type GetFleetNodeOperationParameters struct {
+	ID          string
+	OperationID string
+}
+
+// GetFleetNodeOperation calls GET /admin/v1/fleet/nodes/{id}/operations/{operation_id} (get_fleet_node_operation): One operation of a node with its newest events, to follow its progress (staff).
+func (client *Client) GetFleetNodeOperation(ctx context.Context, parameters GetFleetNodeOperationParameters) (*OperationEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	pathParameters["operation_id"] = fmt.Sprint(parameters.OperationID)
+	var result OperationEnvelope
+	if callError := client.decode(ctx, Operations["get_fleet_node_operation"], pathParameters, query, nil, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -3645,12 +9494,74 @@ func (client *Client) GetFloatingIP(ctx context.Context, parameters GetFloatingI
 	return &result, nil
 }
 
-// GetIdentityProviderStatus calls GET /v1/auth/oidc (get_identity_provider_status): Whether sign-in through the identity provider is available.
+// GetGatewayUplinkMovePlanParameters are the path and query parameters of get_gateway_uplink_move_plan.
+type GetGatewayUplinkMovePlanParameters struct {
+	ID string
+}
+
+// GetGatewayUplinkMovePlan calls GET /admin/v1/gateway-uplinks/{id}/move-plan (get_gateway_uplink_move_plan): What moving a gateway to an uplink would change (staff, read only).
+func (client *Client) GetGatewayUplinkMovePlan(ctx context.Context, parameters GetGatewayUplinkMovePlanParameters) (*GetGatewayUplinkMovePlanResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result GetGatewayUplinkMovePlanResponse
+	if callError := client.decode(ctx, Operations["get_gateway_uplink_move_plan"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetHostParameters are the path and query parameters of get_host.
+type GetHostParameters struct {
+	ID string
+}
+
+// GetHost calls GET /admin/v1/hosts/{id} (get_host): A host with its probe facts, operations and their events.
+func (client *Client) GetHost(ctx context.Context, parameters GetHostParameters) (*HostDetail, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result HostDetail
+	if callError := client.decode(ctx, Operations["get_host"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetHostSSHPublicKey calls GET /admin/v1/hosts/ssh-public-key (get_host_ssh_public_key): The control plane's SSH public key for new servers.
+func (client *Client) GetHostSSHPublicKey(ctx context.Context) (*HostSshpublicKey, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result HostSshpublicKey
+	if callError := client.decode(ctx, Operations["get_host_ssh_public_key"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetIdentityProviderStatus calls GET /v1/auth/oidc (get_identity_provider_status): Which identity providers sign-in is available through.
 func (client *Client) GetIdentityProviderStatus(ctx context.Context) (*IdentityProviderStatus, error) {
 	pathParameters := map[string]string{}
 	query := url.Values{}
 	var result IdentityProviderStatus
 	if callError := client.decode(ctx, Operations["get_identity_provider_status"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetInfrastructureZoneUnderlayParameters are the path and query parameters of get_infrastructure_zone_underlay.
+type GetInfrastructureZoneUnderlayParameters struct {
+	Zone string
+}
+
+// GetInfrastructureZoneUnderlay calls GET /admin/v1/zones/{zone}/underlay (get_infrastructure_zone_underlay): Read a zone's underlay, its WireGuard mesh and the measured latency budget (staff).
+func (client *Client) GetInfrastructureZoneUnderlay(ctx context.Context, parameters GetInfrastructureZoneUnderlayParameters) (*GetInfrastructureZoneUnderlayResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result GetInfrastructureZoneUnderlayResponse
+	if callError := client.decode(ctx, Operations["get_infrastructure_zone_underlay"], pathParameters, query, nil, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -3668,6 +9579,115 @@ func (client *Client) GetInitScript(ctx context.Context, parameters GetInitScrip
 	pathParameters["id"] = fmt.Sprint(parameters.ID)
 	var result GetInitScriptResponse
 	if callError := client.decode(ctx, Operations["get_init_script"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetKubernetesClusterParameters are the path and query parameters of get_kubernetes_cluster.
+type GetKubernetesClusterParameters struct {
+	ID string
+}
+
+// GetKubernetesCluster calls GET /v1/kubernetes-clusters/{id} (get_kubernetes_cluster): Get a Kubernetes cluster with its node pools and health.
+func (client *Client) GetKubernetesCluster(ctx context.Context, parameters GetKubernetesClusterParameters) (*GetKubernetesClusterResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result GetKubernetesClusterResponse
+	if callError := client.decode(ctx, Operations["get_kubernetes_cluster"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetKubernetesClusterKubeconfigParameters are the path and query parameters of get_kubernetes_cluster_kubeconfig.
+type GetKubernetesClusterKubeconfigParameters struct {
+	ID string
+}
+
+// GetKubernetesClusterKubeconfig calls GET /v1/kubernetes-clusters/{id}/kubeconfig (get_kubernetes_cluster_kubeconfig): A kubeconfig with a short-lived cluster-admin credential (audited).
+func (client *Client) GetKubernetesClusterKubeconfig(ctx context.Context, parameters GetKubernetesClusterKubeconfigParameters) (*GetKubernetesClusterKubeconfigResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result GetKubernetesClusterKubeconfigResponse
+	if callError := client.decode(ctx, Operations["get_kubernetes_cluster_kubeconfig"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetKubernetesClusterTokenParameters are the path and query parameters of get_kubernetes_cluster_token.
+type GetKubernetesClusterTokenParameters struct {
+	ID string
+}
+
+// GetKubernetesClusterToken calls GET /v1/kubernetes-clusters/{id}/token (get_kubernetes_cluster_token): An OIDC token for the cluster's API, as a client.authentication.k8s.io ExecCredential.
+func (client *Client) GetKubernetesClusterToken(ctx context.Context, parameters GetKubernetesClusterTokenParameters) (*KubernetesExecCredential, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result KubernetesExecCredential
+	if callError := client.decode(ctx, Operations["get_kubernetes_cluster_token"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetKubernetesHostParameters are the path and query parameters of get_kubernetes_host.
+type GetKubernetesHostParameters struct {
+	ID string
+}
+
+// GetKubernetesHost calls GET /v1/kubernetes-hosts/{id} (get_kubernetes_host): Get a regional host cluster with its servers and the Ankra platform import it waits for (operator only).
+func (client *Client) GetKubernetesHost(ctx context.Context, parameters GetKubernetesHostParameters) (*GetKubernetesHostResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result GetKubernetesHostResponse
+	if callError := client.decode(ctx, Operations["get_kubernetes_host"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetKubernetesNodePoolParameters are the path and query parameters of get_kubernetes_node_pool.
+type GetKubernetesNodePoolParameters struct {
+	ID   string
+	Pool string
+}
+
+// GetKubernetesNodePool calls GET /v1/kubernetes-clusters/{id}/node-pools/{pool} (get_kubernetes_node_pool): Get a node pool with its nodes.
+func (client *Client) GetKubernetesNodePool(ctx context.Context, parameters GetKubernetesNodePoolParameters) (*GetKubernetesNodePoolResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	pathParameters["pool"] = fmt.Sprint(parameters.Pool)
+	var result GetKubernetesNodePoolResponse
+	if callError := client.decode(ctx, Operations["get_kubernetes_node_pool"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetKubernetesOIDCConfiguration calls GET /v1/kubernetes-oidc/.well-known/openid-configuration (get_kubernetes_oidc_configuration): OpenID Connect discovery for the Kubernetes token issuer.
+func (client *Client) GetKubernetesOIDCConfiguration(ctx context.Context) (*GetKubernetesOIDCConfigurationResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result GetKubernetesOIDCConfigurationResponse
+	if callError := client.decode(ctx, Operations["get_kubernetes_oidc_configuration"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetKubernetesOIDCKeys calls GET /v1/kubernetes-oidc/keys (get_kubernetes_oidc_keys): The Kubernetes token issuer's public keys (JWKS).
+func (client *Client) GetKubernetesOIDCKeys(ctx context.Context) (*GetKubernetesOIDCKeysResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result GetKubernetesOIDCKeysResponse
+	if callError := client.decode(ctx, Operations["get_kubernetes_oidc_keys"], pathParameters, query, nil, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -3702,6 +9722,17 @@ func (client *Client) GetLoadBalancerCertificate(ctx context.Context, parameters
 	pathParameters["certificate"] = fmt.Sprint(parameters.Certificate)
 	var result GetLoadBalancerCertificateResponse
 	if callError := client.decode(ctx, Operations["get_load_balancer_certificate"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetMonitoringStatus calls GET /admin/v1/monitoring (get_monitoring_status): The monitoring integration's credentials and how many targets each job lists (staff).
+func (client *Client) GetMonitoringStatus(ctx context.Context) (*MonitoringStatus, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result MonitoringStatus
+	if callError := client.decode(ctx, Operations["get_monitoring_status"], pathParameters, query, nil, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -3743,6 +9774,62 @@ func (client *Client) GetNetworkTransfer(ctx context.Context, parameters GetNetw
 	return &result, nil
 }
 
+// GetNodeAgentArtifactParameters are the path and query parameters of get_node_agent_artifact.
+type GetNodeAgentArtifactParameters struct {
+	Version string
+}
+
+// GetNodeAgentArtifact calls GET /internal/v1/node-agent-artifacts/{version} (get_node_agent_artifact): A node agent downloads the build its maintenance installs.
+func (client *Client) GetNodeAgentArtifact(ctx context.Context, parameters GetNodeAgentArtifactParameters) (RawResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["version"] = fmt.Sprint(parameters.Version)
+	return client.send(ctx, Operations["get_node_agent_artifact"], pathParameters, query, nil)
+}
+
+// GetNodeAgentArtifactGuestParameters are the path and query parameters of get_node_agent_artifact_guest.
+type GetNodeAgentArtifactGuestParameters struct {
+	Version string
+}
+
+// GetNodeAgentArtifactGuest calls GET /internal/v1/node-agent-artifacts/{version}/guest (get_node_agent_artifact_guest): A node agent downloads the guest binary of the build it installs.
+func (client *Client) GetNodeAgentArtifactGuest(ctx context.Context, parameters GetNodeAgentArtifactGuestParameters) (RawResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["version"] = fmt.Sprint(parameters.Version)
+	return client.send(ctx, Operations["get_node_agent_artifact_guest"], pathParameters, query, nil)
+}
+
+// GetNodeInstallerParameters are the path and query parameters of get_node_installer.
+type GetNodeInstallerParameters struct {
+	Artifact string
+}
+
+// GetNodeInstaller calls GET /v1/node-installer/{artifact} (get_node_installer): A fresh server downloads the ankra-node installer.
+func (client *Client) GetNodeInstaller(ctx context.Context, parameters GetNodeInstallerParameters) (RawResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["artifact"] = fmt.Sprint(parameters.Artifact)
+	return client.send(ctx, Operations["get_node_installer"], pathParameters, query, nil)
+}
+
+// GetNodeTailnetParameters are the path and query parameters of get_node_tailnet.
+type GetNodeTailnetParameters struct {
+	ID string
+}
+
+// GetNodeTailnet calls GET /admin/v1/fleet/nodes/{id}/tailnet (get_node_tailnet): A node's tailnet membership and the actions on offer (staff).
+func (client *Client) GetNodeTailnet(ctx context.Context, parameters GetNodeTailnetParameters) (*NodeTailnetEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result NodeTailnetEnvelope
+	if callError := client.decode(ctx, Operations["get_node_tailnet"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // GetObjectStorageCredentialsParameters are the path and query parameters of get_object_storage_credentials.
 type GetObjectStorageCredentialsParameters struct {
 	Zone string
@@ -3777,6 +9864,17 @@ func (client *Client) GetOperation(ctx context.Context, parameters GetOperationP
 	return &result, nil
 }
 
+// GetPasswordResetStatus calls GET /v1/auth/password-reset (get_password_reset_status): Whether password recovery by email is available.
+func (client *Client) GetPasswordResetStatus(ctx context.Context) (*PasswordResetStatus, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result PasswordResetStatus
+	if callError := client.decode(ctx, Operations["get_password_reset_status"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // GetPaymentConfiguration calls GET /v1/account/billing (get_payment_configuration): Whether card payments through Stripe are available.
 func (client *Client) GetPaymentConfiguration(ctx context.Context) (*PaymentConfiguration, error) {
 	pathParameters := map[string]string{}
@@ -3788,12 +9886,203 @@ func (client *Client) GetPaymentConfiguration(ctx context.Context) (*PaymentConf
 	return &result, nil
 }
 
+// GetPlatformAccountParameters are the path and query parameters of get_platform_account.
+type GetPlatformAccountParameters struct {
+	OrganisationID string
+}
+
+// GetPlatformAccount calls GET /platform/v1/organisations/{organisation_id}/account (get_platform_account): Whether the organisation's Cloud account may create billable resources.
+func (client *Client) GetPlatformAccount(ctx context.Context, parameters GetPlatformAccountParameters) (*GetPlatformAccountResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["organisation_id"] = fmt.Sprint(parameters.OrganisationID)
+	var result GetPlatformAccountResponse
+	if callError := client.decode(ctx, Operations["get_platform_account"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetPlatformBillingCustomerParameters are the path and query parameters of get_platform_billing_customer.
+type GetPlatformBillingCustomerParameters struct {
+	OrganisationID string
+}
+
+// GetPlatformBillingCustomer calls GET /platform/v1/organisations/{organisation_id}/billing-customer (get_platform_billing_customer): Read the shared billing customer without creating it.
+func (client *Client) GetPlatformBillingCustomer(ctx context.Context, parameters GetPlatformBillingCustomerParameters) (*GetPlatformBillingCustomerResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["organisation_id"] = fmt.Sprint(parameters.OrganisationID)
+	var result GetPlatformBillingCustomerResponse
+	if callError := client.decode(ctx, Operations["get_platform_billing_customer"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetPlatformWorkspaceCredential calls GET /v1/account/platform/credential (get_platform_workspace_credential): Server-only current-member credential exchange.
+func (client *Client) GetPlatformWorkspaceCredential(ctx context.Context) (*GetPlatformWorkspaceCredentialResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result GetPlatformWorkspaceCredentialResponse
+	if callError := client.decode(ctx, Operations["get_platform_workspace_credential"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetPlatformWorkspaceDomains calls GET /v1/account/platform/domains (get_platform_workspace_domains): Assigned organisation and cluster domains in the linked Platform workspace.
+func (client *Client) GetPlatformWorkspaceDomains(ctx context.Context) (*GetPlatformWorkspaceDomainsResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result GetPlatformWorkspaceDomainsResponse
+	if callError := client.decode(ctx, Operations["get_platform_workspace_domains"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetPlatformWorkspaceSync calls GET /v1/account/platform (get_platform_workspace_sync): Workspace organisation mapping and membership sync status.
+func (client *Client) GetPlatformWorkspaceSync(ctx context.Context) (*GetPlatformWorkspaceSyncResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result GetPlatformWorkspaceSyncResponse
+	if callError := client.decode(ctx, Operations["get_platform_workspace_sync"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetPlaygroundParameters are the path and query parameters of get_playground.
+type GetPlaygroundParameters struct {
+	ID string
+}
+
+// GetPlayground calls GET /v1/playgrounds/{id} (get_playground): One of the account's playgrounds.
+func (client *Client) GetPlayground(ctx context.Context, parameters GetPlaygroundParameters) (*PlaygroundEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result PlaygroundEnvelope
+	if callError := client.decode(ctx, Operations["get_playground"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetPlaygroundKubeconfigParameters are the path and query parameters of get_playground_kubeconfig.
+type GetPlaygroundKubeconfigParameters struct {
+	ID string
+}
+
+// GetPlaygroundKubeconfig calls GET /v1/playgrounds/{id}/kubeconfig (get_playground_kubeconfig): A kubeconfig with a cluster-admin credential of a ready playground (audited).
+func (client *Client) GetPlaygroundKubeconfig(ctx context.Context, parameters GetPlaygroundKubeconfigParameters) (*GetPlaygroundKubeconfigResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result GetPlaygroundKubeconfigResponse
+	if callError := client.decode(ctx, Operations["get_playground_kubeconfig"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetPlaygroundOffer calls GET /v1/playgrounds/offer (get_playground_offer): Whether the account may start a free playground, and on what terms.
+func (client *Client) GetPlaygroundOffer(ctx context.Context) (*PlaygroundOffer, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result PlaygroundOffer
+	if callError := client.decode(ctx, Operations["get_playground_offer"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetPrivateCloud calls GET /v1/private-cloud (get_private_cloud): The account's private cloud, or what it takes to request one.
+func (client *Client) GetPrivateCloud(ctx context.Context) (*PrivateCloudOverview, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result PrivateCloudOverview
+	if callError := client.decode(ctx, Operations["get_private_cloud"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetPrivateCloudRequestForStaffParameters are the path and query parameters of get_private_cloud_request_for_staff.
+type GetPrivateCloudRequestForStaffParameters struct {
+	ID string
+}
+
+// GetPrivateCloudRequestForStaff calls GET /admin/v1/private-cloud-requests/{id} (get_private_cloud_request_for_staff): One private cloud request with the account's dedicated hosts (staff).
+func (client *Client) GetPrivateCloudRequestForStaff(ctx context.Context, parameters GetPrivateCloudRequestForStaffParameters) (*StaffPrivateCloudRequestDetail, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result StaffPrivateCloudRequestDetail
+	if callError := client.decode(ctx, Operations["get_private_cloud_request_for_staff"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetPublicAddressControllerParameters are the path and query parameters of get_public_address_controller.
+type GetPublicAddressControllerParameters struct {
+	Zone string
+}
+
+// GetPublicAddressController calls GET /v1/zones/{zone}/public-address-controller (get_public_address_controller): Read a zone's public address controller and where each address is routed (operator only).
+func (client *Client) GetPublicAddressController(ctx context.Context, parameters GetPublicAddressControllerParameters) (*GetPublicAddressControllerResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result GetPublicAddressControllerResponse
+	if callError := client.decode(ctx, Operations["get_public_address_controller"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // GetQuotas calls GET /v1/quotas (get_quotas): The account's limits and what it holds.
 func (client *Client) GetQuotas(ctx context.Context) (*Quota, error) {
 	pathParameters := map[string]string{}
 	query := url.Values{}
 	var result Quota
 	if callError := client.decode(ctx, Operations["get_quotas"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetRegionParameters are the path and query parameters of get_region.
+type GetRegionParameters struct {
+	Region string
+}
+
+// GetRegion calls GET /v1/regions/{region} (get_region): Get a region with its zones.
+func (client *Client) GetRegion(ctx context.Context, parameters GetRegionParameters) (*RegionEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["region"] = fmt.Sprint(parameters.Region)
+	var result RegionEnvelope
+	if callError := client.decode(ctx, Operations["get_region"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetRegionTailnetParameters are the path and query parameters of get_region_tailnet.
+type GetRegionTailnetParameters struct {
+	Region string
+}
+
+// GetRegionTailnet calls GET /admin/v1/regions/{region}/tailnet (get_region_tailnet): A region's tailnet user and who is on it (staff).
+func (client *Client) GetRegionTailnet(ctx context.Context, parameters GetRegionTailnetParameters) (*RegionTailnetEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["region"] = fmt.Sprint(parameters.Region)
+	var result RegionTailnetEnvelope
+	if callError := client.decode(ctx, Operations["get_region_tailnet"], pathParameters, query, nil, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -3918,6 +10207,34 @@ func (client *Client) GetServerMetrics(ctx context.Context, parameters GetServer
 	return &result, nil
 }
 
+// GetSetupChecklist calls GET /admin/v1/setup (get_setup_checklist): The steps from bought bare-metal servers to a live cloud, each with where it stands (staff).
+func (client *Client) GetSetupChecklist(ctx context.Context) (*SetupChecklist, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result SetupChecklist
+	if callError := client.decode(ctx, Operations["get_setup_checklist"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetSnapshotParameters are the path and query parameters of get_snapshot.
+type GetSnapshotParameters struct {
+	ID string
+}
+
+// GetSnapshot calls GET /v1/snapshots/{id} (get_snapshot): Get a snapshot.
+func (client *Client) GetSnapshot(ctx context.Context, parameters GetSnapshotParameters) (*GetSnapshotResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result GetSnapshotResponse
+	if callError := client.decode(ctx, Operations["get_snapshot"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // GetSSHKeyParameters are the path and query parameters of get_ssh_key.
 type GetSSHKeyParameters struct {
 	ID string
@@ -3930,6 +10247,28 @@ func (client *Client) GetSSHKey(ctx context.Context, parameters GetSSHKeyParamet
 	pathParameters["id"] = fmt.Sprint(parameters.ID)
 	var result GetSSHKeyResponse
 	if callError := client.decode(ctx, Operations["get_ssh_key"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetStaffIdentityProviderStatus calls GET /admin/v1/auth/oidc (get_staff_identity_provider_status): Whether staff may sign in with their Ankra account.
+func (client *Client) GetStaffIdentityProviderStatus(ctx context.Context) (*GetStaffIdentityProviderStatusResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result GetStaffIdentityProviderStatusResponse
+	if callError := client.decode(ctx, Operations["get_staff_identity_provider_status"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetStaffMFA calls GET /admin/v1/auth/mfa (get_staff_mfa): The signed-in staff member's second factor.
+func (client *Client) GetStaffMFA(ctx context.Context) (*StaffSecondFactorStatus, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result StaffSecondFactorStatus
+	if callError := client.decode(ctx, Operations["get_staff_mfa"], pathParameters, query, nil, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -3963,6 +10302,17 @@ func (client *Client) GetSupportAccess(ctx context.Context) (*SupportAccessSetti
 	return &result, nil
 }
 
+// GetUnreadNotificationCount calls GET /v1/notifications/unread-count (get_unread_notification_count): How many notifications of the account are unread.
+func (client *Client) GetUnreadNotificationCount(ctx context.Context) (*NotificationUnreadCount, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result NotificationUnreadCount
+	if callError := client.decode(ctx, Operations["get_unread_notification_count"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // GetUsageSummary calls GET /v1/usage/summary (get_usage_summary): This month's usage and estimate.
 func (client *Client) GetUsageSummary(ctx context.Context) (*UsageSummary, error) {
 	pathParameters := map[string]string{}
@@ -3974,13 +10324,64 @@ func (client *Client) GetUsageSummary(ctx context.Context) (*UsageSummary, error
 	return &result, nil
 }
 
+// GetUserParameters are the path and query parameters of get_user.
+type GetUserParameters struct {
+	ID string
+}
+
+// GetUser calls GET /admin/v1/users/{id} (get_user): A user and the accounts they reach.
+func (client *Client) GetUser(ctx context.Context, parameters GetUserParameters) (*StaffUserDetail, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result StaffUserDetail
+	if callError := client.decode(ctx, Operations["get_user"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetZoneCapabilitiesParameters are the path and query parameters of get_zone_capabilities.
+type GetZoneCapabilitiesParameters struct {
+	Zone string
+}
+
+// GetZoneCapabilities calls GET /v1/zones/{zone}/capabilities (get_zone_capabilities): What the zone offers at its growth stage.
+func (client *Client) GetZoneCapabilities(ctx context.Context, parameters GetZoneCapabilitiesParameters) (*ZoneCapabilities, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result ZoneCapabilities
+	if callError := client.decode(ctx, Operations["get_zone_capabilities"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetZoneControlPlaneParameters are the path and query parameters of get_zone_control_plane.
+type GetZoneControlPlaneParameters struct {
+	Zone string
+}
+
+// GetZoneControlPlane calls GET /v1/zones/{zone}/control-plane (get_zone_control_plane): Show a zone's control plane (operator only).
+func (client *Client) GetZoneControlPlane(ctx context.Context, parameters GetZoneControlPlaneParameters) (*ControlPlane, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result ControlPlane
+	if callError := client.decode(ctx, Operations["get_zone_control_plane"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // GetZoneNodeParameters are the path and query parameters of get_zone_node.
 type GetZoneNodeParameters struct {
 	ID   string
 	Zone string
 }
 
-// GetZoneNode calls GET /v1/zones/{zone}/nodes/{id} (get_zone_node): A node with its maintenance state, newest maintenance operation and servers (operator only).
+// GetZoneNode calls GET /v1/zones/{zone}/nodes/{id} (get_zone_node): A node with its inventory, maintenance state, newest operation and servers (operator only).
 func (client *Client) GetZoneNode(ctx context.Context, parameters GetZoneNodeParameters) (*NodeDetail, error) {
 	pathParameters := map[string]string{}
 	query := url.Values{}
@@ -3988,6 +10389,76 @@ func (client *Client) GetZoneNode(ctx context.Context, parameters GetZoneNodePar
 	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
 	var result NodeDetail
 	if callError := client.decode(ctx, Operations["get_zone_node"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetZoneNodePowerControllerParameters are the path and query parameters of get_zone_node_power_controller.
+type GetZoneNodePowerControllerParameters struct {
+	ID   string
+	Zone string
+}
+
+// GetZoneNodePowerController calls GET /v1/zones/{zone}/nodes/{id}/power-controller (get_zone_node_power_controller): The node's BMC settings, without the password (operator only).
+func (client *Client) GetZoneNodePowerController(ctx context.Context, parameters GetZoneNodePowerControllerParameters) (*PowerController, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result PowerController
+	if callError := client.decode(ctx, Operations["get_zone_node_power_controller"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetZoneObjectStorageParameters are the path and query parameters of get_zone_object_storage.
+type GetZoneObjectStorageParameters struct {
+	Zone string
+}
+
+// GetZoneObjectStorage calls GET /admin/v1/zones/{zone}/object-storage (get_zone_object_storage): A zone's S3 exposure (staff).
+func (client *Client) GetZoneObjectStorage(ctx context.Context, parameters GetZoneObjectStorageParameters) (*GetZoneObjectStorageResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result GetZoneObjectStorageResponse
+	if callError := client.decode(ctx, Operations["get_zone_object_storage"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetZoneObjectStorageOperatorParameters are the path and query parameters of get_zone_object_storage_operator.
+type GetZoneObjectStorageOperatorParameters struct {
+	Zone string
+}
+
+// GetZoneObjectStorageOperator calls GET /v1/zones/{zone}/object-storage (get_zone_object_storage_operator): A zone's S3 exposure (operator only).
+func (client *Client) GetZoneObjectStorageOperator(ctx context.Context, parameters GetZoneObjectStorageOperatorParameters) (*GetZoneObjectStorageOperatorResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result GetZoneObjectStorageOperatorResponse
+	if callError := client.decode(ctx, Operations["get_zone_object_storage_operator"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// GetZoneUnderlayParameters are the path and query parameters of get_zone_underlay.
+type GetZoneUnderlayParameters struct {
+	Zone string
+}
+
+// GetZoneUnderlay calls GET /v1/zones/{zone}/underlay (get_zone_underlay): Read a zone's underlay, its WireGuard mesh and the measured latency budget (operator only).
+func (client *Client) GetZoneUnderlay(ctx context.Context, parameters GetZoneUnderlayParameters) (*GetZoneUnderlayResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result GetZoneUnderlayResponse
+	if callError := client.decode(ctx, Operations["get_zone_underlay"], pathParameters, query, nil, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -4016,6 +10487,34 @@ func (client *Client) InviteMember(ctx context.Context, body InviteMemberRequest
 	query := url.Values{}
 	var result InviteMemberResponse
 	if callError := client.decode(ctx, Operations["invite_member"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// LinkAccountOrganisation calls POST /v1/account/organisation (link_account_organisation): Link your account to an Ankra organisation (owner only).
+func (client *Client) LinkAccountOrganisation(ctx context.Context, body LinkAccountOrganisationRequest) (*LinkAccountOrganisationResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result LinkAccountOrganisationResponse
+	if callError := client.decode(ctx, Operations["link_account_organisation"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// LinkHostNodeParameters are the path and query parameters of link_host_node.
+type LinkHostNodeParameters struct {
+	ID string
+}
+
+// LinkHostNode calls POST /admin/v1/hosts/{id}/adopt (link_host_node): Take a node that joined by hand into SSH management (admin staff).
+func (client *Client) LinkHostNode(ctx context.Context, parameters LinkHostNodeParameters, body AdoptHostRequest) (*HostEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result HostEnvelope
+	if callError := client.decode(ctx, Operations["link_host_node"], pathParameters, query, body, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -4101,6 +10600,84 @@ func (client *Client) ListAccountIdentities(ctx context.Context) (*LinkedIdentit
 	return &result, nil
 }
 
+// ListAccountInvoicesForStaffParameters are the path and query parameters of list_account_invoices_for_staff.
+type ListAccountInvoicesForStaffParameters struct {
+	ID     string
+	Cursor *string
+}
+
+// ListAccountInvoicesForStaff calls GET /admin/v1/accounts/{id}/invoices (list_account_invoices_for_staff): An account's invoices.
+func (client *Client) ListAccountInvoicesForStaff(ctx context.Context, parameters ListAccountInvoicesForStaffParameters) (*StaffInvoiceList, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	if parameters.Cursor != nil {
+		query.Set("cursor", fmt.Sprint(*parameters.Cursor))
+	}
+	var result StaffInvoiceList
+	if callError := client.decode(ctx, Operations["list_account_invoices_for_staff"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListAccounts calls GET /v1/accounts (list_accounts): The accounts you can act in.
+func (client *Client) ListAccounts(ctx context.Context) (*AccountSwitcher, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result AccountSwitcher
+	if callError := client.decode(ctx, Operations["list_accounts"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListAgentBuildsParameters are the path and query parameters of list_agent_builds.
+type ListAgentBuildsParameters struct {
+	Cursor *string
+	Limit  *int64
+}
+
+// ListAgentBuilds calls GET /admin/v1/agent-builds (list_agent_builds): The node agent builds of the artefact store, newest first (staff).
+func (client *Client) ListAgentBuilds(ctx context.Context, parameters ListAgentBuildsParameters) (*AgentBuildList, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	if parameters.Cursor != nil {
+		query.Set("cursor", fmt.Sprint(*parameters.Cursor))
+	}
+	if parameters.Limit != nil {
+		query.Set("limit", fmt.Sprint(*parameters.Limit))
+	}
+	var result AgentBuildList
+	if callError := client.decode(ctx, Operations["list_agent_builds"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListAgentRolloutsParameters are the path and query parameters of list_agent_rollouts.
+type ListAgentRolloutsParameters struct {
+	Cursor *string
+	Limit  *int64
+}
+
+// ListAgentRollouts calls GET /admin/v1/agent-rollouts (list_agent_rollouts): The fleet rollouts of agent builds, newest first (staff).
+func (client *Client) ListAgentRollouts(ctx context.Context, parameters ListAgentRolloutsParameters) (*AgentRolloutList, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	if parameters.Cursor != nil {
+		query.Set("cursor", fmt.Sprint(*parameters.Cursor))
+	}
+	if parameters.Limit != nil {
+		query.Set("limit", fmt.Sprint(*parameters.Limit))
+	}
+	var result AgentRolloutList
+	if callError := client.decode(ctx, Operations["list_agent_rollouts"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // ListAPITokensParameters are the path and query parameters of list_api_tokens.
 type ListAPITokensParameters struct {
 	Cursor *string
@@ -4134,6 +10711,17 @@ func (client *Client) ListAuditEntries(ctx context.Context, parameters ListAudit
 	}
 	var result AuditEntryList
 	if callError := client.decode(ctx, Operations["list_audit_entries"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListBackupVaults calls GET /v1/backup-vaults (list_backup_vaults): List the backup vaults (operator only).
+func (client *Client) ListBackupVaults(ctx context.Context) (*BackupVaultList, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result BackupVaultList
+	if callError := client.decode(ctx, Operations["list_backup_vaults"], pathParameters, query, nil, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -4184,6 +10772,29 @@ func (client *Client) ListBillingLog(ctx context.Context, parameters ListBilling
 	}
 	var result BillingLogEntryList
 	if callError := client.decode(ctx, Operations["list_billing_log"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListControlLinksParameters are the path and query parameters of list_control_links.
+type ListControlLinksParameters struct {
+	Cursor *string
+	Limit  *int64
+}
+
+// ListControlLinks calls GET /admin/v1/control-links (list_control_links): The control-plane links of remote hosts, newest first (staff).
+func (client *Client) ListControlLinks(ctx context.Context, parameters ListControlLinksParameters) (*ControlLinkList, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	if parameters.Cursor != nil {
+		query.Set("cursor", fmt.Sprint(*parameters.Cursor))
+	}
+	if parameters.Limit != nil {
+		query.Set("limit", fmt.Sprint(*parameters.Limit))
+	}
+	var result ControlLinkList
+	if callError := client.decode(ctx, Operations["list_control_links"], pathParameters, query, nil, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -4259,12 +10870,143 @@ func (client *Client) ListDatabasePlans(ctx context.Context) (*ListDatabasePlans
 	return &result, nil
 }
 
+// ListDatabasesParameters are the path and query parameters of list_databases.
+type ListDatabasesParameters struct {
+	Cursor *string
+	Limit  *int64
+}
+
 // ListDatabases calls GET /v1/databases (list_databases): List managed databases.
-func (client *Client) ListDatabases(ctx context.Context) (*ListDatabasesResponse, error) {
+func (client *Client) ListDatabases(ctx context.Context, parameters ListDatabasesParameters) (*ListDatabasesResponse, error) {
 	pathParameters := map[string]string{}
 	query := url.Values{}
+	if parameters.Cursor != nil {
+		query.Set("cursor", fmt.Sprint(*parameters.Cursor))
+	}
+	if parameters.Limit != nil {
+		query.Set("limit", fmt.Sprint(*parameters.Limit))
+	}
 	var result ListDatabasesResponse
 	if callError := client.decode(ctx, Operations["list_databases"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListDevClusterVersions calls GET /v1/dev-clusters/versions (list_dev_cluster_versions): The Kubernetes versions a dev cluster can run, and where and on what terms dev clusters are offered.
+func (client *Client) ListDevClusterVersions(ctx context.Context) (*DevClusterVersions, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result DevClusterVersions
+	if callError := client.decode(ctx, Operations["list_dev_cluster_versions"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListDevClustersParameters are the path and query parameters of list_dev_clusters.
+type ListDevClustersParameters struct {
+	Cursor *string
+	Limit  *int64
+}
+
+// ListDevClusters calls GET /v1/dev-clusters (list_dev_clusters): The account's dev clusters, newest first.
+func (client *Client) ListDevClusters(ctx context.Context, parameters ListDevClustersParameters) (*DevClusterList, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	if parameters.Cursor != nil {
+		query.Set("cursor", fmt.Sprint(*parameters.Cursor))
+	}
+	if parameters.Limit != nil {
+		query.Set("limit", fmt.Sprint(*parameters.Limit))
+	}
+	var result DevClusterList
+	if callError := client.decode(ctx, Operations["list_dev_clusters"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListDNSRecordsParameters are the path and query parameters of list_dns_records.
+type ListDNSRecordsParameters struct {
+	ID string
+}
+
+// ListDNSRecords calls GET /v1/dns/zones/{id}/records (list_dns_records): List every record of a zone in name and type order (`next_cursor` is always null).
+func (client *Client) ListDNSRecords(ctx context.Context, parameters ListDNSRecordsParameters) (*ListDNSRecordsResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result ListDNSRecordsResponse
+	if callError := client.decode(ctx, Operations["list_dns_records"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListDNSSubzonesParameters are the path and query parameters of list_dns_subzones.
+type ListDNSSubzonesParameters struct {
+	ID string
+}
+
+// ListDNSSubzones calls GET /v1/dns/zones/{id}/subzones (list_dns_subzones): List the subzones a zone delegates (`next_cursor` is always null).
+func (client *Client) ListDNSSubzones(ctx context.Context, parameters ListDNSSubzonesParameters) (*DNSZoneList, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result DNSZoneList
+	if callError := client.decode(ctx, Operations["list_dns_subzones"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListDNSZonesParameters are the path and query parameters of list_dns_zones.
+type ListDNSZonesParameters struct {
+	Cursor *string
+	Limit  *int64
+}
+
+// ListDNSZones calls GET /v1/dns/zones (list_dns_zones): List the account's hosted DNS zones and subzones in name order.
+func (client *Client) ListDNSZones(ctx context.Context, parameters ListDNSZonesParameters) (*ListDNSZonesResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	if parameters.Cursor != nil {
+		query.Set("cursor", fmt.Sprint(*parameters.Cursor))
+	}
+	if parameters.Limit != nil {
+		query.Set("limit", fmt.Sprint(*parameters.Limit))
+	}
+	var result ListDNSZonesResponse
+	if callError := client.decode(ctx, Operations["list_dns_zones"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListEdgeRouterOperationsParameters are the path and query parameters of list_edge_router_operations.
+type ListEdgeRouterOperationsParameters struct {
+	ID string
+}
+
+// ListEdgeRouterOperations calls GET /admin/v1/edge-routers/{id}/operations (list_edge_router_operations): An edge router's operations and the progress of the newest (staff).
+func (client *Client) ListEdgeRouterOperations(ctx context.Context, parameters ListEdgeRouterOperationsParameters) (*ListEdgeRouterOperationsResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result ListEdgeRouterOperationsResponse
+	if callError := client.decode(ctx, Operations["list_edge_router_operations"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListEdgeRouters calls GET /admin/v1/edge-routers (list_edge_routers): The regions' IPv6 edge routers, by name (staff).
+func (client *Client) ListEdgeRouters(ctx context.Context) (*EdgeRouterList, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result EdgeRouterList
+	if callError := client.decode(ctx, Operations["list_edge_routers"], pathParameters, query, nil, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -4293,12 +11035,121 @@ func (client *Client) ListEdges(ctx context.Context, parameters ListEdgesParamet
 	return &result, nil
 }
 
-// ListFloatingIPs calls GET /v1/floating-ips (list_floating_ips): List floating IPs.
-func (client *Client) ListFloatingIPs(ctx context.Context) (*FloatingIplist, error) {
+// ListFleetNodeServersParameters are the path and query parameters of list_fleet_node_servers.
+type ListFleetNodeServersParameters struct {
+	ID string
+}
+
+// ListFleetNodeServers calls GET /admin/v1/fleet/nodes/{id}/servers (list_fleet_node_servers): The servers placed on a node, largest first (staff).
+func (client *Client) ListFleetNodeServers(ctx context.Context, parameters ListFleetNodeServersParameters) (*ListFleetNodeServersResponse, error) {
 	pathParameters := map[string]string{}
 	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result ListFleetNodeServersResponse
+	if callError := client.decode(ctx, Operations["list_fleet_node_servers"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListFleetServersParameters are the path and query parameters of list_fleet_servers.
+type ListFleetServersParameters struct {
+	AccountID *string
+	Cursor    *string
+	Limit     *int64
+	Query     *string
+	Zone      *string
+}
+
+// ListFleetServers calls GET /admin/v1/fleet/servers (list_fleet_servers): Every live server across the fleet, newest first (staff).
+func (client *Client) ListFleetServers(ctx context.Context, parameters ListFleetServersParameters) (*ListFleetServersResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	if parameters.AccountID != nil {
+		query.Set("account_id", fmt.Sprint(*parameters.AccountID))
+	}
+	if parameters.Cursor != nil {
+		query.Set("cursor", fmt.Sprint(*parameters.Cursor))
+	}
+	if parameters.Limit != nil {
+		query.Set("limit", fmt.Sprint(*parameters.Limit))
+	}
+	if parameters.Query != nil {
+		query.Set("query", fmt.Sprint(*parameters.Query))
+	}
+	if parameters.Zone != nil {
+		query.Set("zone", fmt.Sprint(*parameters.Zone))
+	}
+	var result ListFleetServersResponse
+	if callError := client.decode(ctx, Operations["list_fleet_servers"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListFloatingIPsParameters are the path and query parameters of list_floating_ips.
+type ListFloatingIPsParameters struct {
+	Cursor *string
+	Limit  *int64
+}
+
+// ListFloatingIPs calls GET /v1/floating-ips (list_floating_ips): List floating IPs.
+func (client *Client) ListFloatingIPs(ctx context.Context, parameters ListFloatingIPsParameters) (*FloatingIplist, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	if parameters.Cursor != nil {
+		query.Set("cursor", fmt.Sprint(*parameters.Cursor))
+	}
+	if parameters.Limit != nil {
+		query.Set("limit", fmt.Sprint(*parameters.Limit))
+	}
 	var result FloatingIplist
 	if callError := client.decode(ctx, Operations["list_floating_ips"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListHostsParameters are the path and query parameters of list_hosts.
+type ListHostsParameters struct {
+	Cursor *string
+	Limit  *int64
+}
+
+// ListHosts calls GET /admin/v1/hosts (list_hosts): Servers staff added, newest first.
+func (client *Client) ListHosts(ctx context.Context, parameters ListHostsParameters) (*HostList, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	if parameters.Cursor != nil {
+		query.Set("cursor", fmt.Sprint(*parameters.Cursor))
+	}
+	if parameters.Limit != nil {
+		query.Set("limit", fmt.Sprint(*parameters.Limit))
+	}
+	var result HostList
+	if callError := client.decode(ctx, Operations["list_hosts"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListInfrastructureRegions calls GET /admin/v1/regions (list_infrastructure_regions): Every region with every zone, hidden ones included (staff).
+func (client *Client) ListInfrastructureRegions(ctx context.Context) (*RegionList, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result RegionList
+	if callError := client.decode(ctx, Operations["list_infrastructure_regions"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListInfrastructureZones calls GET /admin/v1/zones (list_infrastructure_zones): Every zone, hidden ones included, with how its hosts join and its gateways route (staff).
+func (client *Client) ListInfrastructureZones(ctx context.Context) (*StaffZoneList, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result StaffZoneList
+	if callError := client.decode(ctx, Operations["list_infrastructure_zones"], pathParameters, query, nil, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -4357,10 +11208,118 @@ func (client *Client) ListInvoices(ctx context.Context, parameters ListInvoicesP
 	return &result, nil
 }
 
-// ListLoadBalancerCertificates calls GET /v1/load-balancers/certificates (list_load_balancer_certificates): List the account's load balancer certificates.
-func (client *Client) ListLoadBalancerCertificates(ctx context.Context) (*ListLoadBalancerCertificatesResponse, error) {
+// ListIPPoolsParameters are the path and query parameters of list_ip_pools.
+type ListIPPoolsParameters struct {
+	Zone string
+}
+
+// ListIPPools calls GET /admin/v1/zones/{zone}/ip-pools (list_ip_pools): A zone's public IP pools (staff).
+func (client *Client) ListIPPools(ctx context.Context, parameters ListIPPoolsParameters) (*IppoolList, error) {
 	pathParameters := map[string]string{}
 	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result IppoolList
+	if callError := client.decode(ctx, Operations["list_ip_pools"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListKubernetesClusterEtcdSnapshotsParameters are the path and query parameters of list_kubernetes_cluster_etcd_snapshots.
+type ListKubernetesClusterEtcdSnapshotsParameters struct {
+	ID string
+}
+
+// ListKubernetesClusterEtcdSnapshots calls GET /v1/kubernetes-clusters/{id}/etcd-snapshots (list_kubernetes_cluster_etcd_snapshots): The etcd snapshots of a cluster, newest first.
+func (client *Client) ListKubernetesClusterEtcdSnapshots(ctx context.Context, parameters ListKubernetesClusterEtcdSnapshotsParameters) (*ListKubernetesClusterEtcdSnapshotsResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result ListKubernetesClusterEtcdSnapshotsResponse
+	if callError := client.decode(ctx, Operations["list_kubernetes_cluster_etcd_snapshots"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListKubernetesClustersParameters are the path and query parameters of list_kubernetes_clusters.
+type ListKubernetesClustersParameters struct {
+	Cursor *string
+	Limit  *int64
+}
+
+// ListKubernetesClusters calls GET /v1/kubernetes-clusters (list_kubernetes_clusters): List Kubernetes clusters.
+func (client *Client) ListKubernetesClusters(ctx context.Context, parameters ListKubernetesClustersParameters) (*ListKubernetesClustersResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	if parameters.Cursor != nil {
+		query.Set("cursor", fmt.Sprint(*parameters.Cursor))
+	}
+	if parameters.Limit != nil {
+		query.Set("limit", fmt.Sprint(*parameters.Limit))
+	}
+	var result ListKubernetesClustersResponse
+	if callError := client.decode(ctx, Operations["list_kubernetes_clusters"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListKubernetesHosts calls GET /v1/kubernetes-hosts (list_kubernetes_hosts): List the regional host clusters that run tenant control planes (operator only).
+func (client *Client) ListKubernetesHosts(ctx context.Context) (*ListKubernetesHostsResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result ListKubernetesHostsResponse
+	if callError := client.decode(ctx, Operations["list_kubernetes_hosts"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListKubernetesNodePoolsParameters are the path and query parameters of list_kubernetes_node_pools.
+type ListKubernetesNodePoolsParameters struct {
+	ID string
+}
+
+// ListKubernetesNodePools calls GET /v1/kubernetes-clusters/{id}/node-pools (list_kubernetes_node_pools): List a cluster's node pools with their nodes.
+func (client *Client) ListKubernetesNodePools(ctx context.Context, parameters ListKubernetesNodePoolsParameters) (*ListKubernetesNodePoolsResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result ListKubernetesNodePoolsResponse
+	if callError := client.decode(ctx, Operations["list_kubernetes_node_pools"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListKubernetesVersions calls GET /v1/kubernetes-clusters/versions (list_kubernetes_versions): The Kubernetes versions a cluster can run, with their pinned add-ons, the control-plane tiers and the prices.
+func (client *Client) ListKubernetesVersions(ctx context.Context) (*KubernetesVersionList, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result KubernetesVersionList
+	if callError := client.decode(ctx, Operations["list_kubernetes_versions"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListLoadBalancerCertificatesParameters are the path and query parameters of list_load_balancer_certificates.
+type ListLoadBalancerCertificatesParameters struct {
+	Cursor *string
+	Limit  *int64
+}
+
+// ListLoadBalancerCertificates calls GET /v1/load-balancers/certificates (list_load_balancer_certificates): List the account's load balancer certificates.
+func (client *Client) ListLoadBalancerCertificates(ctx context.Context, parameters ListLoadBalancerCertificatesParameters) (*ListLoadBalancerCertificatesResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	if parameters.Cursor != nil {
+		query.Set("cursor", fmt.Sprint(*parameters.Cursor))
+	}
+	if parameters.Limit != nil {
+		query.Set("limit", fmt.Sprint(*parameters.Limit))
+	}
 	var result ListLoadBalancerCertificatesResponse
 	if callError := client.decode(ctx, Operations["list_load_balancer_certificates"], pathParameters, query, nil, &result); callError != nil {
 		return nil, callError
@@ -4368,10 +11327,26 @@ func (client *Client) ListLoadBalancerCertificates(ctx context.Context) (*ListLo
 	return &result, nil
 }
 
+// ListLoadBalancersParameters are the path and query parameters of list_load_balancers.
+type ListLoadBalancersParameters struct {
+	Cursor *string
+	Label  *string
+	Limit  *int64
+}
+
 // ListLoadBalancers calls GET /v1/load-balancers (list_load_balancers): List load balancers.
-func (client *Client) ListLoadBalancers(ctx context.Context) (*ListLoadBalancersResponse, error) {
+func (client *Client) ListLoadBalancers(ctx context.Context, parameters ListLoadBalancersParameters) (*ListLoadBalancersResponse, error) {
 	pathParameters := map[string]string{}
 	query := url.Values{}
+	if parameters.Cursor != nil {
+		query.Set("cursor", fmt.Sprint(*parameters.Cursor))
+	}
+	if parameters.Label != nil {
+		query.Set("label", fmt.Sprint(*parameters.Label))
+	}
+	if parameters.Limit != nil {
+		query.Set("limit", fmt.Sprint(*parameters.Limit))
+	}
 	var result ListLoadBalancersResponse
 	if callError := client.decode(ctx, Operations["list_load_balancers"], pathParameters, query, nil, &result); callError != nil {
 		return nil, callError
@@ -4402,12 +11377,91 @@ func (client *Client) ListMembers(ctx context.Context, parameters ListMembersPar
 	return &result, nil
 }
 
-// ListNetworks calls GET /v1/networks (list_networks): List private networks.
-func (client *Client) ListNetworks(ctx context.Context) (*NetworkList, error) {
+// ListMonitoringTargetsParameters are the path and query parameters of list_monitoring_targets.
+type ListMonitoringTargetsParameters struct {
+	Job string
+}
+
+// ListMonitoringTargets calls GET /v1/monitoring/targets (list_monitoring_targets): Prometheus HTTP service discovery of the API, the node agents and Ceph (operator).
+func (client *Client) ListMonitoringTargets(ctx context.Context, parameters ListMonitoringTargetsParameters) (*[]ListMonitoringTargetsResponseItem, error) {
 	pathParameters := map[string]string{}
 	query := url.Values{}
+	query.Set("job", fmt.Sprint(parameters.Job))
+	var result []ListMonitoringTargetsResponseItem
+	if callError := client.decode(ctx, Operations["list_monitoring_targets"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListNetworksParameters are the path and query parameters of list_networks.
+type ListNetworksParameters struct {
+	Cursor *string
+	Limit  *int64
+}
+
+// ListNetworks calls GET /v1/networks (list_networks): List private networks.
+func (client *Client) ListNetworks(ctx context.Context, parameters ListNetworksParameters) (*NetworkList, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	if parameters.Cursor != nil {
+		query.Set("cursor", fmt.Sprint(*parameters.Cursor))
+	}
+	if parameters.Limit != nil {
+		query.Set("limit", fmt.Sprint(*parameters.Limit))
+	}
 	var result NetworkList
 	if callError := client.decode(ctx, Operations["list_networks"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListNodeAgentArtifactsParameters are the path and query parameters of list_node_agent_artifacts.
+type ListNodeAgentArtifactsParameters struct {
+	Cursor *string
+	Limit  *int64
+}
+
+// ListNodeAgentArtifacts calls GET /v1/node-agent-artifacts (list_node_agent_artifacts): The node agent builds the artefact store holds, in version order (operator only).
+func (client *Client) ListNodeAgentArtifacts(ctx context.Context, parameters ListNodeAgentArtifactsParameters) (*NodeAgentArtifactList, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	if parameters.Cursor != nil {
+		query.Set("cursor", fmt.Sprint(*parameters.Cursor))
+	}
+	if parameters.Limit != nil {
+		query.Set("limit", fmt.Sprint(*parameters.Limit))
+	}
+	var result NodeAgentArtifactList
+	if callError := client.decode(ctx, Operations["list_node_agent_artifacts"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListNotificationsParameters are the path and query parameters of list_notifications.
+type ListNotificationsParameters struct {
+	Cursor *string
+	Limit  *int64
+	Unread *bool
+}
+
+// ListNotifications calls GET /v1/notifications (list_notifications): List the account's notifications, newest first.
+func (client *Client) ListNotifications(ctx context.Context, parameters ListNotificationsParameters) (*NotificationList, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	if parameters.Cursor != nil {
+		query.Set("cursor", fmt.Sprint(*parameters.Cursor))
+	}
+	if parameters.Limit != nil {
+		query.Set("limit", fmt.Sprint(*parameters.Limit))
+	}
+	if parameters.Unread != nil {
+		query.Set("unread", fmt.Sprint(*parameters.Unread))
+	}
+	var result NotificationList
+	if callError := client.decode(ctx, Operations["list_notifications"], pathParameters, query, nil, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -4419,6 +11473,41 @@ func (client *Client) ListObjectStorage(ctx context.Context) (*ListObjectStorage
 	query := url.Values{}
 	var result ListObjectStorageResponse
 	if callError := client.decode(ctx, Operations["list_object_storage"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListOperationsParameters are the path and query parameters of list_operations.
+type ListOperationsParameters struct {
+	Active *bool
+	Cursor *string
+	Kind   *string
+	Limit  *int64
+	Status *string
+}
+
+// ListOperations calls GET /v1/operations (list_operations): List the account's operations across every resource, newest first.
+func (client *Client) ListOperations(ctx context.Context, parameters ListOperationsParameters) (*OperationList, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	if parameters.Active != nil {
+		query.Set("active", fmt.Sprint(*parameters.Active))
+	}
+	if parameters.Cursor != nil {
+		query.Set("cursor", fmt.Sprint(*parameters.Cursor))
+	}
+	if parameters.Kind != nil {
+		query.Set("kind", fmt.Sprint(*parameters.Kind))
+	}
+	if parameters.Limit != nil {
+		query.Set("limit", fmt.Sprint(*parameters.Limit))
+	}
+	if parameters.Status != nil {
+		query.Set("status", fmt.Sprint(*parameters.Status))
+	}
+	var result OperationList
+	if callError := client.decode(ctx, Operations["list_operations"], pathParameters, query, nil, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -4458,10 +11547,156 @@ func (client *Client) ListPlans(ctx context.Context) (*PlanList, error) {
 	return &result, nil
 }
 
-// ListRouters calls GET /v1/routers (list_routers): List routers.
-func (client *Client) ListRouters(ctx context.Context) (*RouterList, error) {
+// ListPlatformAuditParameters are the path and query parameters of list_platform_audit.
+type ListPlatformAuditParameters struct {
+	Cursor *string
+	Limit  *int64
+}
+
+// ListPlatformAudit calls GET /admin/v1/platform-audit (list_platform_audit): The platform audit log, newest first (staff).
+func (client *Client) ListPlatformAudit(ctx context.Context, parameters ListPlatformAuditParameters) (*AuditEntryList, error) {
 	pathParameters := map[string]string{}
 	query := url.Values{}
+	if parameters.Cursor != nil {
+		query.Set("cursor", fmt.Sprint(*parameters.Cursor))
+	}
+	if parameters.Limit != nil {
+		query.Set("limit", fmt.Sprint(*parameters.Limit))
+	}
+	var result AuditEntryList
+	if callError := client.decode(ctx, Operations["list_platform_audit"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListPlaygroundsParameters are the path and query parameters of list_playgrounds.
+type ListPlaygroundsParameters struct {
+	Cursor *string
+	Limit  *int64
+}
+
+// ListPlaygrounds calls GET /v1/playgrounds (list_playgrounds): The account's playgrounds, newest first.
+func (client *Client) ListPlaygrounds(ctx context.Context, parameters ListPlaygroundsParameters) (*PlaygroundList, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	if parameters.Cursor != nil {
+		query.Set("cursor", fmt.Sprint(*parameters.Cursor))
+	}
+	if parameters.Limit != nil {
+		query.Set("limit", fmt.Sprint(*parameters.Limit))
+	}
+	var result PlaygroundList
+	if callError := client.decode(ctx, Operations["list_playgrounds"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListPlaygroundsForStaffParameters are the path and query parameters of list_playgrounds_for_staff.
+type ListPlaygroundsForStaffParameters struct {
+	Cursor *string
+	Limit  *int64
+	State  *string
+}
+
+// ListPlaygroundsForStaff calls GET /admin/v1/playgrounds (list_playgrounds_for_staff): Every account's playgrounds, newest first (staff).
+func (client *Client) ListPlaygroundsForStaff(ctx context.Context, parameters ListPlaygroundsForStaffParameters) (*StaffPlaygroundList, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	if parameters.Cursor != nil {
+		query.Set("cursor", fmt.Sprint(*parameters.Cursor))
+	}
+	if parameters.Limit != nil {
+		query.Set("limit", fmt.Sprint(*parameters.Limit))
+	}
+	if parameters.State != nil {
+		query.Set("state", fmt.Sprint(*parameters.State))
+	}
+	var result StaffPlaygroundList
+	if callError := client.decode(ctx, Operations["list_playgrounds_for_staff"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListPrivateCloudRequestsParameters are the path and query parameters of list_private_cloud_requests.
+type ListPrivateCloudRequestsParameters struct {
+	Cursor *string
+	Limit  *int64
+}
+
+// ListPrivateCloudRequests calls GET /v1/private-cloud/requests (list_private_cloud_requests): The account's private cloud requests, newest first.
+func (client *Client) ListPrivateCloudRequests(ctx context.Context, parameters ListPrivateCloudRequestsParameters) (*PrivateCloudRequestList, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	if parameters.Cursor != nil {
+		query.Set("cursor", fmt.Sprint(*parameters.Cursor))
+	}
+	if parameters.Limit != nil {
+		query.Set("limit", fmt.Sprint(*parameters.Limit))
+	}
+	var result PrivateCloudRequestList
+	if callError := client.decode(ctx, Operations["list_private_cloud_requests"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListPrivateCloudRequestsForStaffParameters are the path and query parameters of list_private_cloud_requests_for_staff.
+type ListPrivateCloudRequestsForStaffParameters struct {
+	Cursor *string
+	Limit  *int64
+	State  *string
+}
+
+// ListPrivateCloudRequestsForStaff calls GET /admin/v1/private-cloud-requests (list_private_cloud_requests_for_staff): Every account's private cloud requests, newest first (staff).
+func (client *Client) ListPrivateCloudRequestsForStaff(ctx context.Context, parameters ListPrivateCloudRequestsForStaffParameters) (*StaffPrivateCloudRequestList, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	if parameters.Cursor != nil {
+		query.Set("cursor", fmt.Sprint(*parameters.Cursor))
+	}
+	if parameters.Limit != nil {
+		query.Set("limit", fmt.Sprint(*parameters.Limit))
+	}
+	if parameters.State != nil {
+		query.Set("state", fmt.Sprint(*parameters.State))
+	}
+	var result StaffPrivateCloudRequestList
+	if callError := client.decode(ctx, Operations["list_private_cloud_requests_for_staff"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListRegions calls GET /v1/regions (list_regions): List regions with their zones.
+func (client *Client) ListRegions(ctx context.Context) (*RegionList, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result RegionList
+	if callError := client.decode(ctx, Operations["list_regions"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListRoutersParameters are the path and query parameters of list_routers.
+type ListRoutersParameters struct {
+	Cursor *string
+	Limit  *int64
+}
+
+// ListRouters calls GET /v1/routers (list_routers): List routers.
+func (client *Client) ListRouters(ctx context.Context, parameters ListRoutersParameters) (*RouterList, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	if parameters.Cursor != nil {
+		query.Set("cursor", fmt.Sprint(*parameters.Cursor))
+	}
+	if parameters.Limit != nil {
+		query.Set("limit", fmt.Sprint(*parameters.Limit))
+	}
 	var result RouterList
 	if callError := client.decode(ctx, Operations["list_routers"], pathParameters, query, nil, &result); callError != nil {
 		return nil, callError
@@ -4511,9 +11746,10 @@ func (client *Client) ListServerInterfaces(ctx context.Context, parameters ListS
 
 // ListServersParameters are the path and query parameters of list_servers.
 type ListServersParameters struct {
-	Cursor *string
-	Label  *string
-	Limit  *int64
+	Cursor   *string
+	Hostname *string
+	Label    *string
+	Limit    *int64
 }
 
 // ListServers calls GET /v1/servers (list_servers): List servers.
@@ -4522,6 +11758,9 @@ func (client *Client) ListServers(ctx context.Context, parameters ListServersPar
 	query := url.Values{}
 	if parameters.Cursor != nil {
 		query.Set("cursor", fmt.Sprint(*parameters.Cursor))
+	}
+	if parameters.Hostname != nil {
+		query.Set("hostname", fmt.Sprint(*parameters.Hostname))
 	}
 	if parameters.Label != nil {
 		query.Set("label", fmt.Sprint(*parameters.Label))
@@ -4576,6 +11815,48 @@ func (client *Client) ListStaff(ctx context.Context) (*StaffList, error) {
 	query := url.Values{}
 	var result StaffList
 	if callError := client.decode(ctx, Operations["list_staff"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListStorageBackendsParameters are the path and query parameters of list_storage_backends.
+type ListStorageBackendsParameters struct {
+	Zone string
+}
+
+// ListStorageBackends calls GET /v1/zones/{zone}/storage-backends (list_storage_backends): List a zone's storage backends and storage nodes (operator only).
+func (client *Client) ListStorageBackends(ctx context.Context, parameters ListStorageBackendsParameters) (*StorageBackendOverview, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result StorageBackendOverview
+	if callError := client.decode(ctx, Operations["list_storage_backends"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListStorageSnapshotsParameters are the path and query parameters of list_storage_snapshots.
+type ListStorageSnapshotsParameters struct {
+	ID     string
+	Cursor *string
+	Limit  *int64
+}
+
+// ListStorageSnapshots calls GET /v1/storages/{id}/snapshots (list_storage_snapshots): List a storage's snapshots, newest first.
+func (client *Client) ListStorageSnapshots(ctx context.Context, parameters ListStorageSnapshotsParameters) (*SnapshotList, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	if parameters.Cursor != nil {
+		query.Set("cursor", fmt.Sprint(*parameters.Cursor))
+	}
+	if parameters.Limit != nil {
+		query.Set("limit", fmt.Sprint(*parameters.Limit))
+	}
+	var result SnapshotList
+	if callError := client.decode(ctx, Operations["list_storage_snapshots"], pathParameters, query, nil, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -4694,6 +11975,74 @@ func (client *Client) ListZoneNodes(ctx context.Context, parameters ListZoneNode
 	return &result, nil
 }
 
+// ListZoneRacksParameters are the path and query parameters of list_zone_racks.
+type ListZoneRacksParameters struct {
+	Zone string
+}
+
+// ListZoneRacks calls GET /v1/zones/{zone}/racks (list_zone_racks): List the racks of a zone with their node counts (operator only).
+func (client *Client) ListZoneRacks(ctx context.Context, parameters ListZoneRacksParameters) (*RackList, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result RackList
+	if callError := client.decode(ctx, Operations["list_zone_racks"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListZoneRacksForStaffParameters are the path and query parameters of list_zone_racks_for_staff.
+type ListZoneRacksForStaffParameters struct {
+	Zone string
+}
+
+// ListZoneRacksForStaff calls GET /admin/v1/zones/{zone}/racks (list_zone_racks_for_staff): A zone's racks with how many nodes each holds (staff).
+func (client *Client) ListZoneRacksForStaff(ctx context.Context, parameters ListZoneRacksForStaffParameters) (*RackList, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result RackList
+	if callError := client.decode(ctx, Operations["list_zone_racks_for_staff"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListZoneUplinkOperationsParameters are the path and query parameters of list_zone_uplink_operations.
+type ListZoneUplinkOperationsParameters struct {
+	Zone string
+}
+
+// ListZoneUplinkOperations calls GET /admin/v1/zones/{zone}/uplink-operations (list_zone_uplink_operations): The moves of a zone's gateway uplinks and the progress of the newest (staff).
+func (client *Client) ListZoneUplinkOperations(ctx context.Context, parameters ListZoneUplinkOperationsParameters) (*ListZoneUplinkOperationsResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result ListZoneUplinkOperationsResponse
+	if callError := client.decode(ctx, Operations["list_zone_uplink_operations"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ListZoneUplinksParameters are the path and query parameters of list_zone_uplinks.
+type ListZoneUplinksParameters struct {
+	Zone string
+}
+
+// ListZoneUplinks calls GET /admin/v1/zones/{zone}/uplinks (list_zone_uplinks): A zone's gateway uplinks, active first (staff).
+func (client *Client) ListZoneUplinks(ctx context.Context, parameters ListZoneUplinksParameters) (*ListZoneUplinksResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result ListZoneUplinksResponse
+	if callError := client.decode(ctx, Operations["list_zone_uplinks"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // ListZones calls GET /v1/zones (list_zones): List zones.
 func (client *Client) ListZones(ctx context.Context) (*ZoneList, error) {
 	pathParameters := map[string]string{}
@@ -4706,10 +12055,10 @@ func (client *Client) ListZones(ctx context.Context) (*ZoneList, error) {
 }
 
 // LogIn calls POST /v1/auth/login (log_in): Sign in and receive a session.
-func (client *Client) LogIn(ctx context.Context, body LoginRequest) (*IssuedSession, error) {
+func (client *Client) LogIn(ctx context.Context, body LoginRequest) (*json.RawMessage, error) {
 	pathParameters := map[string]string{}
 	query := url.Values{}
-	var result IssuedSession
+	var result json.RawMessage
 	if callError := client.decode(ctx, Operations["log_in"], pathParameters, query, body, &result); callError != nil {
 		return nil, callError
 	}
@@ -4717,10 +12066,10 @@ func (client *Client) LogIn(ctx context.Context, body LoginRequest) (*IssuedSess
 }
 
 // LogInStaff calls POST /admin/v1/auth/login (log_in_staff): Staff sign-in to the admin console.
-func (client *Client) LogInStaff(ctx context.Context, body StaffLoginRequest) (*StaffSession, error) {
+func (client *Client) LogInStaff(ctx context.Context, body StaffLoginRequest) (*json.RawMessage, error) {
 	pathParameters := map[string]string{}
 	query := url.Values{}
-	var result StaffSession
+	var result json.RawMessage
 	if callError := client.decode(ctx, Operations["log_in_staff"], pathParameters, query, body, &result); callError != nil {
 		return nil, callError
 	}
@@ -4763,6 +12112,51 @@ func (client *Client) LookUpInvitation(ctx context.Context, parameters LookUpInv
 	return &result, nil
 }
 
+// MarkAllNotificationsRead calls POST /v1/notifications/read-all (mark_all_notifications_read): Mark every unread notification of the account read.
+func (client *Client) MarkAllNotificationsRead(ctx context.Context) (*MarkAllNotificationsReadResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result MarkAllNotificationsReadResponse
+	if callError := client.decode(ctx, Operations["mark_all_notifications_read"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// MarkNotificationReadParameters are the path and query parameters of mark_notification_read.
+type MarkNotificationReadParameters struct {
+	ID string
+}
+
+// MarkNotificationRead calls POST /v1/notifications/{id}/read (mark_notification_read): Mark one notification read.
+func (client *Client) MarkNotificationRead(ctx context.Context, parameters MarkNotificationReadParameters) (*MarkNotificationReadResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result MarkNotificationReadResponse
+	if callError := client.decode(ctx, Operations["mark_notification_read"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// MigrateObjectStorageParameters are the path and query parameters of migrate_object_storage.
+type MigrateObjectStorageParameters struct {
+	Zone string
+}
+
+// MigrateObjectStorage calls POST /v1/object-storage/{zone}/migrate (migrate_object_storage): Move the zone's buckets from the single-node S3 server to replicated object storage.
+func (client *Client) MigrateObjectStorage(ctx context.Context, parameters MigrateObjectStorageParameters) (*MigrateObjectStorageResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result MigrateObjectStorageResponse
+	if callError := client.decode(ctx, Operations["migrate_object_storage"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // MigrateZoneServerParameters are the path and query parameters of migrate_zone_server.
 type MigrateZoneServerParameters struct {
 	ID   string
@@ -4782,6 +12176,40 @@ func (client *Client) MigrateZoneServer(ctx context.Context, parameters MigrateZ
 	return &result, nil
 }
 
+// MoveGatewayUplinkParameters are the path and query parameters of move_gateway_uplink.
+type MoveGatewayUplinkParameters struct {
+	ID string
+}
+
+// MoveGatewayUplink calls POST /admin/v1/gateway-uplinks/{id}/move (move_gateway_uplink): Move a gateway's transit to this uplink, or roll it back to it (admin staff).
+func (client *Client) MoveGatewayUplink(ctx context.Context, parameters MoveGatewayUplinkParameters, body MoveGatewayUplinkRequest) (*MoveGatewayUplinkResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result MoveGatewayUplinkResponse
+	if callError := client.decode(ctx, Operations["move_gateway_uplink"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// MoveStorageParameters are the path and query parameters of move_storage.
+type MoveStorageParameters struct {
+	ID string
+}
+
+// MoveStorage calls POST /v1/storages/{id}/move (move_storage): Move a storage to another tier, across backends.
+func (client *Client) MoveStorage(ctx context.Context, parameters MoveStorageParameters, body MoveStorageRequest) (*MoveStorageResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result MoveStorageResponse
+	if callError := client.decode(ctx, Operations["move_storage"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // OpenSupportSessionParameters are the path and query parameters of open_support_session.
 type OpenSupportSessionParameters struct {
 	ID string
@@ -4794,6 +12222,40 @@ func (client *Client) OpenSupportSession(ctx context.Context, parameters OpenSup
 	pathParameters["id"] = fmt.Sprint(parameters.ID)
 	var result OpenedSupportSession
 	if callError := client.decode(ctx, Operations["open_support_session"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// PromoteAgentRolloutParameters are the path and query parameters of promote_agent_rollout.
+type PromoteAgentRolloutParameters struct {
+	ID string
+}
+
+// PromoteAgentRollout calls POST /admin/v1/agent-rollouts/{id}/promote (promote_agent_rollout): Continue a rollout that awaits promotion without waiting for the soak (admin staff).
+func (client *Client) PromoteAgentRollout(ctx context.Context, parameters PromoteAgentRolloutParameters, body StaffNodeActionRequest) (*AgentRolloutEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result AgentRolloutEnvelope
+	if callError := client.decode(ctx, Operations["promote_agent_rollout"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// RebalanceZoneStorageParameters are the path and query parameters of rebalance_zone_storage.
+type RebalanceZoneStorageParameters struct {
+	Zone string
+}
+
+// RebalanceZoneStorage calls POST /v1/zones/{zone}/storage-backends/rebalance (rebalance_zone_storage): Run the zone's Ceph growth policy now (operator only).
+func (client *Client) RebalanceZoneStorage(ctx context.Context, parameters RebalanceZoneStorageParameters, body RebalanceZoneStorageRequest) (*RebalanceZoneStorageResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result RebalanceZoneStorageResponse
+	if callError := client.decode(ctx, Operations["rebalance_zone_storage"], pathParameters, query, body, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -4849,11 +12311,45 @@ func (client *Client) RedeemSupportHandoff(ctx context.Context, body RedeemSuppo
 	return &result, nil
 }
 
+// RegisterKubernetesClusterInPlatformParameters are the path and query parameters of register_kubernetes_cluster_in_platform.
+type RegisterKubernetesClusterInPlatformParameters struct {
+	ID string
+}
+
+// RegisterKubernetesClusterInPlatform calls POST /v1/kubernetes-clusters/{id}/platform/register (register_kubernetes_cluster_in_platform): Register a Kubernetes cluster in the Ankra platform now.
+func (client *Client) RegisterKubernetesClusterInPlatform(ctx context.Context, parameters RegisterKubernetesClusterInPlatformParameters) (*OperationEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result OperationEnvelope
+	if callError := client.decode(ctx, Operations["register_kubernetes_cluster_in_platform"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // RegisterNode calls POST /internal/v1/nodes/register (register_node): A node agent registers with a one-time bootstrap token.
 func (client *Client) RegisterNode(ctx context.Context, body []byte) (RawResponse, error) {
 	pathParameters := map[string]string{}
 	query := url.Values{}
 	return client.send(ctx, Operations["register_node"], pathParameters, query, body)
+}
+
+// ReleaseControlLinkParameters are the path and query parameters of release_control_link.
+type ReleaseControlLinkParameters struct {
+	ID string
+}
+
+// ReleaseControlLink calls DELETE /admin/v1/control-links/{id} (release_control_link): Release a control link of a host that is taken apart (admin staff).
+func (client *Client) ReleaseControlLink(ctx context.Context, parameters ReleaseControlLinkParameters) (*ControlLinkEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result ControlLinkEnvelope
+	if callError := client.decode(ctx, Operations["release_control_link"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
 }
 
 // ReleaseFloatingIPParameters are the path and query parameters of release_floating_ip.
@@ -4868,6 +12364,59 @@ func (client *Client) ReleaseFloatingIP(ctx context.Context, parameters ReleaseF
 	pathParameters["id"] = fmt.Sprint(parameters.ID)
 	var result OperationEnvelope
 	if callError := client.decode(ctx, Operations["release_floating_ip"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// RemoveAccountMemberParameters are the path and query parameters of remove_account_member.
+type RemoveAccountMemberParameters struct {
+	ID   string
+	User string
+}
+
+// RemoveAccountMember calls DELETE /admin/v1/accounts/{id}/members/{user} (remove_account_member): Remove a member (admin staff).
+func (client *Client) RemoveAccountMember(ctx context.Context, parameters RemoveAccountMemberParameters, body StaffReasonRequest) (*RemoveAccountMemberResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	pathParameters["user"] = fmt.Sprint(parameters.User)
+	var result RemoveAccountMemberResponse
+	if callError := client.decode(ctx, Operations["remove_account_member"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// RemoveHostParameters are the path and query parameters of remove_host.
+type RemoveHostParameters struct {
+	ID string
+}
+
+// RemoveHost calls DELETE /admin/v1/hosts/{id} (remove_host): Forget a host that never registered (admin staff).
+func (client *Client) RemoveHost(ctx context.Context, parameters RemoveHostParameters) (*HostEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result HostEnvelope
+	if callError := client.decode(ctx, Operations["remove_host"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// RemoveKubernetesClusterFromPlatformParameters are the path and query parameters of remove_kubernetes_cluster_from_platform.
+type RemoveKubernetesClusterFromPlatformParameters struct {
+	ID string
+}
+
+// RemoveKubernetesClusterFromPlatform calls DELETE /v1/kubernetes-clusters/{id}/platform (remove_kubernetes_cluster_from_platform): Take a Kubernetes cluster out of the Ankra platform.
+func (client *Client) RemoveKubernetesClusterFromPlatform(ctx context.Context, parameters RemoveKubernetesClusterFromPlatformParameters) (*OperationEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result OperationEnvelope
+	if callError := client.decode(ctx, Operations["remove_kubernetes_cluster_from_platform"], pathParameters, query, nil, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -4901,11 +12450,45 @@ func (client *Client) RemovePaymentMethod(ctx context.Context, parameters Remove
 	return callError
 }
 
+// RemoveServerPublicIPv4Parameters are the path and query parameters of remove_server_public_ipv4.
+type RemoveServerPublicIPv4Parameters struct {
+	ID string
+}
+
+// RemoveServerPublicIPv4 calls DELETE /v1/servers/{id}/public-ipv4 (remove_server_public_ipv4): Remove a server's public IPv4.
+func (client *Client) RemoveServerPublicIPv4(ctx context.Context, parameters RemoveServerPublicIPv4Parameters) (*RemoveServerPublicIPv4Response, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result RemoveServerPublicIPv4Response
+	if callError := client.decode(ctx, Operations["remove_server_public_ipv4"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // RenewNodeCertificate calls POST /internal/v1/nodes/renew (renew_node_certificate): A node agent renews its certificate.
 func (client *Client) RenewNodeCertificate(ctx context.Context, body []byte) (RawResponse, error) {
 	pathParameters := map[string]string{}
 	query := url.Values{}
 	return client.send(ctx, Operations["renew_node_certificate"], pathParameters, query, body)
+}
+
+// RenumberServerIPv6Parameters are the path and query parameters of renumber_server_ipv6.
+type RenumberServerIPv6Parameters struct {
+	ID string
+}
+
+// RenumberServerIPv6 calls POST /v1/servers/{id}/renumber-ipv6 (renumber_server_ipv6): Move a server's IPv6 /64 to the zone's public IPv6 pool.
+func (client *Client) RenumberServerIPv6(ctx context.Context, parameters RenumberServerIPv6Parameters) (*OperationEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result OperationEnvelope
+	if callError := client.decode(ctx, Operations["renumber_server_ipv6"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
 }
 
 // ReplaceAccountQuotasParameters are the path and query parameters of replace_account_quotas.
@@ -4920,6 +12503,36 @@ func (client *Client) ReplaceAccountQuotas(ctx context.Context, parameters Repla
 	pathParameters["id"] = fmt.Sprint(parameters.ID)
 	var result Quota
 	if callError := client.decode(ctx, Operations["replace_account_quotas"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ReplaceAccountRecoveryCodes calls POST /v1/account/mfa/recovery-codes (replace_account_recovery_codes): Replace your recovery codes.
+func (client *Client) ReplaceAccountRecoveryCodes(ctx context.Context, body SecondFactorProof) (*RecoveryCodes, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result RecoveryCodes
+	if callError := client.decode(ctx, Operations["replace_account_recovery_codes"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ReplaceLoadBalancerMembersParameters are the path and query parameters of replace_load_balancer_members.
+type ReplaceLoadBalancerMembersParameters struct {
+	Backend string
+	ID      string
+}
+
+// ReplaceLoadBalancerMembers calls PUT /v1/load-balancers/{id}/backends/{backend}/members (replace_load_balancer_members): Replace a backend's whole member list at once.
+func (client *Client) ReplaceLoadBalancerMembers(ctx context.Context, parameters ReplaceLoadBalancerMembersParameters, body ReplaceLoadBalancerMembersRequest) (*ReplaceLoadBalancerMembersResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["backend"] = fmt.Sprint(parameters.Backend)
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result ReplaceLoadBalancerMembersResponse
+	if callError := client.decode(ctx, Operations["replace_load_balancer_members"], pathParameters, query, body, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -4942,6 +12555,17 @@ func (client *Client) ReplaceServerFirewall(ctx context.Context, parameters Repl
 	return &result, nil
 }
 
+// ReplaceStaffRecoveryCodes calls POST /admin/v1/auth/mfa/recovery-codes (replace_staff_recovery_codes): Replace the staff member's recovery codes.
+func (client *Client) ReplaceStaffRecoveryCodes(ctx context.Context, body SecondFactorProof) (*RecoveryCodes, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result RecoveryCodes
+	if callError := client.decode(ctx, Operations["replace_staff_recovery_codes"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // ResetDatabasePasswordParameters are the path and query parameters of reset_database_password.
 type ResetDatabasePasswordParameters struct {
 	ID string
@@ -4959,12 +12583,54 @@ func (client *Client) ResetDatabasePassword(ctx context.Context, parameters Rese
 	return &result, nil
 }
 
+// ResetPassword calls POST /v1/auth/password-reset/confirm (reset_password): Set a new password with the token from a reset link.
+func (client *Client) ResetPassword(ctx context.Context, body PasswordResetConfirmation) error {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	_, callError := client.send(ctx, Operations["reset_password"], pathParameters, query, body)
+	return callError
+}
+
+// ResetStaffPasswordParameters are the path and query parameters of reset_staff_password.
+type ResetStaffPasswordParameters struct {
+	ID string
+}
+
+// ResetStaffPassword calls POST /admin/v1/staff/{id}/password (reset_staff_password): Reset another staff member's password (admin staff).
+func (client *Client) ResetStaffPassword(ctx context.Context, parameters ResetStaffPasswordParameters, body ResetStaffPasswordRequest) (*ResetStaffPassword, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result ResetStaffPassword
+	if callError := client.decode(ctx, Operations["reset_staff_password"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ResizeDatabaseParameters are the path and query parameters of resize_database.
+type ResizeDatabaseParameters struct {
+	ID string
+}
+
+// ResizeDatabase calls POST /v1/databases/{id}/resize (resize_database): Grow a database's storage online.
+func (client *Client) ResizeDatabase(ctx context.Context, parameters ResizeDatabaseParameters, body ResizeDatabaseRequest) (*OperationEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result OperationEnvelope
+	if callError := client.decode(ctx, Operations["resize_database"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // ResizeStorageParameters are the path and query parameters of resize_storage.
 type ResizeStorageParameters struct {
 	ID string
 }
 
-// ResizeStorage calls POST /v1/storages/{id}/resize (resize_storage): Grow a storage.
+// ResizeStorage calls POST /v1/storages/{id}/resize (resize_storage): Grow a storage, online too.
 func (client *Client) ResizeStorage(ctx context.Context, parameters ResizeStorageParameters, body ResizeStorageRequest) (*OperationEnvelope, error) {
 	pathParameters := map[string]string{}
 	query := url.Values{}
@@ -5027,6 +12693,40 @@ func (client *Client) RestoreDatabase(ctx context.Context, parameters RestoreDat
 	return &result, nil
 }
 
+// RestoreKubernetesClusterParameters are the path and query parameters of restore_kubernetes_cluster.
+type RestoreKubernetesClusterParameters struct {
+	ID string
+}
+
+// RestoreKubernetesCluster calls POST /v1/kubernetes-clusters/{id}/restore (restore_kubernetes_cluster): Restore the cluster's etcd from a snapshot.
+func (client *Client) RestoreKubernetesCluster(ctx context.Context, parameters RestoreKubernetesClusterParameters, body RestoreKubernetesClusterRequest) (*OperationEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result OperationEnvelope
+	if callError := client.decode(ctx, Operations["restore_kubernetes_cluster"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// RetireZoneParameters are the path and query parameters of retire_zone.
+type RetireZoneParameters struct {
+	Zone string
+}
+
+// RetireZone calls POST /admin/v1/zones/{zone}/retire (retire_zone): Retire a zone (admin staff).
+func (client *Client) RetireZone(ctx context.Context, parameters RetireZoneParameters, body RetireZoneRequest) (*ZoneRetirementOutcome, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result ZoneRetirementOutcome
+	if callError := client.decode(ctx, Operations["retire_zone"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // RevokeAPITokenParameters are the path and query parameters of revoke_api_token.
 type RevokeAPITokenParameters struct {
 	ID string
@@ -5052,6 +12752,20 @@ func (client *Client) RevokeInvitation(ctx context.Context, parameters RevokeInv
 	query := url.Values{}
 	pathParameters["id"] = fmt.Sprint(parameters.ID)
 	_, callError := client.send(ctx, Operations["revoke_invitation"], pathParameters, query, nil)
+	return callError
+}
+
+// RevokeMonitoringCredentialParameters are the path and query parameters of revoke_monitoring_credential.
+type RevokeMonitoringCredentialParameters struct {
+	Cluster string
+}
+
+// RevokeMonitoringCredential calls DELETE /admin/v1/monitoring/credentials/{cluster} (revoke_monitoring_credential): End the cluster's scrape credential (admin staff).
+func (client *Client) RevokeMonitoringCredential(ctx context.Context, parameters RevokeMonitoringCredentialParameters) error {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["cluster"] = fmt.Sprint(parameters.Cluster)
+	_, callError := client.send(ctx, Operations["revoke_monitoring_credential"], pathParameters, query, nil)
 	return callError
 }
 
@@ -5113,14 +12827,18 @@ func (client *Client) RotateObjectStorageKeys(ctx context.Context, parameters Ro
 
 // SearchAccountsParameters are the path and query parameters of search_accounts.
 type SearchAccountsParameters struct {
-	Cursor *string
-	Query  *string
+	Attention *string
+	Cursor    *string
+	Query     *string
 }
 
 // SearchAccounts calls GET /admin/v1/accounts (search_accounts): Find customer accounts by name or user email.
 func (client *Client) SearchAccounts(ctx context.Context, parameters SearchAccountsParameters) (*StaffAccountSummaryList, error) {
 	pathParameters := map[string]string{}
 	query := url.Values{}
+	if parameters.Attention != nil {
+		query.Set("attention", fmt.Sprint(*parameters.Attention))
+	}
 	if parameters.Cursor != nil {
 		query.Set("cursor", fmt.Sprint(*parameters.Cursor))
 	}
@@ -5129,6 +12847,40 @@ func (client *Client) SearchAccounts(ctx context.Context, parameters SearchAccou
 	}
 	var result StaffAccountSummaryList
 	if callError := client.decode(ctx, Operations["search_accounts"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// SearchUsersParameters are the path and query parameters of search_users.
+type SearchUsersParameters struct {
+	Cursor *string
+	Query  *string
+}
+
+// SearchUsers calls GET /admin/v1/users (search_users): Find users across every account.
+func (client *Client) SearchUsers(ctx context.Context, parameters SearchUsersParameters) (*StaffUserSummaryList, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	if parameters.Cursor != nil {
+		query.Set("cursor", fmt.Sprint(*parameters.Cursor))
+	}
+	if parameters.Query != nil {
+		query.Set("query", fmt.Sprint(*parameters.Query))
+	}
+	var result StaffUserSummaryList
+	if callError := client.decode(ctx, Operations["search_users"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// SendEmailVerification calls POST /v1/auth/email-verification (send_email_verification): Mail a new link that verifies the signed-in user's email address.
+func (client *Client) SendEmailVerification(ctx context.Context) (*EmailVerificationRequest, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result EmailVerificationRequest
+	if callError := client.decode(ctx, Operations["send_email_verification"], pathParameters, query, nil, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -5156,6 +12908,17 @@ func (client *Client) SendOperatorMcpMessage(ctx context.Context, body Jsonrpcme
 	return &result, nil
 }
 
+// SendPasswordResetEmail calls POST /v1/auth/password-reset (send_password_reset_email): Email a link to set a new password.
+func (client *Client) SendPasswordResetEmail(ctx context.Context, body PasswordResetRequest) (*PasswordResetAccepted, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result PasswordResetAccepted
+	if callError := client.decode(ctx, Operations["send_password_reset_email"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // SendServerConsoleInputParameters are the path and query parameters of send_server_console_input.
 type SendServerConsoleInputParameters struct {
 	ID string
@@ -5168,6 +12931,17 @@ func (client *Client) SendServerConsoleInput(ctx context.Context, parameters Sen
 	pathParameters["id"] = fmt.Sprint(parameters.ID)
 	_, callError := client.send(ctx, Operations["send_server_console_input"], pathParameters, query, body)
 	return callError
+}
+
+// SetAccountMFAPolicy calls PUT /v1/account/mfa/policy (set_account_mfa_policy): Require a second factor of every member (owner only).
+func (client *Client) SetAccountMFAPolicy(ctx context.Context, body SetAccountMFAPolicyRequest) (*SecondFactorStatus, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result SecondFactorStatus
+	if callError := client.decode(ctx, Operations["set_account_mfa_policy"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
 }
 
 // SetDefaultPaymentMethodParameters are the path and query parameters of set_default_payment_method.
@@ -5184,17 +12958,227 @@ func (client *Client) SetDefaultPaymentMethod(ctx context.Context, parameters Se
 	return callError
 }
 
+// SetFleetNodeAllocationParameters are the path and query parameters of set_fleet_node_allocation.
+type SetFleetNodeAllocationParameters struct {
+	ID string
+}
+
+// SetFleetNodeAllocation calls PUT /admin/v1/fleet/nodes/{id}/allocation (set_fleet_node_allocation): Offer a compute host publicly, dedicate it to one account (private cloud) or hold it back (admin staff).
+func (client *Client) SetFleetNodeAllocation(ctx context.Context, parameters SetFleetNodeAllocationParameters, body StaffNodeAllocationRequest) (*StaffNodeAllocationAnswer, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result StaffNodeAllocationAnswer
+	if callError := client.decode(ctx, Operations["set_fleet_node_allocation"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// SetFleetNodeRackParameters are the path and query parameters of set_fleet_node_rack.
+type SetFleetNodeRackParameters struct {
+	ID string
+}
+
+// SetFleetNodeRack calls PUT /admin/v1/fleet/nodes/{id}/rack (set_fleet_node_rack): Put a node in one of its zone's racks, or take it out (admin staff).
+func (client *Client) SetFleetNodeRack(ctx context.Context, parameters SetFleetNodeRackParameters, body SetFleetNodeRackRequest) (*FleetNodeDetail, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result FleetNodeDetail
+	if callError := client.decode(ctx, Operations["set_fleet_node_rack"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// SetFleetNodeStoragePolicyParameters are the path and query parameters of set_fleet_node_storage_policy.
+type SetFleetNodeStoragePolicyParameters struct {
+	ID string
+}
+
+// SetFleetNodeStoragePolicy calls PUT /admin/v1/fleet/nodes/{id}/storage-policy (set_fleet_node_storage_policy): Set what a storage node's disks serve, then start the zone's storage policy (admin staff).
+func (client *Client) SetFleetNodeStoragePolicy(ctx context.Context, parameters SetFleetNodeStoragePolicyParameters, body SetFleetNodeStoragePolicyRequest) (*NodeStoragePolicyChange, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result NodeStoragePolicyChange
+	if callError := client.decode(ctx, Operations["set_fleet_node_storage_policy"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// SetInfrastructureZoneUnderlayParameters are the path and query parameters of set_infrastructure_zone_underlay.
+type SetInfrastructureZoneUnderlayParameters struct {
+	Zone string
+}
+
+// SetInfrastructureZoneUnderlay calls PUT /admin/v1/zones/{zone}/underlay (set_infrastructure_zone_underlay): Switch a zone between its physical fabric and the WireGuard mesh (admin staff).
+func (client *Client) SetInfrastructureZoneUnderlay(ctx context.Context, parameters SetInfrastructureZoneUnderlayParameters, body SetZoneUnderlayRequest) (*StaffZoneEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result StaffZoneEnvelope
+	if callError := client.decode(ctx, Operations["set_infrastructure_zone_underlay"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// SetIPPoolStateParameters are the path and query parameters of set_ip_pool_state.
+type SetIPPoolStateParameters struct {
+	ID   string
+	Zone string
+}
+
+// SetIPPoolState calls PUT /admin/v1/zones/{zone}/ip-pools/{id}/state (set_ip_pool_state): Make a public IP pool active or draining (admin staff).
+func (client *Client) SetIPPoolState(ctx context.Context, parameters SetIPPoolStateParameters, body SetIppoolStateRequest) (*IppoolEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result IppoolEnvelope
+	if callError := client.decode(ctx, Operations["set_ip_pool_state"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// SetNodeDatacenterParameters are the path and query parameters of set_node_datacenter.
+type SetNodeDatacenterParameters struct {
+	ID   string
+	Zone string
+}
+
+// SetNodeDatacenter calls PUT /v1/zones/{zone}/nodes/{id}/datacenter (set_node_datacenter): Record the datacenter a node stands in (operator only).
+func (client *Client) SetNodeDatacenter(ctx context.Context, parameters SetNodeDatacenterParameters, body SetNodeDatacenterRequest) (*SetNodeDatacenterResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result SetNodeDatacenterResponse
+	if callError := client.decode(ctx, Operations["set_node_datacenter"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// SetNodeRackParameters are the path and query parameters of set_node_rack.
+type SetNodeRackParameters struct {
+	ID   string
+	Zone string
+}
+
+// SetNodeRack calls PUT /v1/zones/{zone}/nodes/{id}/rack (set_node_rack): Put a node into a rack of its zone, or take it out (operator only).
+func (client *Client) SetNodeRack(ctx context.Context, parameters SetNodeRackParameters, body SetNodeRackRequest) (*SetNodeRackResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result SetNodeRackResponse
+	if callError := client.decode(ctx, Operations["set_node_rack"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// SetNodeRolloutCanaryParameters are the path and query parameters of set_node_rollout_canary.
+type SetNodeRolloutCanaryParameters struct {
+	ID string
+}
+
+// SetNodeRolloutCanary calls PUT /admin/v1/fleet/nodes/{id}/rollout-canary (set_node_rollout_canary): Mark a node as one of its zone's rollout canaries, or clear the mark (admin staff).
+func (client *Client) SetNodeRolloutCanary(ctx context.Context, parameters SetNodeRolloutCanaryParameters, body SetNodeRolloutCanaryRequest) (*SetNodeRolloutCanaryResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result SetNodeRolloutCanaryResponse
+	if callError := client.decode(ctx, Operations["set_node_rollout_canary"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// SetPlanCPUPoolParameters are the path and query parameters of set_plan_cpu_pool.
+type SetPlanCPUPoolParameters struct {
+	Plan string
+}
+
+// SetPlanCPUPool calls PUT /v1/plans/{plan}/cpu-pool (set_plan_cpu_pool): Pin a plan to a CPU pool (operator only).
+func (client *Client) SetPlanCPUPool(ctx context.Context, parameters SetPlanCPUPoolParameters, body SetPlanCPUPoolRequest) (*Plan, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["plan"] = fmt.Sprint(parameters.Plan)
+	var result Plan
+	if callError := client.decode(ctx, Operations["set_plan_cpu_pool"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// SetPlatformBillingArrangementParameters are the path and query parameters of set_platform_billing_arrangement.
+type SetPlatformBillingArrangementParameters struct {
+	OrganisationID string
+}
+
+// SetPlatformBillingArrangement calls PUT /platform/v1/organisations/{organisation_id}/billing-arrangement (set_platform_billing_arrangement): Record how the platform bills the organisation.
+func (client *Client) SetPlatformBillingArrangement(ctx context.Context, parameters SetPlatformBillingArrangementParameters, body SetPlatformBillingArrangementRequest) (*SetPlatformBillingArrangementResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["organisation_id"] = fmt.Sprint(parameters.OrganisationID)
+	var result SetPlatformBillingArrangementResponse
+	if callError := client.decode(ctx, Operations["set_platform_billing_arrangement"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// SetPrivateCloudRequestStateParameters are the path and query parameters of set_private_cloud_request_state.
+type SetPrivateCloudRequestStateParameters struct {
+	ID string
+}
+
+// SetPrivateCloudRequestState calls PUT /admin/v1/private-cloud-requests/{id}/state (set_private_cloud_request_state): Move a private cloud request on (admin staff).
+func (client *Client) SetPrivateCloudRequestState(ctx context.Context, parameters SetPrivateCloudRequestStateParameters, body SetPrivateCloudRequestState) (*StaffPrivateCloudRequestEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result StaffPrivateCloudRequestEnvelope
+	if callError := client.decode(ctx, Operations["set_private_cloud_request_state"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// SetPublicAddressControllerParameters are the path and query parameters of set_public_address_controller.
+type SetPublicAddressControllerParameters struct {
+	Zone string
+}
+
+// SetPublicAddressController calls PUT /v1/zones/{zone}/public-address-controller (set_public_address_controller): Configure how a zone's failover IPs and routed subnets follow its gateways (operator only).
+func (client *Client) SetPublicAddressController(ctx context.Context, parameters SetPublicAddressControllerParameters, body SetPublicAddressControllerRequest) (*SetPublicAddressControllerResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result SetPublicAddressControllerResponse
+	if callError := client.decode(ctx, Operations["set_public_address_controller"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // SetServerHAPolicyParameters are the path and query parameters of set_server_ha_policy.
 type SetServerHAPolicyParameters struct {
 	ID string
 }
 
 // SetServerHAPolicy calls PUT /v1/servers/{id}/ha-policy (set_server_ha_policy): Choose what happens to the server when its compute node fails.
-func (client *Client) SetServerHAPolicy(ctx context.Context, parameters SetServerHAPolicyParameters, body HapolicyBody) (*HapolicyBody, error) {
+func (client *Client) SetServerHAPolicy(ctx context.Context, parameters SetServerHAPolicyParameters, body HapolicyBody) (*HapolicyResult, error) {
 	pathParameters := map[string]string{}
 	query := url.Values{}
 	pathParameters["id"] = fmt.Sprint(parameters.ID)
-	var result HapolicyBody
+	var result HapolicyResult
 	if callError := client.decode(ctx, Operations["set_server_ha_policy"], pathParameters, query, body, &result); callError != nil {
 		return nil, callError
 	}
@@ -5246,6 +13230,42 @@ func (client *Client) SetSupportAccess(ctx context.Context, body SupportAccessSe
 	return &result, nil
 }
 
+// SetZoneControlPlaneServiceAddressParameters are the path and query parameters of set_zone_control_plane_service_address.
+type SetZoneControlPlaneServiceAddressParameters struct {
+	Zone string
+}
+
+// SetZoneControlPlaneServiceAddress calls PUT /v1/zones/{zone}/control-plane/service-address (set_zone_control_plane_service_address): Choose the service address a highly available control plane answers on (operator only).
+func (client *Client) SetZoneControlPlaneServiceAddress(ctx context.Context, parameters SetZoneControlPlaneServiceAddressParameters, body SetZoneControlPlaneServiceAddressRequest) (*ControlPlane, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result ControlPlane
+	if callError := client.decode(ctx, Operations["set_zone_control_plane_service_address"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// SetZoneNodePowerControllerParameters are the path and query parameters of set_zone_node_power_controller.
+type SetZoneNodePowerControllerParameters struct {
+	ID   string
+	Zone string
+}
+
+// SetZoneNodePowerController calls PUT /v1/zones/{zone}/nodes/{id}/power-controller (set_zone_node_power_controller): Set the node's BMC that fencing powers it off through (operator only).
+func (client *Client) SetZoneNodePowerController(ctx context.Context, parameters SetZoneNodePowerControllerParameters, body PowerControllerRequest) (*PowerController, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result PowerController
+	if callError := client.decode(ctx, Operations["set_zone_node_power_controller"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // SetZonePrimaryGatewayParameters are the path and query parameters of set_zone_primary_gateway.
 type SetZonePrimaryGatewayParameters struct {
 	Zone string
@@ -5263,12 +13283,187 @@ func (client *Client) SetZonePrimaryGateway(ctx context.Context, parameters SetZ
 	return &result, nil
 }
 
-// SignUp calls POST /v1/auth/signup (sign_up): Create an account with yourself as its owner and sign in.
-func (client *Client) SignUp(ctx context.Context, body SignupRequest) (*SignupResult, error) {
+// SetZonePublicUplinkParameters are the path and query parameters of set_zone_public_uplink.
+type SetZonePublicUplinkParameters struct {
+	Zone string
+}
+
+// SetZonePublicUplink calls PUT /admin/v1/zones/{zone}/public-uplink (set_zone_public_uplink): Set how a zone's gateways reach the internet (admin staff).
+func (client *Client) SetZonePublicUplink(ctx context.Context, parameters SetZonePublicUplinkParameters, body SetPublicUplinkRequest) (*PublicUplink, error) {
 	pathParameters := map[string]string{}
 	query := url.Values{}
-	var result SignupResult
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result PublicUplink
+	if callError := client.decode(ctx, Operations["set_zone_public_uplink"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// SetZoneUnderlayParameters are the path and query parameters of set_zone_underlay.
+type SetZoneUnderlayParameters struct {
+	Zone string
+}
+
+// SetZoneUnderlay calls PUT /v1/zones/{zone}/underlay (set_zone_underlay): Switch a zone between its physical fabric and the WireGuard mesh (operator only).
+func (client *Client) SetZoneUnderlay(ctx context.Context, parameters SetZoneUnderlayParameters, body SetZoneUnderlayRequest) (*SetZoneUnderlayResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result SetZoneUnderlayResponse
+	if callError := client.decode(ctx, Operations["set_zone_underlay"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// ShrinkZoneControlPlaneParameters are the path and query parameters of shrink_zone_control_plane.
+type ShrinkZoneControlPlaneParameters struct {
+	Zone string
+}
+
+// ShrinkZoneControlPlane calls POST /v1/zones/{zone}/control-plane/shrink (shrink_zone_control_plane): Remove a member from the zone's control plane (operator only).
+func (client *Client) ShrinkZoneControlPlane(ctx context.Context, parameters ShrinkZoneControlPlaneParameters, body ShrinkZoneControlPlaneRequest) (*OperationEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result OperationEnvelope
+	if callError := client.decode(ctx, Operations["shrink_zone_control_plane"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// SignUp calls POST /v1/auth/signup (sign_up): Create an account with yourself as its owner and get the link that verifies your email.
+func (client *Client) SignUp(ctx context.Context, body SignupRequest) (*SignupAccepted, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result SignupAccepted
 	if callError := client.decode(ctx, Operations["sign_up"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// StartAccountTotpSetup calls POST /v1/account/mfa/totp (start_account_totp_setup): Start setting up an authenticator app.
+func (client *Client) StartAccountTotpSetup(ctx context.Context) (*AuthenticatorSetup, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result AuthenticatorSetup
+	if callError := client.decode(ctx, Operations["start_account_totp_setup"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// StartAgentRollout calls POST /admin/v1/agent-rollouts (start_agent_rollout): Roll one agent build across the fleet, one node at a time (admin staff).
+func (client *Client) StartAgentRollout(ctx context.Context, body StartAgentRolloutRequest) (*AgentRolloutEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result AgentRolloutEnvelope
+	if callError := client.decode(ctx, Operations["start_agent_rollout"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// StartEdgeRouterApplyParameters are the path and query parameters of start_edge_router_apply.
+type StartEdgeRouterApplyParameters struct {
+	ID string
+}
+
+// StartEdgeRouterApply calls POST /admin/v1/edge-routers/{id}/apply (start_edge_router_apply): Apply the rendered configuration to an edge router (admin staff).
+func (client *Client) StartEdgeRouterApply(ctx context.Context, parameters StartEdgeRouterApplyParameters, body StartEdgeRouterApplyRequest) (*StartEdgeRouterApplyResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result StartEdgeRouterApplyResponse
+	if callError := client.decode(ctx, Operations["start_edge_router_apply"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// StartFleetNodeAgentUpgradeParameters are the path and query parameters of start_fleet_node_agent_upgrade.
+type StartFleetNodeAgentUpgradeParameters struct {
+	ID string
+}
+
+// StartFleetNodeAgentUpgrade calls POST /admin/v1/fleet/nodes/{id}/agent-upgrade (start_fleet_node_agent_upgrade): Upgrade a node's agent without taking the node out of service (admin staff).
+func (client *Client) StartFleetNodeAgentUpgrade(ctx context.Context, parameters StartFleetNodeAgentUpgradeParameters, body StaffNodeAgentUpgradeRequest) (*OperationEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result OperationEnvelope
+	if callError := client.decode(ctx, Operations["start_fleet_node_agent_upgrade"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// StartFleetNodeMaintenanceParameters are the path and query parameters of start_fleet_node_maintenance.
+type StartFleetNodeMaintenanceParameters struct {
+	ID string
+}
+
+// StartFleetNodeMaintenance calls POST /admin/v1/fleet/nodes/{id}/maintenance (start_fleet_node_maintenance): Take a compute node out of service, upgrade its agent, optionally reboot it and bring it back (admin staff).
+func (client *Client) StartFleetNodeMaintenance(ctx context.Context, parameters StartFleetNodeMaintenanceParameters, body StaffNodeMaintenanceRequest) (*OperationEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result OperationEnvelope
+	if callError := client.decode(ctx, Operations["start_fleet_node_maintenance"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// StartHostInstallParameters are the path and query parameters of start_host_install.
+type StartHostInstallParameters struct {
+	ID string
+}
+
+// StartHostInstall calls POST /admin/v1/hosts/{id}/install (start_host_install): Confirm the host key and install the node agent (admin staff).
+func (client *Client) StartHostInstall(ctx context.Context, parameters StartHostInstallParameters, body InstallHostRequest) (*HostEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result HostEnvelope
+	if callError := client.decode(ctx, Operations["start_host_install"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// StartHostProbeParameters are the path and query parameters of start_host_probe.
+type StartHostProbeParameters struct {
+	ID string
+}
+
+// StartHostProbe calls POST /admin/v1/hosts/{id}/probe (start_host_probe): Probe a host again (admin staff).
+func (client *Client) StartHostProbe(ctx context.Context, parameters StartHostProbeParameters) (*HostEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result HostEnvelope
+	if callError := client.decode(ctx, Operations["start_host_probe"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// StartHostReprovisionParameters are the path and query parameters of start_host_reprovision.
+type StartHostReprovisionParameters struct {
+	ID string
+}
+
+// StartHostReprovision calls POST /admin/v1/hosts/{id}/reprovision (start_host_reprovision): Change a registered node's roles (admin staff).
+func (client *Client) StartHostReprovision(ctx context.Context, parameters StartHostReprovisionParameters, body ReprovisionHostRequest) (*HostReprovisionStarted, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result HostReprovisionStarted
+	if callError := client.decode(ctx, Operations["start_host_reprovision"], pathParameters, query, body, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -5279,6 +13474,7 @@ type StartIdentityProviderLoginParameters struct {
 	Connection *string
 	Coupon     *string
 	Prompt     *string
+	Provider   *string
 	ReturnTo   *string
 }
 
@@ -5295,6 +13491,9 @@ func (client *Client) StartIdentityProviderLogin(ctx context.Context, parameters
 	if parameters.Prompt != nil {
 		query.Set("prompt", fmt.Sprint(*parameters.Prompt))
 	}
+	if parameters.Provider != nil {
+		query.Set("provider", fmt.Sprint(*parameters.Provider))
+	}
 	if parameters.ReturnTo != nil {
 		query.Set("return_to", fmt.Sprint(*parameters.ReturnTo))
 	}
@@ -5306,6 +13505,7 @@ type StartIdentityProviderSignupParameters struct {
 	Connection *string
 	Coupon     *string
 	Prompt     *string
+	Provider   *string
 	ReturnTo   *string
 }
 
@@ -5322,10 +13522,80 @@ func (client *Client) StartIdentityProviderSignup(ctx context.Context, parameter
 	if parameters.Prompt != nil {
 		query.Set("prompt", fmt.Sprint(*parameters.Prompt))
 	}
+	if parameters.Provider != nil {
+		query.Set("provider", fmt.Sprint(*parameters.Provider))
+	}
 	if parameters.ReturnTo != nil {
 		query.Set("return_to", fmt.Sprint(*parameters.ReturnTo))
 	}
 	return client.send(ctx, Operations["start_identity_provider_signup"], pathParameters, query, nil)
+}
+
+// StartLoginSecondFactorSetup calls POST /v1/auth/login/mfa/enroll (start_login_second_factor_setup): Start setting up the authenticator app the account requires, before the first session.
+func (client *Client) StartLoginSecondFactorSetup(ctx context.Context, body SecondFactorChallengeRequest) (*AuthenticatorSetup, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result AuthenticatorSetup
+	if callError := client.decode(ctx, Operations["start_login_second_factor_setup"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// StartNodeTailnetJoinParameters are the path and query parameters of start_node_tailnet_join.
+type StartNodeTailnetJoinParameters struct {
+	ID string
+}
+
+// StartNodeTailnetJoin calls POST /admin/v1/fleet/nodes/{id}/tailnet/join (start_node_tailnet_join): Join a node to its region's tailnet user (admin staff).
+func (client *Client) StartNodeTailnetJoin(ctx context.Context, parameters StartNodeTailnetJoinParameters) (*HostOperationEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result HostOperationEnvelope
+	if callError := client.decode(ctx, Operations["start_node_tailnet_join"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// StartNodeTailnetMoveParameters are the path and query parameters of start_node_tailnet_move.
+type StartNodeTailnetMoveParameters struct {
+	ID string
+}
+
+// StartNodeTailnetMove calls POST /admin/v1/fleet/nodes/{id}/tailnet/move (start_node_tailnet_move): Move a node to its region's tailnet user (admin staff).
+func (client *Client) StartNodeTailnetMove(ctx context.Context, parameters StartNodeTailnetMoveParameters) (*HostOperationEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result HostOperationEnvelope
+	if callError := client.decode(ctx, Operations["start_node_tailnet_move"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// StartPlatformWorkspaceSync calls POST /v1/account/platform/sync (start_platform_workspace_sync): Queue a membership sync retry.
+func (client *Client) StartPlatformWorkspaceSync(ctx context.Context) (*StartPlatformWorkspaceSyncResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result StartPlatformWorkspaceSyncResponse
+	if callError := client.decode(ctx, Operations["start_platform_workspace_sync"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// StartPlayground calls POST /v1/playgrounds (start_playground): Start the account's free playground.
+func (client *Client) StartPlayground(ctx context.Context, body StartPlayground) (*PlaygroundEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result PlaygroundEnvelope
+	if callError := client.decode(ctx, Operations["start_playground"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
 }
 
 // StartServerParameters are the path and query parameters of start_server.
@@ -5340,6 +13610,62 @@ func (client *Client) StartServer(ctx context.Context, parameters StartServerPar
 	pathParameters["id"] = fmt.Sprint(parameters.ID)
 	var result OperationEnvelope
 	if callError := client.decode(ctx, Operations["start_server"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// StartStaffIdentityProviderLoginParameters are the path and query parameters of start_staff_identity_provider_login.
+type StartStaffIdentityProviderLoginParameters struct {
+	Next *string
+}
+
+// StartStaffIdentityProviderLogin calls GET /admin/v1/auth/oidc/login (start_staff_identity_provider_login): Start a staff sign-in with the Ankra account.
+func (client *Client) StartStaffIdentityProviderLogin(ctx context.Context, parameters StartStaffIdentityProviderLoginParameters) (RawResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	if parameters.Next != nil {
+		query.Set("next", fmt.Sprint(*parameters.Next))
+	}
+	return client.send(ctx, Operations["start_staff_identity_provider_login"], pathParameters, query, nil)
+}
+
+// StartStaffLoginSecondFactorSetup calls POST /admin/v1/auth/login/mfa/enroll (start_staff_login_second_factor_setup): Start the authenticator setup a staff member needs before their first session.
+func (client *Client) StartStaffLoginSecondFactorSetup(ctx context.Context, body StaffEnrollmentRequest) (*AuthenticatorSetup, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result AuthenticatorSetup
+	if callError := client.decode(ctx, Operations["start_staff_login_second_factor_setup"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// StartStaffTotpSetup calls POST /admin/v1/auth/mfa/totp (start_staff_totp_setup): Start setting up an authenticator app (staff without enforcement).
+func (client *Client) StartStaffTotpSetup(ctx context.Context) (*AuthenticatorSetup, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result AuthenticatorSetup
+	if callError := client.decode(ctx, Operations["start_staff_totp_setup"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// StartZoneNodeMaintenanceParameters are the path and query parameters of start_zone_node_maintenance.
+type StartZoneNodeMaintenanceParameters struct {
+	ID   string
+	Zone string
+}
+
+// StartZoneNodeMaintenance calls POST /v1/zones/{zone}/nodes/{id}/maintenance (start_zone_node_maintenance): Take a compute node out of service, upgrade its agent, optionally reboot it and bring it back (operator only).
+func (client *Client) StartZoneNodeMaintenance(ctx context.Context, parameters StartZoneNodeMaintenanceParameters, body NodeMaintenanceOperationRequest) (*OperationEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result OperationEnvelope
+	if callError := client.decode(ctx, Operations["start_zone_node_maintenance"], pathParameters, query, body, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -5375,6 +13701,51 @@ func (client *Client) StreamServerConsole(ctx context.Context, parameters Stream
 	return client.send(ctx, Operations["stream_server_console"], pathParameters, query, nil)
 }
 
+// SuspendAccountParameters are the path and query parameters of suspend_account.
+type SuspendAccountParameters struct {
+	ID string
+}
+
+// SuspendAccount calls POST /admin/v1/accounts/{id}/suspension (suspend_account): Suspend an account (admin staff).
+func (client *Client) SuspendAccount(ctx context.Context, parameters SuspendAccountParameters, body StaffReasonRequest) (*StaffAccountSuspension, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result StaffAccountSuspension
+	if callError := client.decode(ctx, Operations["suspend_account"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// SwitchAccount calls POST /v1/accounts/active (switch_account): Act in another of your accounts, or open an Ankra organisation.
+func (client *Client) SwitchAccount(ctx context.Context, body SwitchAccountRequest) (*SwitchAccountResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result SwitchAccountResponse
+	if callError := client.decode(ctx, Operations["switch_account"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// SyncDNSZoneParameters are the path and query parameters of sync_dns_zone.
+type SyncDNSZoneParameters struct {
+	ID string
+}
+
+// SyncDNSZone calls POST /v1/dns/zones/{id}/sync (sync_dns_zone): Republish every record of the zone to the nameservers.
+func (client *Client) SyncDNSZone(ctx context.Context, parameters SyncDNSZoneParameters) (*SyncDNSZoneResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result SyncDNSZoneResponse
+	if callError := client.decode(ctx, Operations["sync_dns_zone"], pathParameters, query, nil, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // TemplatizeStorageParameters are the path and query parameters of templatize_storage.
 type TemplatizeStorageParameters struct {
 	ID string
@@ -5387,6 +13758,23 @@ func (client *Client) TemplatizeStorage(ctx context.Context, parameters Templati
 	pathParameters["id"] = fmt.Sprint(parameters.ID)
 	var result TemplatizeStorageResponse
 	if callError := client.decode(ctx, Operations["templatize_storage"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// UncordonFleetNodeParameters are the path and query parameters of uncordon_fleet_node.
+type UncordonFleetNodeParameters struct {
+	ID string
+}
+
+// UncordonFleetNode calls POST /admin/v1/fleet/nodes/{id}/uncordon (uncordon_fleet_node): Let a cordoned, drained or fenced node take servers again (admin staff).
+func (client *Client) UncordonFleetNode(ctx context.Context, parameters UncordonFleetNodeParameters, body StaffNodeActionRequest) (*OperationEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result OperationEnvelope
+	if callError := client.decode(ctx, Operations["uncordon_fleet_node"], pathParameters, query, body, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -5428,6 +13816,76 @@ func (client *Client) UnlinkAccountIdentity(ctx context.Context, parameters Unli
 	return &result, nil
 }
 
+// UnlinkAccountOrganisationParameters are the path and query parameters of unlink_account_organisation.
+type UnlinkAccountOrganisationParameters struct {
+	ID string
+}
+
+// UnlinkAccountOrganisation calls DELETE /admin/v1/accounts/{id}/organisation (unlink_account_organisation): Unlink an account from its Ankra organisation (admin staff).
+func (client *Client) UnlinkAccountOrganisation(ctx context.Context, parameters UnlinkAccountOrganisationParameters, body UnlinkAccountOrganisationRequest) (*UnlinkAccountOrganisationResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result UnlinkAccountOrganisationResponse
+	if callError := client.decode(ctx, Operations["unlink_account_organisation"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// UnretireZoneParameters are the path and query parameters of unretire_zone.
+type UnretireZoneParameters struct {
+	Zone string
+}
+
+// UnretireZone calls POST /admin/v1/zones/{zone}/unretire (unretire_zone): Return a retired zone to service (admin staff).
+func (client *Client) UnretireZone(ctx context.Context, parameters UnretireZoneParameters, body UnretireZoneRequest) (*ZoneRetirementOutcome, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result ZoneRetirementOutcome
+	if callError := client.decode(ctx, Operations["unretire_zone"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// UnsuspendAccountParameters are the path and query parameters of unsuspend_account.
+type UnsuspendAccountParameters struct {
+	ID string
+}
+
+// UnsuspendAccount calls DELETE /admin/v1/accounts/{id}/suspension (unsuspend_account): Unsuspend an account suspended by staff (admin staff).
+func (client *Client) UnsuspendAccount(ctx context.Context, parameters UnsuspendAccountParameters, body StaffReasonRequest) (*StaffAccountSuspension, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result StaffAccountSuspension
+	if callError := client.decode(ctx, Operations["unsuspend_account"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// UpdateDNSRecordParameters are the path and query parameters of update_dns_record.
+type UpdateDNSRecordParameters struct {
+	ID       string
+	RecordID string
+}
+
+// UpdateDNSRecord calls PATCH /v1/dns/zones/{id}/records/{record_id} (update_dns_record): Change a record's name, content, TTL, priority or comment.
+func (client *Client) UpdateDNSRecord(ctx context.Context, parameters UpdateDNSRecordParameters, body UpdateDNSRecordRequest) (*UpdateDNSRecordResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	pathParameters["record_id"] = fmt.Sprint(parameters.RecordID)
+	var result UpdateDNSRecordResponse
+	if callError := client.decode(ctx, Operations["update_dns_record"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
 // UpdateEdgeParameters are the path and query parameters of update_edge.
 type UpdateEdgeParameters struct {
 	ID string
@@ -5457,6 +13915,42 @@ func (client *Client) UpdateInitScript(ctx context.Context, parameters UpdateIni
 	pathParameters["id"] = fmt.Sprint(parameters.ID)
 	var result UpdateInitScriptResponse
 	if callError := client.decode(ctx, Operations["update_init_script"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// UpdateKubernetesNodePoolParameters are the path and query parameters of update_kubernetes_node_pool.
+type UpdateKubernetesNodePoolParameters struct {
+	ID   string
+	Pool string
+}
+
+// UpdateKubernetesNodePool calls PATCH /v1/kubernetes-clusters/{id}/node-pools/{pool} (update_kubernetes_node_pool): Scale a node pool or change its labels, taints or autoscaling bounds.
+func (client *Client) UpdateKubernetesNodePool(ctx context.Context, parameters UpdateKubernetesNodePoolParameters, body UpdateKubernetesNodePoolRequest) (*UpdateKubernetesNodePoolResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	pathParameters["pool"] = fmt.Sprint(parameters.Pool)
+	var result UpdateKubernetesNodePoolResponse
+	if callError := client.decode(ctx, Operations["update_kubernetes_node_pool"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// UpdateLoadBalancerParameters are the path and query parameters of update_load_balancer.
+type UpdateLoadBalancerParameters struct {
+	ID string
+}
+
+// UpdateLoadBalancer calls PATCH /v1/load-balancers/{id} (update_load_balancer): Rename a load balancer or replace its labels.
+func (client *Client) UpdateLoadBalancer(ctx context.Context, parameters UpdateLoadBalancerParameters, body UpdateLoadBalancerRequest) (*UpdateLoadBalancerResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result UpdateLoadBalancerResponse
+	if callError := client.decode(ctx, Operations["update_load_balancer"], pathParameters, query, body, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -5497,6 +13991,40 @@ func (client *Client) UpdateLoadBalancerMember(ctx context.Context, parameters U
 	pathParameters["member"] = fmt.Sprint(parameters.Member)
 	var result UpdateLoadBalancerMemberResponse
 	if callError := client.decode(ctx, Operations["update_load_balancer_member"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// UpdateNetworkParameters are the path and query parameters of update_network.
+type UpdateNetworkParameters struct {
+	ID string
+}
+
+// UpdateNetwork calls PATCH /v1/networks/{id} (update_network): Change the zones a private network is present in.
+func (client *Client) UpdateNetwork(ctx context.Context, parameters UpdateNetworkParameters, body UpdateNetworkRequest) (*UpdateNetworkResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result UpdateNetworkResponse
+	if callError := client.decode(ctx, Operations["update_network"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// UpdateRegionParameters are the path and query parameters of update_region.
+type UpdateRegionParameters struct {
+	Region string
+}
+
+// UpdateRegion calls PATCH /admin/v1/regions/{region} (update_region): Change a region's display name, country or control plane endpoint (admin staff).
+func (client *Client) UpdateRegion(ctx context.Context, parameters UpdateRegionParameters, body UpdateRegionRequest) (*RegionEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["region"] = fmt.Sprint(parameters.Region)
+	var result RegionEnvelope
+	if callError := client.decode(ctx, Operations["update_region"], pathParameters, query, body, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
@@ -5599,6 +14127,107 @@ func (client *Client) UpdateStorage(ctx context.Context, parameters UpdateStorag
 	pathParameters["id"] = fmt.Sprint(parameters.ID)
 	var result StorageEnvelope
 	if callError := client.decode(ctx, Operations["update_storage"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// UpdateZoneParameters are the path and query parameters of update_zone.
+type UpdateZoneParameters struct {
+	Zone string
+}
+
+// UpdateZone calls PATCH /admin/v1/zones/{zone} (update_zone): Change a zone's listing, autonomous system or NAT64 settings (admin staff).
+func (client *Client) UpdateZone(ctx context.Context, parameters UpdateZoneParameters, body UpdateZoneRequest) (*StaffZoneEnvelope, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result StaffZoneEnvelope
+	if callError := client.decode(ctx, Operations["update_zone"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// UpdateZoneObjectStorageParameters are the path and query parameters of update_zone_object_storage.
+type UpdateZoneObjectStorageParameters struct {
+	Zone string
+}
+
+// UpdateZoneObjectStorage calls PATCH /admin/v1/zones/{zone}/object-storage (update_zone_object_storage): Change a zone's S3 exposure (admin staff).
+func (client *Client) UpdateZoneObjectStorage(ctx context.Context, parameters UpdateZoneObjectStorageParameters, body UpdateZoneObjectStorageRequest) (*UpdateZoneObjectStorageResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result UpdateZoneObjectStorageResponse
+	if callError := client.decode(ctx, Operations["update_zone_object_storage"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// UpdateZoneObjectStorageOperatorParameters are the path and query parameters of update_zone_object_storage_operator.
+type UpdateZoneObjectStorageOperatorParameters struct {
+	Zone string
+}
+
+// UpdateZoneObjectStorageOperator calls PATCH /v1/zones/{zone}/object-storage (update_zone_object_storage_operator): Change a zone's S3 exposure (operator only).
+func (client *Client) UpdateZoneObjectStorageOperator(ctx context.Context, parameters UpdateZoneObjectStorageOperatorParameters, body UpdateZoneObjectStorageRequest) (*UpdateZoneObjectStorageOperatorResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["zone"] = fmt.Sprint(parameters.Zone)
+	var result UpdateZoneObjectStorageOperatorResponse
+	if callError := client.decode(ctx, Operations["update_zone_object_storage_operator"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// UpgradeKubernetesClusterParameters are the path and query parameters of upgrade_kubernetes_cluster.
+type UpgradeKubernetesClusterParameters struct {
+	ID string
+}
+
+// UpgradeKubernetesCluster calls POST /v1/kubernetes-clusters/{id}/upgrade (upgrade_kubernetes_cluster): Upgrade a Kubernetes cluster to the next minor.
+func (client *Client) UpgradeKubernetesCluster(ctx context.Context, parameters UpgradeKubernetesClusterParameters, body UpgradeKubernetesClusterRequest) (*UpgradeKubernetesClusterResponse, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	pathParameters["id"] = fmt.Sprint(parameters.ID)
+	var result UpgradeKubernetesClusterResponse
+	if callError := client.decode(ctx, Operations["upgrade_kubernetes_cluster"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// VerifyEmail calls POST /v1/auth/email-verification/confirm (verify_email): Verify an email address with the token from a verification link.
+func (client *Client) VerifyEmail(ctx context.Context, body EmailVerificationConfirmation) (*EmailVerificationResult, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result EmailVerificationResult
+	if callError := client.decode(ctx, Operations["verify_email"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// VerifyLoginSecondFactor calls POST /v1/auth/login/mfa (verify_login_second_factor): Finish a sign-in with a code from the authenticator app or a recovery code.
+func (client *Client) VerifyLoginSecondFactor(ctx context.Context, body SecondFactorLoginRequest) (*SecondFactorSession, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result SecondFactorSession
+	if callError := client.decode(ctx, Operations["verify_login_second_factor"], pathParameters, query, body, &result); callError != nil {
+		return nil, callError
+	}
+	return &result, nil
+}
+
+// VerifyStaffLoginSecondFactor calls POST /admin/v1/auth/login/mfa (verify_staff_login_second_factor): Finish a staff sign-in with a code or a recovery code.
+func (client *Client) VerifyStaffLoginSecondFactor(ctx context.Context, body SecondFactorLoginRequest) (*StaffSecondFactorSession, error) {
+	pathParameters := map[string]string{}
+	query := url.Values{}
+	var result StaffSecondFactorSession
+	if callError := client.decode(ctx, Operations["verify_staff_login_second_factor"], pathParameters, query, body, &result); callError != nil {
 		return nil, callError
 	}
 	return &result, nil
