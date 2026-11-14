@@ -5,6 +5,14 @@ All notable changes to this project are documented here. The format follows
 
 ## Unreleased
 
+### Fixed
+
+- A Service of type LoadBalancer now lists the IPv6 address of every VM of its load balancer, not only the first
+  VM's. A load balancer pair has one IPv6 address per VM and none that moves between them, so with a single address
+  on the Service a fault on the first VM's host took the Service's hostnames down while the second VM kept serving.
+  Names published from the Service (external-dns, an ingress controller's published service) get one AAAA record per
+  VM. The IPv4 address is unchanged: it already moves between the VMs.
+
 ## v0.1.1
 
 ### Fixed

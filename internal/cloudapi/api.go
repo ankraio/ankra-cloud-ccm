@@ -5,6 +5,7 @@ package cloudapi
 import (
 	"context"
 	"errors"
+	"slices"
 )
 
 // ErrNotFound is returned when the API answers 404 for the resource asked for.
@@ -89,19 +90,34 @@ type Frontend struct {
 }
 
 // LoadBalancer is a dedicated Ankra load balancer. PublicIPv6 and PublicIPv4 hold its addresses by family, whether
-// the API reports them as `public_ipv6`/`public_ipv4` or as the older single `address`.
+// the API reports them as `public_ipv6`/`public_ipv4` or as the older single `address`. PublicIPv6Addresses is every
+// VM's own IPv6 frontend address in VM order, PublicIPv6 first: IPv6 has no shared address that moves between the
+// VMs, so a client reaches the load balancer while one host is down only when it knows each of them.
 type LoadBalancer struct {
-	ID               string
-	Name             string
-	Zone             string
-	NetworkID        string
-	State            string
-	Labels           map[string]string
-	PublicIPv6       string
-	PublicIPv4       string
-	HighAvailability *bool
-	Frontends        []Frontend
-	Backends         []Backend
+	ID                  string
+	Name                string
+	Zone                string
+	NetworkID           string
+	State               string
+	Labels              map[string]string
+	PublicIPv6          string
+	PublicIPv6Addresses []string
+	PublicIPv4          string
+	HighAvailability    *bool
+	Frontends           []Frontend
+	Backends            []Backend
+}
+
+// IPv6Frontends is every IPv6 address the load balancer serves its frontends on, each once and PublicIPv6 first. An
+// API that predates `public_ipv6_addresses` reports the one address only.
+func (balancer LoadBalancer) IPv6Frontends() []string {
+	addresses := make([]string, 0, len(balancer.PublicIPv6Addresses)+1)
+	for _, address := range append([]string{balancer.PublicIPv6}, balancer.PublicIPv6Addresses...) {
+		if address != "" && !slices.Contains(addresses, address) {
+			addresses = append(addresses, address)
+		}
+	}
+	return addresses
 }
 
 // CreateLoadBalancerInput creates a load balancer. HighAvailability is sent only when false (a single VM on a zone

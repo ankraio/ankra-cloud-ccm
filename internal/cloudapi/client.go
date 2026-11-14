@@ -154,20 +154,21 @@ func (client *Client) GetZoneCapabilities(ctx context.Context, zone string) (Zon
 }
 
 // loadBalancerDocument decodes a load balancer with the fields the IPv6-first model adds (`public_ipv6`,
-// `public_ipv4`, `labels`, `high_availability`) next to today's single `address`.
+// `public_ipv6_addresses`, `public_ipv4`, `labels`, `high_availability`) next to today's single `address`.
 type loadBalancerDocument struct {
-	ID               string                          `json:"id"`
-	Name             string                          `json:"name"`
-	Zone             string                          `json:"zone"`
-	NetworkID        string                          `json:"network_id"`
-	State            string                          `json:"state"`
-	Address          *string                         `json:"address"`
-	PublicIPv6       *string                         `json:"public_ipv6"`
-	PublicIPv4       *string                         `json:"public_ipv4"`
-	Labels           map[string]string               `json:"labels"`
-	HighAvailability *bool                           `json:"high_availability"`
-	Frontends        []ankraapi.LoadBalancerFrontend `json:"frontends"`
-	Backends         []ankraapi.LoadBalancerBackend  `json:"backends"`
+	ID                  string                          `json:"id"`
+	Name                string                          `json:"name"`
+	Zone                string                          `json:"zone"`
+	NetworkID           string                          `json:"network_id"`
+	State               string                          `json:"state"`
+	Address             *string                         `json:"address"`
+	PublicIPv6          *string                         `json:"public_ipv6"`
+	PublicIPv6Addresses []string                        `json:"public_ipv6_addresses"`
+	PublicIPv4          *string                         `json:"public_ipv4"`
+	Labels              map[string]string               `json:"labels"`
+	HighAvailability    *bool                           `json:"high_availability"`
+	Frontends           []ankraapi.LoadBalancerFrontend `json:"frontends"`
+	Backends            []ankraapi.LoadBalancerBackend  `json:"backends"`
 }
 
 func backendFromAPI(backend ankraapi.LoadBalancerBackend) Backend {
@@ -197,6 +198,14 @@ func (document loadBalancerDocument) toLoadBalancer() LoadBalancer {
 		if address.Is6() && !address.Is4In6() && balancer.PublicIPv6 == "" {
 			balancer.PublicIPv6 = address.String()
 		}
+	}
+	for _, reported := range document.PublicIPv6Addresses {
+		if address, parseError := netip.ParseAddr(reported); parseError == nil && address.Is6() && !address.Is4In6() {
+			balancer.PublicIPv6Addresses = append(balancer.PublicIPv6Addresses, address.String())
+		}
+	}
+	if balancer.PublicIPv6 == "" && len(balancer.PublicIPv6Addresses) > 0 {
+		balancer.PublicIPv6 = balancer.PublicIPv6Addresses[0]
 	}
 	for _, frontend := range document.Frontends {
 		balancer.Frontends = append(balancer.Frontends, Frontend{ID: frontend.ID, Name: frontend.Name, Port: frontend.Port, BackendID: frontend.BackendID})

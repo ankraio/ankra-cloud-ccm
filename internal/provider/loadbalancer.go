@@ -162,9 +162,12 @@ func sameMembers(current []cloudapi.Member, desired []cloudapi.Member) bool {
 	return slices.Equal(currentKeys, desiredKeys)
 }
 
-func ingressStatus(publicIPv6 string, publicIPv4 string) *v1.LoadBalancerStatus {
+// ingressStatus lists every IPv6 address, then the IPv4 address. A load balancer pair has one IPv6 address per VM
+// and none that moves between them, so the Service carries them all: a name published from it resolves to every VM,
+// and a client that cannot reach one VM's host reaches the other.
+func ingressStatus(publicIPv6Addresses []string, publicIPv4 string) *v1.LoadBalancerStatus {
 	status := &v1.LoadBalancerStatus{}
-	if publicIPv6 != "" {
+	for _, publicIPv6 := range publicIPv6Addresses {
 		status.Ingress = append(status.Ingress, v1.LoadBalancerIngress{IP: publicIPv6})
 	}
 	if publicIPv4 != "" {
@@ -226,7 +229,7 @@ func (balancers *LoadBalancers) GetLoadBalancer(ctx context.Context, clusterName
 	if findError != nil || balancer == nil {
 		return nil, false, findError
 	}
-	return ingressStatus(balancer.PublicIPv6, balancer.PublicIPv4), true, nil
+	return ingressStatus(balancer.IPv6Frontends(), balancer.PublicIPv4), true, nil
 }
 
 // EnsureLoadBalancer creates or updates the Service's load balancer and returns its addresses.
@@ -283,10 +286,10 @@ func (balancers *LoadBalancers) EnsureLoadBalancer(ctx context.Context, clusterN
 	if reconcileError := balancers.reconcileListeners(ctx, service, nodes, balancer, ports, settings); reconcileError != nil {
 		return nil, reconcileError
 	}
-	if balancer.PublicIPv6 == "" && balancer.PublicIPv4 == "" {
+	if len(balancer.IPv6Frontends()) == 0 && balancer.PublicIPv4 == "" {
 		return nil, fmt.Errorf("load balancer %s has no address yet (state %s)", balancer.ID, balancer.State)
 	}
-	return ingressStatus(balancer.PublicIPv6, balancer.PublicIPv4), nil
+	return ingressStatus(balancer.IPv6Frontends(), balancer.PublicIPv4), nil
 }
 
 // zoneOf is where a new load balancer goes: the annotation or ANKRA_CLOUD_ZONE, else the first node's zone.
@@ -504,7 +507,11 @@ func edgeStatus(edge cloudapi.Edge) *v1.LoadBalancerStatus {
 			publicIPv4 = machine.PublicIPv4
 		}
 	}
-	return ingressStatus(publicIPv6, publicIPv4)
+	var publicIPv6Addresses []string
+	if publicIPv6 != "" {
+		publicIPv6Addresses = []string{publicIPv6}
+	}
+	return ingressStatus(publicIPv6Addresses, publicIPv4)
 }
 
 func sameEdgeMembers(current []cloudapi.EdgeMember, desired []cloudapi.EdgeMember) bool {
