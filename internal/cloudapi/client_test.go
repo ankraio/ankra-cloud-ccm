@@ -9,6 +9,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"sync"
 	"testing"
@@ -90,6 +91,36 @@ func TestGetLoadBalancerReadsBothFamilies(t *testing.T) {
 	}
 	if server.requests[0].authorization != "Bearer act_test" {
 		t.Fatalf("authorization %q", server.requests[0].authorization)
+	}
+}
+
+func TestEveryVirtualMachinesIPv6FrontendAddressIsRead(t *testing.T) {
+	pair := strings.Replace(loadBalancerJSON, `"public_ipv6":"fd64:1:0:9::1",`,
+		`"public_ipv6":"fd64:1:0:9::1","public_ipv6_addresses":["fd64:1:0:9::1","fd64:1:0:a::1","203.0.113.7","not an address"],`, 1)
+	client, _ := newTestClient(t, map[string]func(http.ResponseWriter){
+		"GET /v1/load-balancers/lb-1": jsonAnswer(http.StatusOK, `{"load_balancer":`+pair+`}`),
+	})
+	balancer, getError := client.GetLoadBalancer(context.Background(), "lb-1")
+	if getError != nil {
+		t.Fatal(getError)
+	}
+	if !reflect.DeepEqual(balancer.IPv6Frontends(), []string{"fd64:1:0:9::1", "fd64:1:0:a::1"}) {
+		t.Fatalf("IPv6 frontends %+v", balancer.IPv6Frontends())
+	}
+}
+
+func TestIPv6FrontendsOfAnAnswerWithoutTheListOrWithoutTheFirstAddress(t *testing.T) {
+	first := "fd64:1:0:9::1"
+	withoutList := loadBalancerDocument{PublicIPv6: &first}.toLoadBalancer()
+	if !reflect.DeepEqual(withoutList.IPv6Frontends(), []string{first}) {
+		t.Fatalf("an answer without public_ipv6_addresses: %+v", withoutList.IPv6Frontends())
+	}
+	listOnly := loadBalancerDocument{PublicIPv6Addresses: []string{"fd64:1:0:a::1", first}}.toLoadBalancer()
+	if listOnly.PublicIPv6 != "fd64:1:0:a::1" || !reflect.DeepEqual(listOnly.IPv6Frontends(), []string{"fd64:1:0:a::1", first}) {
+		t.Fatalf("an answer with the list only: %+v", listOnly)
+	}
+	if addresses := (LoadBalancer{}).IPv6Frontends(); len(addresses) != 0 {
+		t.Fatalf("a load balancer without an address: %+v", addresses)
 	}
 }
 

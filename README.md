@@ -75,7 +75,9 @@ uninitialized, control-plane and not-ready taints.
 - When nodes change, the member list is swapped in one `replace_load_balancer_members` call per backend.
 - Deleting the Service deletes the load balancer. A second delete, or one whose load balancer is already gone,
   succeeds.
-- The status ingress lists the IPv6 address, then the IPv4 address if the load balancer has one.
+- The status ingress lists the IPv6 address of each of the load balancer's VMs, then the IPv4 address if the load
+  balancer has one. IPv6 has no address that moves between the VMs, so publish all of them: a name with one AAAA
+  record per VM still resolves to a VM that answers while one host is down.
 - On a zone with a single compute node, `get_zone_capabilities` reports `load_balancer_ha: false`. The load balancer
   is then created with `high_availability: false`, and the controller logs it and records a `SingleNodeLoadBalancer`
   event on the Service.

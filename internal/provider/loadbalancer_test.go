@@ -133,6 +133,33 @@ func TestEnsureCreatesOneLabelledLoadBalancerPerService(t *testing.T) {
 	}
 }
 
+func TestTheServiceListsEveryVirtualMachinesIPv6AddressThenTheIPv4Address(t *testing.T) {
+	api := newFakeAPI()
+	api.loadBalancers["lb-pair"] = &cloudapi.LoadBalancer{
+		ID: "lb-pair", Name: "k8s-production-shop-web", Zone: "de-fsn1", State: "running",
+		Labels:     map[string]string{LabelService: "shop/web", LabelCluster: testCluster},
+		PublicIPv6: "fd64:1:0:8::1", PublicIPv6Addresses: []string{"fd64:1:0:8::1", "fd64:1:0:b::1"}, PublicIPv4: "203.0.113.50",
+	}
+	balancers, _ := newTestLoadBalancers(api, Options{})
+	service := loadBalancerService(map[string]string{AnnotationIPv4: "true"}, []v1.IPFamily{v1.IPv6Protocol}, v1.ServicePort{Name: "http", Port: 80, NodePort: 30080})
+	expected := []v1.LoadBalancerIngress{{IP: "fd64:1:0:8::1"}, {IP: "fd64:1:0:b::1"}, {IP: "203.0.113.50"}}
+
+	ensured, ensureError := balancers.EnsureLoadBalancer(context.Background(), testCluster, service, twoNodes())
+	if ensureError != nil {
+		t.Fatal(ensureError)
+	}
+	if !reflect.DeepEqual(ensured.Ingress, expected) {
+		t.Fatalf("ensured ingress %+v", ensured.Ingress)
+	}
+	read, exists, getError := balancers.GetLoadBalancer(context.Background(), testCluster, service)
+	if getError != nil || !exists {
+		t.Fatalf("get: exists %v, error %v", exists, getError)
+	}
+	if !reflect.DeepEqual(read.Ingress, expected) {
+		t.Fatalf("read ingress %+v", read.Ingress)
+	}
+}
+
 func TestEnsureAdoptsAnUnlabelledLoadBalancerByName(t *testing.T) {
 	api := newFakeAPI()
 	api.loadBalancers["lb-orphan"] = &cloudapi.LoadBalancer{ID: "lb-orphan", Name: "k8s-production-shop-web", Zone: "de-fsn1", State: "running", PublicIPv6: "fd64:1:0:8::1"}
